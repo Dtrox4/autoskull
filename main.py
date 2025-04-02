@@ -66,6 +66,44 @@ def keep_alive():
 keep_alive()  # Keep the bot alive
 
 @bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    prefix = config.get("prefix", "!")
+    content = message.content
+
+# Command alias handling
+    for alias, command in config.get("aliases", {}).items():
+        if content.startswith(prefix + alias):
+            content = content.replace(prefix + alias, prefix + command, 1)
+
+    if content.startswith(prefix + "prefix"):
+        args = content.split()
+        if len(args) == 3 and args[1] == "set":
+            config["prefix"] = args[2]
+            save_config()
+            await message.channel.send(f"Prefix changed to `{args[2]}`")
+        elif len(args) == 2 and args[1] == "remove":
+            config["prefix"] = "!"
+            save_config()
+            await message.channel.send("Prefix reset to `!`")
+
+    elif content.startswith(prefix + "alias"):
+        args = content.split()
+        if len(args) == 4 and args[1] == "set":
+            config["aliases"][args[2]] = args[3]
+            save_config()
+            await message.channel.send(f"Alias `{args[2]}` set for `{args[3]}`")
+        elif len(args) == 3 and args[1] == "remove":
+            if args[2] in config["aliases"]:
+                del config["aliases"][args[2]]
+                save_config()
+                await message.channel.send(f"Alias `{args[2]}` removed.")
+            else:
+                await message.channel.send(f"Alias `{args[2]}` not found.")
+
+@bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
