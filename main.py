@@ -18,20 +18,8 @@ YOUR_USER_ID = 1212229549459374222  # Change this to your actual Discord ID
 # List of authorized user IDs who can use bot commands
 AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
-# File to store settings
-CONFIG_FILE = "config.json"
-
-# Load or create configuration
-try:
-    with open(CONFIG_FILE, "r") as f:
-        config = json.load(f)
-except (FileNotFoundError, json.JSONDecodeError):
-    config = {"prefix": "!", "aliases": {}}
-
-# Save configuration to file
-def save_config():
-    with open(CONFIG_FILE, "w") as f:
-        json.dump(config, f)
+# File to store skull list
+SKULL_LIST_FILE = "skull_list.json"
 
 # Set up intents
 intents = discord.Intents.default()
@@ -40,10 +28,24 @@ intents.guilds = True
 intents.members = True
 intents.dm_messages = True  # Enable DM message handling
 
+# Load skull list from file
+def load_skull_list():
+    try:
+        with open(SKULL_LIST_FILE, "r") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set()
+
+# Save skull list to file
+def save_skull_list(skull_list):
+    with open(SKULL_LIST_FILE, "w") as f:
+        json.dump(list(skull_list), f)
+
 # Initialize bot
 class AutoSkullBot(discord.Client):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.user_skull_list = load_skull_list()  # Load stored skull list
 
 bot = AutoSkullBot(intents=intents)
 
@@ -73,57 +75,18 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    prefix = config.get("prefix", "!")
+    prefix = "!"
     content = message.content
-
-    # Command alias handling
-    for alias, command in config.get("aliases", {}).items():
-        if content.startswith(prefix + alias):
-            content = content.replace(prefix + alias, prefix + command, 1)
-            break
-
-    if content.startswith(prefix + "prefix"):
-        args = content.split()
-        if len(args) == 3 and args[1] == "set":
-            config["prefix"] = args[2]
-            save_config()
-            await message.channel.send(f"Prefix changed to `{args[2]}`")
-        elif len(args) == 2 and args[1] == "remove":
-            config["prefix"] = "!"
-            save_config()
-            await message.channel.send("Prefix reset to `!`")
-
-    elif content.startswith(prefix + "alias"):
-        args = content.split()
-        if len(args) == 4 and args[1] == "set":
-            config["aliases"][args[2]] = args[3]
-            save_config()
-            await message.channel.send(f"Alias `{args[2]}` set for `{args[3]}`")
-        elif len(args) == 3 and args[1] == "remove":
-            if args[2] in config["aliases"]:
-                del config["aliases"][args[2]]
-                save_config()
-                await message.channel.send(f"Alias `{args[2]}` removed.")
-            else:
-                await message.channel.send(f"Alias `{args[2]}` not found.")
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    if isinstance(message.channel, discord.DMChannel):
-        print(f"DM from {message.author}: {message.content}")
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")  # Skull and crossbones reaction
 
-    if message.content.startswith("!skull"):
+    if content.startswith(prefix + "skull"):
         if message.author.id not in AUTHORIZED_USERS:
             await message.channel.send("You do not have permission to use this command.")
             return
 
-        args = message.content.split()
+        args = content.split()
 
         if len(args) == 1:
             await message.channel.send("Type `!skull help` for commands")
@@ -202,4 +165,3 @@ async def on_message(message):
 
 # Run the bot
 bot.run(TOKEN)
-
