@@ -18,8 +18,20 @@ YOUR_USER_ID = 1212229549459374222  # Change this to your actual Discord ID
 # List of authorized user IDs who can use bot commands
 AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
-# File to store skull list
-SKULL_LIST_FILE = "skull_list.json"
+# File to store settings
+CONFIG_FILE = "config.json"
+
+# Load or create configuration
+try:
+    with open(CONFIG_FILE, "r") as f:
+        config = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    config = {"prefix": "!", "aliases": {}}
+
+# Save configuration to file
+def save_config():
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f)
 
 # Set up intents
 intents = discord.Intents.default()
@@ -28,24 +40,10 @@ intents.guilds = True
 intents.members = True
 intents.dm_messages = True  # Enable DM message handling
 
-# Load skull list from file
-def load_skull_list():
-    try:
-        with open(SKULL_LIST_FILE, "r") as f:
-            return set(json.load(f))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return set()
-
-# Save skull list to file
-def save_skull_list(skull_list):
-    with open(SKULL_LIST_FILE, "w") as f:
-        json.dump(list(skull_list), f)
-
 # Initialize bot
 class AutoSkullBot(discord.Client):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.user_skull_list = load_skull_list()  # Load stored skull list
 
 bot = AutoSkullBot(intents=intents)
 
@@ -75,13 +73,14 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    prefix = config.get("skull", "!")
+    prefix = config.get("prefix", "!")
     content = message.content
 
-# Command alias handling
+    # Command alias handling
     for alias, command in config.get("aliases", {}).items():
         if content.startswith(prefix + alias):
             content = content.replace(prefix + alias, prefix + command, 1)
+            break
 
     if content.startswith(prefix + "prefix"):
         args = content.split()
