@@ -52,7 +52,7 @@ keep_alive()  # Keep the bot alive
 async def on_ready():
     print(f"Logged in as {bot.user}")
     # Set the presence status
-    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+    await bot.change_presence(activity=discord.Game(name="if you're worthy,  you shall be skulled"))
 
 @bot.event
 async def on_message(message):
@@ -97,7 +97,7 @@ async def on_message(message):
         # Command to show the list of available commands in an embed format
         if len(args) == 2 and args[1] == "help":
             embed = discord.Embed(
-                title="Skull Bot Commands",
+                title="Worthy Commands",
                 description="Here are the available commands:",
                 color=discord.Color.blue()
             )
@@ -107,7 +107,7 @@ async def on_message(message):
             embed.add_field(name="!skull authorized", value="Show authorized users.", inline=False)
             embed.add_field(name="!skull authorize @user", value="Authorize a user to use commands.", inline=False)
             embed.add_field(name="!skull help", value="Show this help message.", inline=False)
-            embed.set_footer(text="AutoSkull Bot - Made with ☠️")
+            embed.set_footer(text="autoskull bot - made by @xv9c")
             
             await message.channel.send(embed=embed)
             return
