@@ -18,15 +18,25 @@ YOUR_USER_ID = 1212229549459374222  # Change this to your actual Discord ID
 # List of authorized user IDs who can use bot commands
 AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
-# File to store skull list
+# File to store skull list and config
 SKULL_LIST_FILE = "skull_list.json"
+CONFIG_FILE = "config.json"
 
-# Set up intents
-intents = discord.Intents.default()
-intents.message_content = True
-intents.guilds = True
-intents.members = True
-intents.dm_messages = True  # Enable DM message handling
+# Load config file
+
+def load_config():
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {"prefix": "!", "aliases": {}}
+
+def save_config(config):
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f, indent=4)
+
+config = load_config()
+PREFIX = config.get("prefix", "!")
 
 # Load skull list from file
 def load_skull_list():
@@ -45,25 +55,25 @@ def save_skull_list(skull_list):
 class AutoSkullBot(discord.Client):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.user_skull_list = load_skull_list()  # Load stored skull list
+        self.user_skull_list = load_skull_list()
 
-bot = AutoSkullBot(intents=intents)
+bot = AutoSkullBot(intents=discord.Intents.all())
 
-# Keep the bot running with Flask
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "I'm alive!"
-
+# Flask keep-alive
 def run():
+    app = Flask(__name__)
+
+    @app.route('/')
+    def home():
+        return "I'm alive!"
+
     app.run(host='0.0.0.0', port=8080)
 
 def keep_alive():
     t = Thread(target=run)
     t.start()
 
-keep_alive()  # Keep the bot alive
+keep_alive()
 
 @bot.event
 async def on_ready():
@@ -75,74 +85,64 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    prefix = config.get("prefix", "!")
+    global PREFIX
+    PREFIX = config.get("prefix", "!")
     content = message.content
 
     # Alias handling
     for alias, command in config.get("aliases", {}).items():
-        if content.startswith(prefix + alias):
-            content = content.replace(prefix + alias, prefix + command, 1)
+        if content.startswith(PREFIX + alias):
+            content = content.replace(PREFIX + alias, PREFIX + command, 1)
 
     if message.author.id in bot.user_skull_list:
-        await message.add_reaction("\u2620\ufe0f")  # Skull and crossbones reaction
+        await message.add_reaction("\u2620\ufe0f")  # Skull reaction
 
-    if content.startswith(prefix + "skull"):
-        if message.author.id not in AUTHORIZED_USERS:
-            await message.channel.send("You do not have permission to use this command.")
-            return
-
+    if content.startswith(PREFIX + "skull"):
         args = content.split()
 
         if len(args) == 1:
-            await message.channel.send(f"Type `{prefix}skull help` for commands")
+            await message.channel.send(f"Type `{PREFIX}skull help` for commands")
             return
 
         if len(args) == 2 and args[1] == "help":
-            embed = discord.Embed(
-                title="Worthy Commands",
-                description="Here are the available commands:",
-                color=discord.Color.blue()
-            )
-            embed.add_field(name=f"{prefix}skull @user", value="Skull a user.", inline=False)
-            embed.add_field(name=f"{prefix}skull stop @user", value="Stop skulling a user.", inline=False)
-            embed.add_field(name=f"{prefix}skull list", value="Show users being skulled.", inline=False)
-            embed.add_field(name=f"{prefix}skull authorized", value="Show authorized users.", inline=False)
-            embed.add_field(name=f"{prefix}skull authorize @user", value="Authorize a user to use commands.", inline=False)
-            embed.add_field(name=f"{prefix}skull unauthorize @user", value="Remove a user from authorized list.", inline=False)
-            embed.add_field(name=f"{prefix}skull alias set <alias> <command>", value="Create a command alias.", inline=False)
-            embed.add_field(name=f"{prefix}skull alias remove <alias>", value="Remove a command alias.", inline=False)
-            embed.add_field(name=f"{prefix}skull prefix set <prefix>", value="Change the command prefix.", inline=False)
-            embed.add_field(name=f"{prefix}skull prefix remove", value="Reset the command prefix to `!`.", inline=False)
+            embed = discord.Embed(title="Worthy Commands", description="Here are the available commands:", color=discord.Color.blue())
+            embed.add_field(name=f"{PREFIX}skull @user", value="Skull a user.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull stop @user", value="Stop skulling a user.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull list", value="Show users being skulled.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull authorized", value="Show authorized users.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull authorize @user", value="Authorize a user to use commands.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Remove a user from authorized list.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull alias set <alias> <command>", value="Create a command alias.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull alias remove <alias>", value="Remove a command alias.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull prefix set <prefix>", value="Change the command prefix.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull prefix remove", value="Reset the command prefix to `!`.", inline=False)
             embed.set_footer(text="AutoSkull Bot - Made by @xv9c")
             await message.channel.send(embed=embed)
             return
 
-    # Prefix change command
-    if content.startswith(prefix + "skull prefix"):
-        args = content.split()
-        if len(args) == 3 and args[1] == "set":
-            config["prefix"] = args[2]
-            save_config()
-            await message.channel.send(f"Prefix changed to `{args[2]}`")
-        elif len(args) == 2 and args[1] == "remove":
-            config["prefix"] = "!"
-            save_config()
-            await message.channel.send("Prefix reset to `!`")
+        if len(args) == 3 and args[1] == "prefix":
+            if args[2] == "remove":
+                config["prefix"] = "!"
+            else:
+                config["prefix"] = args[2]
+            save_config(config)
+            await message.channel.send(f"Prefix changed to `{config['prefix']}`")
+            return
 
-    # Alias command
-    if content.startswith(prefix + "skull alias"):
-        args = content.split()
-        if len(args) == 4 and args[1] == "set":
-            config["aliases"][args[2]] = args[3]
-            save_config()
-            await message.channel.send(f"Alias `{args[2]}` set for `{args[3]}`")
-        elif len(args) == 3 and args[1] == "remove":
+        if len(args) == 4 and args[1] == "alias" and args[2] == "set":
+            config["aliases"][args[3]] = args[3]
+            save_config(config)
+            await message.channel.send(f"Alias `{args[3]}` set for `{args[3]}`")
+            return
+
+        if len(args) == 3 and args[1] == "alias" and args[2] == "remove":
             if args[2] in config["aliases"]:
                 del config["aliases"][args[2]]
-                save_config()
+                save_config(config)
                 await message.channel.send(f"Alias `{args[2]}` removed.")
             else:
                 await message.channel.send(f"Alias `{args[2]}` not found.")
+            return
 
         if len(args) == 3 and args[1].lower() == "authorize":
             if message.mentions:
