@@ -1,5 +1,6 @@
 import discord
 import os
+import json
 from dotenv import load_dotenv
 from threading import Thread
 from flask import Flask
@@ -17,6 +18,9 @@ YOUR_USER_ID = 1212229549459374222  # Change this to your actual Discord ID
 # List of authorized user IDs who can use bot commands
 AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
+# File to store skull list
+SKULL_LIST_FILE = "skull_list.json"
+
 # Set up intents
 intents = discord.Intents.default()
 intents.message_content = True
@@ -24,11 +28,24 @@ intents.guilds = True
 intents.members = True
 intents.dm_messages = True  # Enable DM message handling
 
+# Load skull list from file
+def load_skull_list():
+    try:
+        with open(SKULL_LIST_FILE, "r") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set()
+
+# Save skull list to file
+def save_skull_list(skull_list):
+    with open(SKULL_LIST_FILE, "w") as f:
+        json.dump(list(skull_list), f)
+
 # Initialize bot
 class AutoSkullBot(discord.Client):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.user_skull_list = set()  # Store user IDs to auto-react to their new messages
+        self.user_skull_list = load_skull_list()  # Load stored skull list
 
 bot = AutoSkullBot(intents=intents)
 
@@ -71,6 +88,10 @@ async def on_message(message):
 
         args = message.content.split()
 
+        if len(args) == 1:
+            await message.channel.send("Type `!skull help` for commands")
+            return
+
         if len(args) == 2 and args[1] == "authorized":
             authorized_users = [f'<@{user_id}>' for user_id in AUTHORIZED_USERS]
             await message.channel.send(f"Authorized users: {', '.join(authorized_users)}")
@@ -92,6 +113,7 @@ async def on_message(message):
             embed.add_field(name="!skull list", value="Show users being skulled.", inline=False)
             embed.add_field(name="!skull authorized", value="Show authorized users.", inline=False)
             embed.add_field(name="!skull authorize @user", value="Authorize a user to use commands.", inline=False)
+            embed.add_field(name="!skull unauthorize @user", value="Remove a user from authorized list.", inline=False)
             embed.add_field(name="!skull help", value="Show this help message.", inline=False)
             embed.set_footer(text="AutoSkull Bot - Made by @xv9c")
             await message.channel.send(embed=embed)
@@ -108,11 +130,23 @@ async def on_message(message):
             else:
                 await message.channel.send("Please mention a valid user to authorize.")
 
+        if len(args) == 3 and args[1].lower() == "unauthorize":
+            if message.mentions:
+                user = message.mentions[0]
+                if user.id in AUTHORIZED_USERS:
+                    AUTHORIZED_USERS.remove(user.id)
+                    await message.channel.send(f"{user.mention} has been unauthorized.")
+                else:
+                    await message.channel.send(f"{user.mention} is not an authorized user.")
+            else:
+                await message.channel.send("Please mention a valid user to unauthorize.")
+
         if len(args) == 3 and args[1].lower() == "stop":
             if message.mentions:
                 user = message.mentions[0]
                 if user.id in bot.user_skull_list:
                     bot.user_skull_list.remove(user.id)
+                    save_skull_list(bot.user_skull_list)  # Save updated list
                     await message.channel.send(f"{user.mention} will no longer be skulled.")
                 else:
                     await message.channel.send(f"{user.mention} is not currently being skulled.")
@@ -124,9 +158,11 @@ async def on_message(message):
             if mentioned_users:
                 for user in mentioned_users:
                     bot.user_skull_list.add(user.id)
+                save_skull_list(bot.user_skull_list)  # Save updated list
                 await message.channel.send(f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️")
             else:
                 await message.channel.send("Please mention a user to skull!")
 
 # Run the bot
 bot.run(TOKEN)
+
