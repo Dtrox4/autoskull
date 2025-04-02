@@ -66,6 +66,11 @@ def keep_alive():
 keep_alive()  # Keep the bot alive
 
 @bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user}")
+    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+
+@bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
@@ -102,11 +107,6 @@ async def on_message(message):
                 await message.channel.send(f"Alias `{args[2]}` removed.")
             else:
                 await message.channel.send(f"Alias `{args[2]}` not found.")
-
-@bot.event
-async def on_ready():
-    print(f"Logged in as {bot.user}")
-    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
 @bot.event
 async def on_message(message):
