@@ -75,7 +75,7 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    prefix = config.get("prefix", "!")
+    prefix = config.get("skull", "!")
     content = message.content
 
 # Command alias handling
