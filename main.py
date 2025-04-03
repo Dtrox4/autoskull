@@ -74,6 +74,10 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+    if message.author.id in bot.user_skull_list:
+    await message.add_reaction("☠️")  # Skull reaction
+
+if message.content.startswith(PREFIX + "skull"):
     if message.author.id not in AUTHORIZED_USERS:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await message.channel.send(embed=embed)
