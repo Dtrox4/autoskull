@@ -178,4 +178,4 @@ async def on_message(message):
             else:
                 await message.channel.send("Please mention a user to skull!")
 
-bot.run(TOKEN)
+bot.run(TOKEN) 
