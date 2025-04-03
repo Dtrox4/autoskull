@@ -101,7 +101,7 @@ if message.author.id not in AUTHORIZED_USERS:
 
 
     for alias, command in config.get("aliases", {}).items():
-    if content.startswith(PREFIX + alias):
+     if content.startswith(PREFIX + alias):
             content = content.replace(PREFIX + alias, PREFIX + command, 1)
 
     if message.author.id in bot.user_skull_list:
