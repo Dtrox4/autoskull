@@ -18,6 +18,24 @@ YOUR_USER_ID = 1212229549459374222
 SKULL_LIST_FILE = "skull_list.json"
 CONFIG_FILE = "config.json"
 
+AUTHORIZED_USERS_FILE = "authorized_users.json"
+
+def load_authorized_users():
+    """Loads authorized users from a JSON file."""
+    try:
+        with open(AUTHORIZED_USERS_FILE, "r") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {1212229549459374222, 1177672910102614127, 845578292778238002}  # Default authorized users
+
+def save_authorized_users():
+    """Saves the authorized users to the JSON file."""
+    with open(AUTHORIZED_USERS_FILE, "w") as f:
+        json.dump(list(AUTHORIZED_USERS), f, indent=4)
+
+# Load authorized users when the bot starts
+AUTHORIZED_USERS = load_authorized_users()
+
 # Load Config
 def load_config():
     try:
