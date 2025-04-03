@@ -109,7 +109,7 @@ async def on_message(message):
         await message.channel.send(embed=embed)
         return
   
-   if len(args) == 1:
+    if len(args) == 1:
         embed = discord.Embed(
         title="Need Help?", 
         description="Type `!skull help` to view all commands.", 
