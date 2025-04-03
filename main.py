@@ -98,7 +98,7 @@ async def on_message(message):
     mentioned_users = message.mentions
 
     if len(args) == 1:
-    embed = discord.Embed(
+        embed = discord.Embed(
         title="Need Help?", 
         description="Type `!skull help` to view all commands.", 
         color=discord.Color.orange()
