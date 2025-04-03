@@ -5,24 +5,23 @@ from dotenv import load_dotenv
 from threading import Thread
 from flask import Flask
 
-# Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 if not TOKEN:
     raise ValueError("Bot token is missing. Make sure you set it in the .env file.")
 
-# Replace with your Discord User ID
-YOUR_USER_ID = 1212229549459374222  # Change this to your actual Discord ID
 
-# List of authorized user IDs who can use bot commands
+YOUR_USER_ID = 1212229549459374222 
+
+
 AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
-# File to store skull list and config
+
 SKULL_LIST_FILE = "skull_list.json"
 CONFIG_FILE = "config.json"
 
-# Load config file
+
 
 def load_config():
     try:
@@ -38,7 +37,7 @@ def save_config(config):
 config = load_config()
 PREFIX = config.get("prefix", "!")
 
-# Load skull list from file
+
 def load_skull_list():
     try:
         with open(SKULL_LIST_FILE, "r") as f:
@@ -46,12 +45,12 @@ def load_skull_list():
     except (FileNotFoundError, json.JSONDecodeError):
         return set()
 
-# Save skull list to file
+
 def save_skull_list(skull_list):
     with open(SKULL_LIST_FILE, "w") as f:
         json.dump(list(skull_list), f)
 
-# Initialize bot
+
 class AutoSkullBot(discord.Client):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -59,7 +58,7 @@ class AutoSkullBot(discord.Client):
 
 bot = AutoSkullBot(intents=discord.Intents.all())
 
-# Flask keep-alive
+
 def run():
     app = Flask(__name__)
 
@@ -89,7 +88,7 @@ async def on_message(message):
     PREFIX = config.get("prefix", "!")
     content = message.content
 
-    # Alias handling
+
     for alias, command in config.get("aliases", {}).items():
         if content.startswith(PREFIX + alias):
             content = content.replace(PREFIX + alias, PREFIX + command, 1)
@@ -177,7 +176,19 @@ async def on_message(message):
                     await message.channel.send(f"{user.mention} is not currently being skulled.")
             else:
                 await message.channel.send("Please mention a valid user to stop skulling.")
+        if len(args) == 2 and args[1].lower() == "list":
+            if bot.user_skull_list:
+                users = ', '.join([f"<@{uid}>" for uid in bot.user_skull_list])
+                await message.channel.send(f"Currently skulled users: {users}")
+            else:
+                await message.channel.send("No users are being skulled.")
+            return
 
+        if len(args) == 2 and args[1].lower() == "authorized":
+            users = ', '.join([f"<@{uid}>" for uid in AUTHORIZED_USERS])
+            await message.channel.send(f"Authorized users: {users}")
+            return
+        
         elif len(args) == 2:
             mentioned_users = message.mentions
             if mentioned_users:
@@ -188,5 +199,4 @@ async def on_message(message):
             else:
                 await message.channel.send("Please mention a user to skull!")
 
-# Run the bot
 bot.run(TOKEN)
