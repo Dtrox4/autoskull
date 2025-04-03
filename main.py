@@ -88,6 +88,17 @@ async def on_message(message):
     PREFIX = config.get("prefix", "!")
     content = message.content
 
+    # Check if user is authorized
+    if message.author.id not in AUTHORIZED_USERS:
+    embed = discord.Embed(
+        title="Access Denied",
+        description="❌ You are not authorized to use this command.",
+        color=discord.Color.red()
+    )
+    embed.set_footer(text="Contact an admin to request access.")
+    await message.channel.send(embed=embed)
+    return
+
 
     for alias, command in config.get("aliases", {}).items():
         if content.startswith(PREFIX + alias):
