@@ -96,8 +96,8 @@ async def on_message(message):
 
     await bot.process_commands(message)  # Ensures other commands work properly
 
-        PREFIX = config.get("prefix", "!")
-        content = message.content
+PREFIX = config.get("prefix", "!")
+content = message.content
 
         for alias, command in config.get("aliases", {}).items():
             if content.startswith(PREFIX + alias):
