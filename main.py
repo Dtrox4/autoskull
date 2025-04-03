@@ -165,6 +165,6 @@ async def on_message(message):
                 save_skull_list(bot.user_skull_list)  # Save updated list
                 await message.channel.send(f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️")
             else:
-                await message.channel.send("Please mention a user to skull
+                await message.channel.send("Please mention a user to skull.")
 
 bot.run(TOKEN)
