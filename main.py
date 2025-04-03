@@ -103,7 +103,7 @@ async def on_message(message):
         description="Type `!skull help` to view all commands.", 
         color=discord.Color.orange()
     )
-    await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed)
     return
 
 if args[1] == "help":
