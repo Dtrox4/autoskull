@@ -195,27 +195,18 @@ async def on_message(message):
         await message.channel.send(f"{user.mention} is not an authorized user or cannot be unauthorized.")
     return
 
-    # Remove from Skull List
     if len(args) == 3 and args[1].lower() == "stop":
         if mentioned_users:
             user = mentioned_users[0]
-            if user.id in bot.user_skull_list:
-                bot.user_skull_list.remove(user.id)
-                save_skull_list(bot.user_skull_list)
+            if user.id in SKULL_LIST:
+                SKULL_LIST.remove(user.id)
+                save_skull_list(SKULL_LIST)
                 await message.channel.send(f"{user.mention} will no longer be skulled.")
-            else:
-                await message.channel.send(f"{user.mention} is not currently being skulled.")
-        else:
-            await message.channel.send("Please mention a valid user to stop skulling.")
-        return
 
-    # Add to Skull List
     if len(args) == 2 and mentioned_users:
         for user in mentioned_users:
-            bot.user_skull_list.add(user.id)
-        save_skull_list(bot.user_skull_list)
+            SKULL_LIST.add(user.id)
+        save_skull_list(SKULL_LIST)
         await message.channel.send(f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️")
-    else:
-        await message.channel.send("Please mention a user to skull.")
 
 bot.run(TOKEN)
