@@ -11,17 +11,12 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 if not TOKEN:
     raise ValueError("Bot token is missing. Make sure you set it in the .env file.")
 
-
 YOUR_USER_ID = 1212229549459374222 
-
 
 AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
-
 SKULL_LIST_FILE = "skull_list.json"
 CONFIG_FILE = "config.json"
-
-
 
 def load_config():
     try:
@@ -37,19 +32,16 @@ def save_config(config):
 config = load_config()
 PREFIX = config.get("prefix", "!")
 
-
 def load_skull_list():
     try:
         with open(SKULL_LIST_FILE, "r") as f:
-            return set(json.load(f))
+            return set(json.load(f) or [])
     except (FileNotFoundError, json.JSONDecodeError):
         return set()
-
 
 def save_skull_list(skull_list):
     with open(SKULL_LIST_FILE, "w") as f:
         json.dump(list(skull_list), f)
-
 
 class AutoSkullBot(discord.Client):
     def __init__(self, **kwargs):
@@ -57,7 +49,6 @@ class AutoSkullBot(discord.Client):
         self.user_skull_list = load_skull_list()
 
 bot = AutoSkullBot(intents=discord.Intents.all())
-
 
 def run():
     app = Flask(__name__)
@@ -89,19 +80,18 @@ async def on_message(message):
     content = message.content
 
     # Check if user is authorized
-if message.author.id not in AUTHORIZED_USERS:
-    embed = discord.Embed(
-        title="Access Denied",
-        description="❌ You are not authorized to use this command.",
-        color=discord.Color.red()
-    )
-    embed.set_footer(text="Contact an admin to request access.")
-    await message.channel.send(embed=embed)
-    return
-
+    if message.author.id not in AUTHORIZED_USERS:
+        embed = discord.Embed(
+            title="Access Denied",
+            description="❌ You are not authorized to use this command.",
+            color=discord.Color.red()
+        )
+        embed.set_footer(text="Contact an admin to request access.")
+        await message.channel.send(embed=embed)
+        return
 
     for alias, command in config.get("aliases", {}).items():
-     if content.startswith(PREFIX + alias):
+        if content.startswith(PREFIX + alias):
             content = content.replace(PREFIX + alias, PREFIX + command, 1)
 
     if message.author.id in bot.user_skull_list:
@@ -153,28 +143,6 @@ if message.author.id not in AUTHORIZED_USERS:
             else:
                 await message.channel.send(f"Alias `{args[2]}` not found.")
             return
-
-        if len(args) == 3 and args[1].lower() == "authorize":
-            if message.mentions:
-                user = message.mentions[0]
-                if user.id not in AUTHORIZED_USERS:
-                    AUTHORIZED_USERS.add(user.id)
-                    await message.channel.send(f"{user.mention} has been authorized.")
-                else:
-                    await message.channel.send(f"{user.mention} is already authorized.")
-            else:
-                await message.channel.send("Please mention a valid user to authorize.")
-
-        if len(args) == 3 and args[1].lower() == "unauthorize":
-            if message.mentions:
-                user = message.mentions[0]
-                if user.id in AUTHORIZED_USERS:
-                    AUTHORIZED_USERS.remove(user.id)
-                    await message.channel.send(f"{user.mention} has been unauthorized.")
-                else:
-                    await message.channel.send(f"{user.mention} is not an authorized user.")
-            else:
-                await message.channel.send("Please mention a valid user to unauthorize.")
 
         if len(args) == 3 and args[1].lower() == "stop":
             if message.mentions:
