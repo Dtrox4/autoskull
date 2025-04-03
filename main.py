@@ -15,8 +15,26 @@ if not TOKEN:
 YOUR_USER_ID = 1212229549459374222  
 
 # File locations
-SKULL_LIST_FILE = "skull_list.json"
 CONFIG_FILE = "config.json"
+
+# File locations
+SKULL_LIST_FILE = "skull_list.json"
+
+# Load Skull List from File
+def load_skull_list():
+    try:
+        with open(SKULL_LIST_FILE, "r") as f:
+            return set(json.load(f))  # Load stored skull list
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set()  # Return empty set if file doesn't exist or is corrupted
+
+# Save Skull List to File
+def save_skull_list(skull_list):
+    with open(SKULL_LIST_FILE, "w") as f:
+        json.dump(list(skull_list), f, indent=4)
+
+# Initialize skull list
+SKULL_LIST = load_skull_list()
 
 AUTHORIZED_USERS_FILE = "authorized_users.json"
 
