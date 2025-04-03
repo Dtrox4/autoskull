@@ -97,6 +97,17 @@ async def on_message(message):
     args = message.content.split()
     mentioned_users = message.mentions
 
+    # If the user types just "!skull", show the help message
+    if len(args) == 1:
+        embed = discord.Embed(
+            title="Need Help?", 
+            description="Type `!skull help` to view all commands.", 
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return  # Ensure function exits here
+
+    # If "!skull help" is used
     if args[1] == "help":
         embed = discord.Embed(title="Worthy Commands", color=discord.Color.blue())
         embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
@@ -108,15 +119,6 @@ async def on_message(message):
         embed.set_footer(text="made by - @xv9c")
         await message.channel.send(embed=embed)
         return
-  
-    if len(args) == 1:
-        embed = discord.Embed(
-        title="Need Help?", 
-        description="Type `!skull help` to view all commands.", 
-        color=discord.Color.orange()
-    )
-        await message.channel.send(embed=embed)
-    return
     
     # Show Skulled List
     if len(args) == 2 and args[1] == "list":
