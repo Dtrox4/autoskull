@@ -74,14 +74,27 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+    print(f"Received message: {message.content} from {message.author}")  # DEBUGGING
+
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("☠️")  # Skull reaction
 
-    if message.content.startswith(PREFIX + "skull"):
+    if message.content.lower().startswith(PREFIX + "skull"):
         if message.author.id not in AUTHORIZED_USERS:
             embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
             await message.channel.send(embed=embed)
             return
+
+        content = message.content
+
+        for alias, command in config.get("aliases", {}).items():
+            if content.lower().startswith(PREFIX + alias):
+                content = content.replace(PREFIX + alias, PREFIX + command, 1)
+
+        if message.author.id in bot.user_skull_list:
+            await message.add_reaction("☠️")
+
+    await bot.process_commands(message)  # Ensures other commands work properly
 
         PREFIX = config.get("prefix", "!")
         content = message.content
