@@ -83,7 +83,6 @@ async def on_message(message):
             await message.channel.send(embed=embed)
             return
 
-        global PREFIX
         PREFIX = config.get("prefix", "!")
         content = message.content
 
