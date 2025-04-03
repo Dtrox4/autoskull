@@ -113,7 +113,7 @@ async def on_message(message):
             embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Remove a user from authorized list.", inline=False)
             embed.add_field(name=f"{PREFIX}skull alias set <alias> <command>", value="Create a command alias.", inline=False)
             embed.add_field(name=f"{PREFIX}skull alias remove <alias>", value="Remove a command alias.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull prefix set <prefix>", value="Change the command prefix.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull prefix <prefix>", value="Change the command prefix.", inline=False)
             embed.add_field(name=f"{PREFIX}skull prefix remove", value="Reset the command prefix to `!`.", inline=False)
             embed.set_footer(text="AutoSkull Bot - Made by @xv9c")
             await message.channel.send(embed=embed)
