@@ -175,8 +175,8 @@ async def on_message(message):
         await message.channel.send(embed=embed)
         return
 
-if len(args) == 3 and args[1].lower() == "authorize" and mentioned_users:
-    user = mentioned_users[0]
+    if len(args) == 3 and args[1].lower() == "authorize" and mentioned_users:
+        user = mentioned_users[0]
     if user.id not in AUTHORIZED_USERS:
         AUTHORIZED_USERS.add(user.id)  # Add user to the set
         save_authorized_users()  # Save the updated list to JSON
@@ -185,8 +185,8 @@ if len(args) == 3 and args[1].lower() == "authorize" and mentioned_users:
         await message.channel.send(f"{user.mention} is already authorized.")
     return
 
-if len(args) == 3 and args[1].lower() == "unauthorize" and mentioned_users:
-    user = mentioned_users[0]
+    if len(args) == 3 and args[1].lower() == "unauthorize" and mentioned_users:
+        user = mentioned_users[0]
     if user.id in AUTHORIZED_USERS and user.id != YOUR_USER_ID:
         AUTHORIZED_USERS.remove(user.id)  # Remove from set
         save_authorized_users()  # Save changes
