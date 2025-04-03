@@ -17,7 +17,6 @@ AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 SKULL_LIST_FILE = "skull_list.json"
 CONFIG_FILE = "config.json"
 
-# Function to load config
 def load_config():
     try:
         with open(CONFIG_FILE, "r") as f:
@@ -25,7 +24,6 @@ def load_config():
     except (FileNotFoundError, json.JSONDecodeError):
         return {"prefix": "!", "aliases": {}}
 
-# Function to save config
 def save_config(config):
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f, indent=4)
@@ -33,15 +31,13 @@ def save_config(config):
 config = load_config()
 PREFIX = config.get("prefix", "!")
 
-# Function to load skulled users
 def load_skull_list():
     try:
         with open(SKULL_LIST_FILE, "r") as f:
-            return set(json.load(f))
+            return set(json.load(f) or [])
     except (FileNotFoundError, json.JSONDecodeError):
         return set()
 
-# Function to save skulled users
 def save_skull_list(skull_list):
     with open(SKULL_LIST_FILE, "w") as f:
         json.dump(list(skull_list), f)
@@ -82,90 +78,28 @@ async def on_message(message):
     PREFIX = config.get("prefix", "!")
     content = message.content
 
-    # Handle command aliases
     for alias, command in config.get("aliases", {}).items():
         if content.startswith(PREFIX + alias):
             content = content.replace(PREFIX + alias, PREFIX + command, 1)
 
-    # Skull reaction handling
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")  # Skull reaction
 
     if content.startswith(PREFIX + "skull"):
         args = content.split()
-
-        if len(args) == 1:
-            await message.channel.send(f"Type `{PREFIX}skull help` for commands")
-            return
-
-        if len(args) == 2 and args[1] == "help":
-            embed = discord.Embed(title="Worthy Commands", 
-                                  description="Here are the available commands:", 
-                                  color=discord.Color.blue())
-            embed.add_field(name=f"{PREFIX}skull @user", value="Skull a user.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull stop @user", value="Stop skulling a user.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull list", value="Show users being skulled.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull authorized", value="Show authorized users.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull authorize @user", value="Authorize a user.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Remove authorization.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull alias set <alias> <command>", value="Create an alias.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull alias remove <alias>", value="Remove an alias.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull prefix set <prefix>", value="Change prefix.", inline=False)
-            embed.add_field(name=f"{PREFIX}skull prefix remove", value="Reset prefix to `!`.", inline=False)
-            embed.set_footer(text="AutoSkull Bot - Made by @xv9c")
+        mentioned_users = message.mentions
+        
+        if len(args) == 1 or args[1] == "help":
+            embed = discord.Embed(title="Worthy Commands", color=discord.Color.blue())
+            embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull list", value="Shows all users currently being skulled.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull authorized", value="Lists all authorized users.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grants authorization to a user.", inline=False)
+            embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Removes authorization from a user.", inline=False)
+            embed.set_footer(text="made by - @xv9c")
             await message.channel.send(embed=embed)
             return
-
-        if len(args) == 3 and args[1] == "prefix":
-            if args[2] == "remove":
-                config["prefix"] = "!"
-            else:
-                config["prefix"] = args[2]
-            save_config(config)
-            await message.channel.send(f"Prefix changed to `{config['prefix']}`")
-            return
-
-        if len(args) == 4 and args[1] == "alias" and args[2] == "set":
-            config["aliases"][args[3]] = args[3]
-            save_config(config)
-            await message.channel.send(f"Alias `{args[3]}` set for `{args[3]}`")
-            return
-
-        if len(args) == 3 and args[1] == "alias" and args[2] == "remove":
-            if args[2] in config["aliases"]:
-                del config["aliases"][args[2]]
-                save_config(config)
-                await message.channel.send(f"Alias `{args[2]}` removed.")
-            else:
-                await message.channel.send(f"Alias `{args[2]}` not found.")
-            return
-
-        if len(args) == 3 and args[1].lower() == "authorize":
-            if message.mentions:
-                user = message.mentions[0]
-                AUTHORIZED_USERS.add(user.id)
-                await message.channel.send(f"{user.mention} has been authorized.")
-            else:
-                await message.channel.send("Please mention a user to authorize.")
-
-        if len(args) == 3 and args[1].lower() == "unauthorize":
-            if message.mentions:
-                user = message.mentions[0]
-                AUTHORIZED_USERS.discard(user.id)
-                await message.channel.send(f"{user.mention} has been unauthorized.")
-            else:
-                await message.channel.send("Please mention a user to unauthorize.")
-
-        if len(args) == 3 and args[1].lower() == "stop":
-            if message.mentions:
-                user = message.mentions[0]
-                bot.user_skull_list.discard(user.id)
-                save_skull_list(bot.user_skull_list)
-                await message.channel.send(f"{user.mention} will no longer be skulled.")
-            else:
-                await message.channel.send("Please mention a valid user to stop skulling.")
-
-
 
         if len(args) == 2 and args[1] == "list":
             if bot.user_skull_list:
@@ -184,26 +118,37 @@ async def on_message(message):
             await message.channel.send(embed=embed)
             return
 
-        if len(args) == 3 and args[1].lower() == "stop":
-            if message.mentions:
-                user = message.mentions[0]
-                if user.id in bot.user_skull_list:
-                    bot.user_skull_list.remove(user.id)
-                    save_skull_list(bot.user_skull_list)  # Save updated list
-                    await message.channel.send(f"{user.mention} will no longer be skulled.")
-                else:
-                    await message.channel.send(f"{user.mention} is not currently being skulled.")
+        if len(args) == 3 and args[1].lower() == "authorize" and mentioned_users:
+            user = mentioned_users[0]
+            if user.id not in AUTHORIZED_USERS:
+                AUTHORIZED_USERS.add(user.id)
+                await message.channel.send(f"{user.mention} has been authorized to use skull commands.")
             else:
-                await message.channel.send("Please mention a valid user to stop skulling.")
+                await message.channel.send(f"{user.mention} is already authorized.")
+            return
 
-        elif len(args) == 2:
-            mentioned_users = message.mentions
-            if mentioned_users:
-                for user in mentioned_users:
-                    bot.user_skull_list.add(user.id)
-                save_skull_list(bot.user_skull_list)
-                await message.channel.send(f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️")
+        if len(args) == 3 and args[1].lower() == "unauthorize" and mentioned_users:
+            user = mentioned_users[0]
+            if user.id in AUTHORIZED_USERS and user.id != YOUR_USER_ID:
+                AUTHORIZED_USERS.remove(user.id)
+                await message.channel.send(f"{user.mention} has been unauthorized and can no longer use skull commands.")
             else:
-                await message.channel.send("Please mention a user to skull!")
+                await message.channel.send(f"{user.mention} is not an authorized user or cannot be unauthorized.")
+            return
+
+        if mentioned_users:
+            for user in mentioned_users:
+                bot.user_skull_list.add(user.id)
+            save_skull_list(bot.user_skull_list)
+            await message.channel.send(f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️")
+            return
+
+        if len(args) == 2 and args[1].isdigit():  # Handle direct user ID input
+            user_id = int(args[1])
+            if user_id in bot.user_skull_list:
+                await message.channel.send(f"User <@{user_id}> is currently being skulled.")
+            else:
+                await message.channel.send(f"User <@{user_id}> is not being skulled.")
+            return
 
 bot.run(TOKEN)
