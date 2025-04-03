@@ -1,4 +1,5 @@
 import discord
+import asyncio
 import os
 import json
 from discord.ext import commands
@@ -88,11 +89,15 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
-    
+
     if message.author.id in SKULL_LIST:
+        await asyncio.sleep(1)  # Add a small delay before reacting
         await message.add_reaction("☠️")  
 
-    await bot.process_commands(message)  # Ensure commands work properly
+    if not message.content.startswith(PREFIX):
+        return  # Ignore non-command messages
+
+    await bot.process_commands(message)  # Ensure commands are processed
 
 # Skull Command
 @bot.command()
