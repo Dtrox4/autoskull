@@ -74,6 +74,11 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+    if message.author.id not in AUTHORIZED_USERS:
+        embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
+        await message.channel.send(embed=embed)
+        return
+
     global PREFIX
     PREFIX = config.get("prefix", "!")
     content = message.content
@@ -134,21 +139,6 @@ async def on_message(message):
                 await message.channel.send(f"{user.mention} has been unauthorized and can no longer use skull commands.")
             else:
                 await message.channel.send(f"{user.mention} is not an authorized user or cannot be unauthorized.")
-            return
-
-        if mentioned_users:
-            for user in mentioned_users:
-                bot.user_skull_list.add(user.id)
-            save_skull_list(bot.user_skull_list)
-            await message.channel.send(f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️")
-            return
-
-        if len(args) == 2 and args[1].isdigit():  # Handle direct user ID input
-            user_id = int(args[1])
-            if user_id in bot.user_skull_list:
-                await message.channel.send(f"User <@{user_id}> is currently being skulled.")
-            else:
-                await message.channel.send(f"User <@{user_id}> is not being skulled.")
             return
 
 bot.run(TOKEN)
