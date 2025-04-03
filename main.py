@@ -106,7 +106,7 @@ async def on_message(message):
         await message.channel.send(embed=embed)
     return
 
-    if args[1] == "help":
+     if args[1] == "help":
         embed = discord.Embed(title="Worthy Commands", color=discord.Color.blue())
         embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
