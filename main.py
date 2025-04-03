@@ -80,7 +80,7 @@ async def on_message(message):
 if message.content.startswith(PREFIX + "skull"):
     if message.author.id not in AUTHORIZED_USERS:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
-        await message.channel.send(embed=embed)
+         await message.channel.send(embed=embed)
         return
 
     global PREFIX
