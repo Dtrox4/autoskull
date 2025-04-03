@@ -117,7 +117,7 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if message.author.id in bot.user_skull_list:
+    if message.author.id in SKULL_LIST:
         await message.add_reaction("☠️")  # Skull reaction
 
     if not message.content.startswith(PREFIX):
