@@ -157,29 +157,25 @@ async def on_message(message):
         await message.channel.send(embed=embed)
         return
 
-    # Authorize User
     if len(args) == 3 and args[1].lower() == "authorize" and mentioned_users:
-        user = mentioned_users[0]
-        if user.id not in AUTHORIZED_USERS:
-            AUTHORIZED_USERS.add(user.id)
-            config["authorized_users"] = list(AUTHORIZED_USERS)
-            save_config(config)
-            await message.channel.send(f"{user.mention} has been authorized to use skull commands.")
-        else:
-            await message.channel.send(f"{user.mention} is already authorized.")
-        return
+    user = mentioned_users[0]
+    if user.id not in AUTHORIZED_USERS:
+        AUTHORIZED_USERS.add(user.id)  # Add user to the set
+        save_authorized_users()  # Save the updated list to JSON
+        await message.channel.send(f"{user.mention} has been permanently authorized.")
+    else:
+        await message.channel.send(f"{user.mention} is already authorized.")
+    return
 
-    # Unauthorize User
     if len(args) == 3 and args[1].lower() == "unauthorize" and mentioned_users:
-        user = mentioned_users[0]
-        if user.id in AUTHORIZED_USERS and user.id != YOUR_USER_ID:
-            AUTHORIZED_USERS.remove(user.id)
-            config["authorized_users"] = list(AUTHORIZED_USERS)
-            save_config(config)
-            await message.channel.send(f"{user.mention} has been unauthorized and can no longer use skull commands.")
-        else:
-            await message.channel.send(f"{user.mention} is not an authorized user or cannot be unauthorized.")
-        return
+    user = mentioned_users[0]
+    if user.id in AUTHORIZED_USERS and user.id != YOUR_USER_ID:
+        AUTHORIZED_USERS.remove(user.id)  # Remove from set
+        save_authorized_users()  # Save changes
+        await message.channel.send(f"{user.mention} has been permanently unauthorized.")
+    else:
+        await message.channel.send(f"{user.mention} is not an authorized user or cannot be unauthorized.")
+    return
 
     # Remove from Skull List
     if len(args) == 3 and args[1].lower() == "stop":
