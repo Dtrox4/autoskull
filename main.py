@@ -89,7 +89,7 @@ async def on_message(message):
     content = message.content
 
     # Check if user is authorized
-    if message.author.id not in AUTHORIZED_USERS:
+if message.author.id not in AUTHORIZED_USERS:
     embed = discord.Embed(
         title="Access Denied",
         description="❌ You are not authorized to use this command.",
