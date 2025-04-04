@@ -1,5 +1,6 @@
 import discord
 import asyncio
+import datetime
 import os
 import json
 from discord.ext import commands
@@ -77,6 +78,7 @@ def keep_alive():
     t.start()
 
 keep_alive()
+start_time = datetime.datetime.utcnow()
 
 # Bot Ready
 @bot.event
@@ -125,6 +127,7 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull authorized", value="Lists all authorized users.", inline=False)
         embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grants authorization to a user.", inline=False)
         embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Removes authorization from a user.", inline=False)
+        embed.add_field(name=f"{PREFIX}stats", value="Shows bot ping and servers count.", inline=False)
         embed.set_footer(text="made by - @xv9c")
         await ctx.send(embed=embed)
         return
@@ -182,6 +185,24 @@ async def skull(ctx, *args):
         embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
         await ctx.send(embed=embed)
         return
+
+@bot.command()
+async def stats(ctx):
+    """Shows bot latency, uptime, guild and user count."""
+    now = datetime.datetime.utcnow()
+    uptime = now - start_time
+    uptime_str = str(uptime).split('.')[0]  # Format as HH:MM:SS
+
+    latency = round(bot.latency * 1000)
+    guild_count = len(bot.guilds)
+    user_count = len(set(member.id for guild in bot.guilds for member in guild.members))
+
+    embed = discord.Embed(title="Bot Stats", color=discord.Color.teal())
+    embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
+    embed.add_field(name="Uptime", value=uptime_str, inline=True)
+    embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
+    embed.add_field(name="Users", value=f"{user_count}", inline=True)
+    await ctx.send(embed=embed)
 
 # Run the bot
 bot.run(TOKEN)
