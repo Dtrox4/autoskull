@@ -24,7 +24,8 @@ jobs:
       - name: Load Secrets Manually
         run: echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" >> $GITHUB_ENV
 
-      - name: Run Bot
+      - name: Run Bot in Background
+  run: nohup python main.py &
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
         run: python main.py
