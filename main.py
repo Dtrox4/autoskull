@@ -231,41 +231,6 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-    if action == "stop" and mentioned_user:
-        if mentioned_user.id in SKULL_LIST:
-            SKULL_LIST.remove(mentioned_user.id)
-            save_skull_list(SKULL_LIST)
-            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
-        else:
-            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-        return
-
-    if action.startswith("<@") and mentioned_user:
-        SKULL_LIST.add(mentioned_user.id)
-        save_skull_list(SKULL_LIST)
-        embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
-        await ctx.send(embed=embed)
-        return
-
-@bot.command()
-async def stats(ctx):
-    """Shows bot latency, uptime, guild and user count."""
-    now = datetime.datetime.utcnow()
-    uptime = now - start_time
-    uptime_str = str(uptime).split('.')[0]  # Format as HH:MM:SS
-
-    latency = round(bot.latency * 1000)
-    guild_count = len(bot.guilds)
-    user_count = len(set(member.id for guild in bot.guilds for member in guild.members))
-
-    embed = discord.Embed(title="Bot Stats", color=discord.Color.teal())
-    embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
-    embed.add_field(name="Uptime", value=uptime_str, inline=True)
-    embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
-    embed.add_field(name="Users", value=f"{user_count}", inline=True)
-    await ctx.send(embed=embed)
-
     if action == "allowguild":
         if ctx.author.id != YOUR_USER_ID:
             embed = discord.Embed(title="Access Denied", description="Only the bot owner can allow guilds.", color=discord.Color.red())
@@ -314,6 +279,41 @@ async def stats(ctx):
             embed.description = "No guilds are currently authorized."
         await ctx.send(embed=embed)
         return
+
+    if action == "stop" and mentioned_user:
+        if mentioned_user.id in SKULL_LIST:
+            SKULL_LIST.remove(mentioned_user.id)
+            save_skull_list(SKULL_LIST)
+            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
+        else:
+            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    if action.startswith("<@") and mentioned_user:
+        SKULL_LIST.add(mentioned_user.id)
+        save_skull_list(SKULL_LIST)
+        embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
+        await ctx.send(embed=embed)
+        return
+
+@bot.command()
+async def stats(ctx):
+    """Shows bot latency, uptime, guild and user count."""
+    now = datetime.datetime.utcnow()
+    uptime = now - start_time
+    uptime_str = str(uptime).split('.')[0]  # Format as HH:MM:SS
+
+    latency = round(bot.latency * 1000)
+    guild_count = len(bot.guilds)
+    user_count = len(set(member.id for guild in bot.guilds for member in guild.members))
+
+    embed = discord.Embed(title="Bot Stats", color=discord.Color.teal())
+    embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
+    embed.add_field(name="Uptime", value=uptime_str, inline=True)
+    embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
+    embed.add_field(name="Users", value=f"{user_count}", inline=True)
+    await ctx.send(embed=embed)
 
 @bot.event
 async def on_command_error(ctx, error):
