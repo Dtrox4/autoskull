@@ -149,6 +149,22 @@ async def skull(ctx, *args):
     action = args[0].lower()
     mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
+    # Check for missing required mention
+    def require_mention():
+        return discord.Embed(
+            title="Missing Argument",
+            description=f"Please mention a user.\nUsage: `{PREFIX}skull {action} @user`",
+            color=discord.Color.orange()
+        )
+
+    if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
+        await ctx.send(embed=require_mention())
+        return
+
+    if action.startswith("<@") and not mentioned_user:
+        await ctx.send(embed=require_mention())
+        return
+
     if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized", "help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
