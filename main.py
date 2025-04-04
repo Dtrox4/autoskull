@@ -81,7 +81,6 @@ SKULL_LIST = load_skull_list()
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
-keep_alive()
 start_time = datetime.datetime.utcnow()
 
 @bot.event
