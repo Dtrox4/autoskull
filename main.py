@@ -268,48 +268,31 @@ async def stats(ctx):
 
     if action == "allowguild":
         if ctx.author.id != YOUR_USER_ID:
-            embed = discord.Embed(
-                title="Access Denied",
-                description="Only the bot owner can allow guilds.",
-                color=discord.Color.red()
-            )
+            embed = discord.Embed(title="Access Denied", description="Only the bot owner can allow guilds.", color=discord.Color.red())
             await ctx.send(embed=embed)
             return
 
-        AUTHORIZED_GUILDS.add(ctx.guild.id)
-        save_authorized_guilds(AUTHORIZED_GUILDS)
-        embed = discord.Embed(
-            title="Guild Authorized",
-            description=f"{ctx.guild.name} has been authorized.",
-            color=discord.Color.green()
-        )
+        if ctx.guild and ctx.guild.id not in AUTHORIZED_GUILDS:
+            AUTHORIZED_GUILDS.add(ctx.guild.id)
+            save_authorized_guilds(AUTHORIZED_GUILDS)
+            embed = discord.Embed(title="Guild Authorized", description=f"Guild `{ctx.guild.name}` is now authorized.", color=discord.Color.green())
+        else:
+            embed = discord.Embed(title="Already Authorized", description="This guild is already authorized.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
 
     if action == "disallowguild":
         if ctx.author.id != YOUR_USER_ID:
-            embed = discord.Embed(
-                title="Access Denied",
-                description="Only the bot owner can disallow guilds.",
-                color=discord.Color.red()
-            )
+            embed = discord.Embed(title="Access Denied", description="Only the bot owner can disallow guilds.", color=discord.Color.red())
             await ctx.send(embed=embed)
             return
 
-        if ctx.guild.id in AUTHORIZED_GUILDS:
+        if ctx.guild and ctx.guild.id in AUTHORIZED_GUILDS:
             AUTHORIZED_GUILDS.remove(ctx.guild.id)
             save_authorized_guilds(AUTHORIZED_GUILDS)
-            embed = discord.Embed(
-                title="Guild Unauthorized",
-                description=f"{ctx.guild.name} has been removed from the authorized list.",
-                color=discord.Color.orange()
-            )
+            embed = discord.Embed(title="Guild Unauthorized", description=f"Guild `{ctx.guild.name}` has been removed from the authorized list.", color=discord.Color.red())
         else:
-            embed = discord.Embed(
-                title="Guild Not Found",
-                description=f"{ctx.guild.name} is not currently authorized.",
-                color=discord.Color.red()
-            )
+            embed = discord.Embed(title="Not Authorized", description="This guild is not in the authorized list.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
 
