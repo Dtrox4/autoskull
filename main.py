@@ -3,7 +3,6 @@ import asyncio
 import datetime
 import os
 import json
-import requests
 from discord.ui import View, Button
 from discord.ext import commands
 from dotenv import load_dotenv
