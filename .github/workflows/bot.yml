@@ -22,7 +22,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Load Secrets Manually  # 🔹 Paste Step 5 here
-        run: echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" >> $GITHUB_ENV
+        run: echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" >> $GITHUB_ENV
 
       - name: Run Bot
         run: python main.py
