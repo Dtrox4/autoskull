@@ -314,6 +314,18 @@ async def stats(ctx):
             embed.description = "No guilds are currently authorized."
         await ctx.send(embed=embed)
         return
-# Run the bot
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        embed = discord.Embed(
+            title="Incomplete Command",
+            description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`",
+            color=discord.Color.orange()
+        )
+        await ctx.send(embed=embed)
+    else:
+        raise error  # You can also handle other errors if needed
+
+# Run the bot
 bot.run(TOKEN)
