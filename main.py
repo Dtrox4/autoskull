@@ -74,12 +74,10 @@ def load_config():
     except (FileNotFoundError, json.JSONDecodeError):
         return {"prefix": "!"}
 
-# Load data
-AUTHORIZED_GUILDS = set(load_json(AUTHORIZED_GUILDS_FILE, []))
-SKULL_LIST = set(load_json(SKULL_LIST_FILE, []))
-AUTHORIZED_USERS = set(load_json(AUTHORIZED_USERS_FILE, [YOUR_USER_ID]))
-CONFIG = load_json(CONFIG_FILE, {"prefix": "!"})
-PREFIX = CONFIG.get("prefix", "!")
+config = load_config()
+PREFIX = config.get("prefix", "!")
+AUTHORIZED_USERS = load_authorized_users()
+SKULL_LIST = load_skull_list()
 
 # Use `commands.Bot`
 intents = discord.Intents.all()
