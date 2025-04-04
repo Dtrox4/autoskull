@@ -97,6 +97,7 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
+keep_alive()
 start_time = datetime.datetime.utcnow()
 
 @bot.event
