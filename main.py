@@ -16,7 +16,7 @@ if not TOKEN:
     raise ValueError("Bot token is missing. Make sure you set it in the .env file.")
 
 # Owner's user ID
-YOUR_USER_ID = 1212229549459374222  
+YOUR_USER_ID = 1212229549459374222
 
 # File locations
 SKULL_LIST_FILE = "skull_list.json"
@@ -60,7 +60,7 @@ def load_authorized_users():
         with open(AUTHORIZED_USERS_FILE, "r") as f:
             return set(json.load(f))
     except (FileNotFoundError, json.JSONDecodeError):
-        return {YOUR_USER_ID}  # Default authorized users
+        return {YOUR_USER_ID}
 
 def save_authorized_users(authorized_users):
     with open(AUTHORIZED_USERS_FILE, "w") as f:
@@ -79,7 +79,7 @@ PREFIX = config.get("prefix", "!")
 AUTHORIZED_USERS = load_authorized_users()
 SKULL_LIST = load_skull_list()
 
-# Use `commands.Bot` instead of `discord.Client`
+# Use `commands.Bot`
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
@@ -90,7 +90,7 @@ def run():
     @app.route('/')
     def home():
         return "I'm alive!"
-    
+
     app.run(host='0.0.0.0', port=8080)
 
 def keep_alive():
@@ -100,54 +100,45 @@ def keep_alive():
 keep_alive()
 start_time = datetime.datetime.utcnow()
 
-# Bot Ready
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
-# Auto-react to messages
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
 
     if message.author.id in SKULL_LIST:
-        await asyncio.sleep(1)  # Add a small delay before reacting
-        await message.add_reaction("☠️")  
+        await asyncio.sleep(1)
+        await message.add_reaction("☠️")
 
     if not message.content.startswith(PREFIX):
-        return  # Ignore non-command messages
+        return
 
-    await bot.process_commands(message)  # Ensure commands are processed
-    return
+    await bot.process_commands(message)
 
 def is_user_authorized(ctx):
-    # Check if the command is in an authorized guild
     if ctx.guild and ctx.guild.id not in AUTHORIZED_GUILDS:
         return False
 
-    # Owner override
     if ctx.author.id == YOUR_USER_ID:
         return True
 
-    # Global authorization
     if ctx.author.id in AUTHORIZED_USERS:
         return True
 
-    # Guild role-based authorization
     if ctx.guild:
         guild_id = str(ctx.guild.id)
         guild_data = GUILD_PERMISSIONS.get(guild_id, {})
         authorized_roles = guild_data.get("authorized_roles", [])
         user_roles = [role.id for role in ctx.author.roles]
-
         if any(role_id in authorized_roles for role_id in user_roles):
             return True
 
     return False
 
-# Skull Command
 @bot.command()
 async def skull(ctx, *args):
     if not args:
@@ -156,21 +147,16 @@ async def skull(ctx, *args):
         return
 
     action = args[0].lower()
+    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
     if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized", "help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
 
-    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
-
     if action == "adminhelp":
         if ctx.author.id != YOUR_USER_ID:
-            embed = discord.Embed(
-                title="Access Denied",
-                description="Only the bot owner can view admin commands.",
-                color=discord.Color.red()
-            )
+            embed = discord.Embed(title="Access Denied", description="Only the bot owner can view admin commands.", color=discord.Color.red())
             await ctx.send(embed=embed)
             return
 
@@ -190,11 +176,8 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull list", value="Shows all users currently being skulled.", inline=False)
-
-        # Show admin help link only to bot owner
         if ctx.author.id == YOUR_USER_ID:
             embed.add_field(name=f"{PREFIX}skull adminhelp", value="Lists admin-only commands.", inline=False)
-
         embed.set_footer(text="made by - @xv9c")
         await ctx.send(embed=embed)
         return
@@ -268,59 +251,51 @@ async def skull(ctx, *args):
 
     if action == "guilds":
         if ctx.author.id != YOUR_USER_ID:
-            embed = discord.Embed(
-                title="Access Denied",
-                description="Only the bot owner can view authorized guilds.",
-                color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
+            embed = discord.Embed(title="Access Denied", description="Only the bot owner can view authorized guilds.", color=discord.Color.red())
+            await ctx.send(embed=embed)
+            return
+
+        guild_entries = []
+        for guild_id in AUTHORIZED_GUILDS:
+            guild = bot.get_guild(guild_id)
+            name = guild.name if guild else "Unknown"
+            guild_entries.append(f"`{guild_id}` ({name})")
+
+        if not guild_entries:
+            embed = discord.Embed(title="Authorized Guilds", description="No guilds are currently authorized.", color=discord.Color.blurple())
+            await ctx.send(embed=embed)
+            return
+
+        pages = list(chunk_list(guild_entries, 5))
+        current_page = 0
+
+        def generate_embed(page):
+            embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
+            for entry in pages[page]:
+                embed.add_field(name="Guild", value=entry, inline=False)
+            embed.set_footer(text=f"Page {page + 1} of {len(pages)}")
+            return embed
+
+        class Paginator(View):
+            def __init__(self):
+                super().__init__(timeout=60)
+
+            @discord.ui.button(label="Previous", style=discord.ButtonStyle.gray)
+            async def previous(self, interaction: discord.Interaction, button: Button):
+                nonlocal current_page
+                if current_page > 0:
+                    current_page -= 1
+                    await interaction.response.edit_message(embed=generate_embed(current_page), view=self)
+
+            @discord.ui.button(label="Next", style=discord.ButtonStyle.gray)
+            async def next(self, interaction: discord.Interaction, button: Button):
+                nonlocal current_page
+                if current_page < len(pages) - 1:
+                    current_page += 1
+                    await interaction.response.edit_message(embed=generate_embed(current_page), view=self)
+
+        await ctx.send(embed=generate_embed(current_page), view=Paginator())
         return
-
-    guild_entries = []
-    for guild_id in AUTHORIZED_GUILDS:
-        guild = bot.get_guild(guild_id)
-        name = guild.name if guild else "Unknown"
-        guild_entries.append(f"`{guild_id}` ({name})")
-
-    if not guild_entries:
-        embed = discord.Embed(
-            title="Authorized Guilds",
-            description="No guilds are currently authorized.",
-            color=discord.Color.blurple()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    pages = list(chunk_list(guild_entries, 5))  # 5 entries per page
-    current_page = 0
-
-    def generate_embed(page):
-        embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
-        for entry in pages[page]:
-            embed.add_field(name="Guild", value=entry, inline=False)
-        embed.set_footer(text=f"Page {page + 1} of {len(pages)}")
-        return embed
-
-    class Paginator(View):
-        def __init__(self):
-            super().__init__(timeout=60)
-
-        @discord.ui.button(label="Previous", style=discord.ButtonStyle.gray)
-        async def previous(self, interaction: discord.Interaction, button: Button):
-            nonlocal current_page
-            if current_page > 0:
-                current_page -= 1
-                await interaction.response.edit_message(embed=generate_embed(current_page), view=self)
-
-        @discord.ui.button(label="Next", style=discord.ButtonStyle.gray)
-        async def next(self, interaction: discord.Interaction, button: Button):
-            nonlocal current_page
-            if current_page < len(pages) - 1:
-                current_page += 1
-                await interaction.response.edit_message(embed=generate_embed(current_page), view=self)
-
-    await ctx.send(embed=generate_embed(current_page), view=Paginator())
-    return
 
     if action == "stop" and mentioned_user:
         if mentioned_user.id in SKULL_LIST:
@@ -341,10 +316,9 @@ async def skull(ctx, *args):
 
 @bot.command()
 async def stats(ctx):
-    """Shows bot latency, uptime, guild and user count."""
     now = datetime.datetime.utcnow()
     uptime = now - start_time
-    uptime_str = str(uptime).split('.')[0]  # Format as HH:MM:SS
+    uptime_str = str(uptime).split('.')[0]
 
     latency = round(bot.latency * 1000)
     guild_count = len(bot.guilds)
@@ -360,14 +334,9 @@ async def stats(ctx):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        embed = discord.Embed(
-            title="Incomplete Command",
-            description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`",
-            color=discord.Color.orange()
-        )
+        embed = discord.Embed(title="Incomplete Command", description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`", color=discord.Color.orange())
         await ctx.send(embed=embed)
     else:
-        raise error  # You can also handle other errors if needed
+        raise error
 
-# Run the bot
 bot.run(TOKEN)
