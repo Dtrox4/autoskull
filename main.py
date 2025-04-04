@@ -153,7 +153,7 @@ async def skull(ctx, *args):
     def require_mention():
         return discord.Embed(
             title="Missing Argument",
-            description=f"Please mention a user.\nUsage: `{PREFIX}skull {action} @user`",
+            description=f"Please mention a user.\nUsage: ```{PREFIX}skull {action} @user```",
             color=discord.Color.orange()
         )
 
