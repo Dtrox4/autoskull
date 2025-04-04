@@ -21,6 +21,21 @@ YOUR_USER_ID = 1212229549459374222
 SKULL_LIST_FILE = "skull_list.json"
 AUTHORIZED_USERS_FILE = "authorized_users.json"
 CONFIG_FILE = "config.json"
+AUTHORIZED_GUILDS_FILE = "authorized_guilds.json"
+
+# Load Authorized Guilds List
+def load_authorized_guilds():
+    try:
+        with open(AUTHORIZED_GUILDS_FILE, "r") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set()
+
+def save_authorized_guilds(guilds):
+    with open(AUTHORIZED_GUILDS_FILE, "w") as f:
+        json.dump(list(guilds), f, indent=4)
+
+AUTHORIZED_GUILDS = load_authorized_guilds()
 
 # Load Skull List
 def load_skull_list():
@@ -102,6 +117,31 @@ async def on_message(message):
     await bot.process_commands(message)  # Ensure commands are processed
     return
 
+def is_user_authorized(ctx):
+    # Check if the command is in an authorized guild
+    if ctx.guild and ctx.guild.id not in AUTHORIZED_GUILDS:
+        return False
+
+    # Owner override
+    if ctx.author.id == YOUR_USER_ID:
+        return True
+
+    # Global authorization
+    if ctx.author.id in AUTHORIZED_USERS:
+        return True
+
+    # Guild role-based authorization
+    if ctx.guild:
+        guild_id = str(ctx.guild.id)
+        guild_data = GUILD_PERMISSIONS.get(guild_id, {})
+        authorized_roles = guild_data.get("authorized_roles", [])
+        user_roles = [role.id for role in ctx.author.roles]
+
+        if any(role_id in authorized_roles for role_id in user_roles):
+            return True
+
+    return False
+
 # Skull Command
 @bot.command()
 async def skull(ctx, *args):
@@ -119,6 +159,26 @@ async def skull(ctx, *args):
 
     mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
+    if action == "adminhelp":
+        if ctx.author.id != YOUR_USER_ID:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can view admin commands.",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        embed = discord.Embed(title="Admin Commands", color=discord.Color.dark_red())
+        embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grant command access to a user.", inline=False)
+        embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Revoke access from a user.", inline=False)
+        embed.add_field(name=f"{PREFIX}skull allowguild", value="Authorize this server to use commands.", inline=False)
+        embed.add_field(name=f"{PREFIX}skull disallowguild", value="Remove this server from the authorized list.", inline=False)
+        embed.add_field(name=f"{PREFIX}skull guilds", value="List all authorized guild IDs.", inline=False)
+        embed.set_footer(text="Admin use only — Owner privileges")
+        await ctx.send(embed=embed)
+        return
+
     if action == "help":
         embed = discord.Embed(title="Worthy Commands", color=discord.Color.blue())
         embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
@@ -127,7 +187,11 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull authorized", value="Lists all authorized users.", inline=False)
         embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grants authorization to a user.", inline=False)
         embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Removes authorization from a user.", inline=False)
-        embed.add_field(name=f"{PREFIX}stats", value="Shows bot ping and servers count.", inline=False)
+
+        # Show admin help link only to bot owner
+        if ctx.author.id == YOUR_USER_ID:
+            embed.add_field(name=f"{PREFIX}skull adminhelp", value="Lists admin-only commands.", inline=False)
+
         embed.set_footer(text="made by - @xv9c")
         await ctx.send(embed=embed)
         return
@@ -204,5 +268,71 @@ async def stats(ctx):
     embed.add_field(name="Users", value=f"{user_count}", inline=True)
     await ctx.send(embed=embed)
 
+    if action == "allowguild":
+        if ctx.author.id != YOUR_USER_ID:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can allow guilds.",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        AUTHORIZED_GUILDS.add(ctx.guild.id)
+        save_authorized_guilds(AUTHORIZED_GUILDS)
+        embed = discord.Embed(
+            title="Guild Authorized",
+            description=f"{ctx.guild.name} has been authorized.",
+            color=discord.Color.green()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    if action == "disallowguild":
+        if ctx.author.id != YOUR_USER_ID:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can disallow guilds.",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        if ctx.guild.id in AUTHORIZED_GUILDS:
+            AUTHORIZED_GUILDS.remove(ctx.guild.id)
+            save_authorized_guilds(AUTHORIZED_GUILDS)
+            embed = discord.Embed(
+                title="Guild Unauthorized",
+                description=f"{ctx.guild.name} has been removed from the authorized list.",
+                color=discord.Color.orange()
+            )
+        else:
+            embed = discord.Embed(
+                title="Guild Not Found",
+                description=f"{ctx.guild.name} is not currently authorized.",
+                color=discord.Color.red()
+            )
+        await ctx.send(embed=embed)
+        return
+
+    if action == "guilds":
+        if ctx.author.id != YOUR_USER_ID:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can view authorized guilds.",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
+        if AUTHORIZED_GUILDS:
+            for guild_id in AUTHORIZED_GUILDS:
+                embed.add_field(name="Guild", value=f"`{guild_id}`", inline=False)
+        else:
+            embed.description = "No guilds are currently authorized."
+        await ctx.send(embed=embed)
+        return
 # Run the bot
+
 bot.run(TOKEN)
