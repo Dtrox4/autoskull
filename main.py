@@ -12,8 +12,8 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 if not TOKEN:
     raise ValueError("Bot token is missing. Make sure you set it in GitHub Secrets.")
-
-print("Bot token loaded successfully!")
+else:
+    print("Bot token loaded successfully!")
 
 # Owner's user ID
 YOUR_USER_ID = 1212229549459374222
