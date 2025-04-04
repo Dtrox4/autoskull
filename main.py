@@ -354,8 +354,6 @@ async def on_command_error(ctx, error):
     else:
         raise error
 
-@import os
-
 @bot.command()
 async def shutdown(ctx):
     if ctx.author.id != YOUR_USER_ID:
