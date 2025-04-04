@@ -184,9 +184,6 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull allowguild", value="Authorize this server to use commands.", inline=False)
         embed.add_field(name=f"{PREFIX}skull disallowguild", value="Remove this server from the authorized list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull guilds", value="List all authorized guild IDs.", inline=False)
-        embed.add_field(name=f"{PREFIX}restart", value="Restart the bot from root.", inline=False)
-        embed.add_field(name=f"{PREFIX}kill", value="Stop the Render service (kill bot).", inline=False)
-        embed.add_field(name=f"{PREFIX}start", value="Start the Render service.", inline=False)
         embed.set_footer(text="Admin use only — Owner privileges")
         await ctx.send(embed=embed)
         return
@@ -362,72 +359,6 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=embed)
     else:
         raise error
-
-@bot.command()
-async def restart(ctx):
-    if ctx.author.id != YOUR_USER_ID:
-        await ctx.send("Only the bot owner can restart.")
-        return
-
-    headers = {
-        "Accept": "application/json",
-        "Authorization": f"Bearer e6bfd705fe7fade343ea0467c02e3fc5486160ad179886684bb5f8627d0a52dc"
-    }
-
-    response = requests.post(
-        "https://api.render.com/v1/services/srv-cvo40024d50c73f6q0l0/deploys",
-        headers=headers,
-        json={"clearCache": False}
-    )
-
-    if response.status_code == 201:
-        await ctx.send("🔁 Bot restart triggered via Render API.")
-    else:
-        await ctx.send(f"❌ Failed to restart. Status Code: {response.status_code}\n{response.text}")
-
-@bot.command()
-async def kill(ctx):
-    if ctx.author.id != YOUR_USER_ID:
-        await ctx.send("Only the bot owner can stop the bot.")
-        return
-
-    headers = {
-        "Accept": "application/json",
-        "Authorization": f"Bearer e6bfd705fe7fade343ea0467c02e3fc5486160ad179886684bb5f8627d0a52dc"
-    }
-
-    response = requests.patch(
-        "https://api.render.com/v1/services/srv-cvo40024d50c73f6q0l0",
-        headers=headers,
-        json={"suspended": True}
-    )
-
-    if response.status_code == 200:
-        await ctx.send("🛑 Bot has been suspended via Render API.")
-    else:
-        await ctx.send(f"❌ Failed to suspend. Status Code: {response.status_code}\n{response.text}")
-
-@bot.command()
-async def start(ctx):
-    if ctx.author.id != YOUR_USER_ID:
-        await ctx.send("Only the bot owner can start the bot.")
-        return
-
-    headers = {
-        "Accept": "application/json",
-        "Authorization": f"Bearer e6bfd705fe7fade343ea0467c02e3fc5486160ad179886684bb5f8627d0a52dc"
-    }
-
-    response = requests.patch(
-        "https://api.render.com/v1/services/srv-cvo40024d50c73f6q0l0",
-        headers=headers,
-        json={"suspended": False}
-    )
-
-    if response.status_code == 200:
-        await ctx.send("✅ Bot has been resumed via Render API.")
-    else:
-        await ctx.send(f"❌ Failed to resume. Status Code: {response.status_code}\n{response.text}")
 
 
 
