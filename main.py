@@ -40,12 +40,7 @@ def chunk_list(data, size):
     for i in range(0, len(data), size):
         yield data[i:i + size]
 
-# Load data
-AUTHORIZED_GUILDS = set(load_json(AUTHORIZED_GUILDS_FILE, []))
-SKULL_LIST = set(load_json(SKULL_LIST_FILE, []))
-AUTHORIZED_USERS = set(load_json(AUTHORIZED_USERS_FILE, [YOUR_USER_ID]))
-CONFIG = load_json(CONFIG_FILE, {"prefix": "!"})
-PREFIX = CONFIG.get("prefix", "!")
+AUTHORIZED_GUILDS = load_authorized_guilds()
 
 # Load Skull List
 def load_skull_list():
@@ -78,6 +73,13 @@ def load_config():
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return {"prefix": "!"}
+
+# Load data
+AUTHORIZED_GUILDS = set(load_json(AUTHORIZED_GUILDS_FILE, []))
+SKULL_LIST = set(load_json(SKULL_LIST_FILE, []))
+AUTHORIZED_USERS = set(load_json(AUTHORIZED_USERS_FILE, [YOUR_USER_ID]))
+CONFIG = load_json(CONFIG_FILE, {"prefix": "!"})
+PREFIX = CONFIG.get("prefix", "!")
 
 # Use `commands.Bot`
 intents = discord.Intents.all()
