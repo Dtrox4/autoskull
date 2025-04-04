@@ -172,6 +172,7 @@ async def skull(ctx, *args):
         embed = discord.Embed(title="Admin Commands", color=discord.Color.dark_red())
         embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grant command access to a user.", inline=False)
         embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Revoke access from a user.", inline=False)
+        embed.add_field(name=f"{PREFIX}skull authorized", value="Lists all authorized users.", inline=False)
         embed.add_field(name=f"{PREFIX}skull allowguild", value="Authorize this server to use commands.", inline=False)
         embed.add_field(name=f"{PREFIX}skull disallowguild", value="Remove this server from the authorized list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull guilds", value="List all authorized guild IDs.", inline=False)
