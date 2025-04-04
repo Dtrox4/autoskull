@@ -6,6 +6,8 @@ import json
 from discord.ui import View, Button
 from discord.ext import commands
 from dotenv import load_dotenv
+from threading import Thread
+from flask import Flask
 
 # Load environment variables
 load_dotenv()
@@ -81,6 +83,21 @@ SKULL_LIST = load_skull_list()
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
+# Keep bot alive
+def run():
+    app = Flask(__name__)
+
+    @app.route('/')
+    def home():
+        return "I'm alive!"
+
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+keep_alive()
 start_time = datetime.datetime.utcnow()
 
 @bot.event
@@ -112,6 +129,14 @@ def is_user_authorized(ctx):
     if ctx.author.id in AUTHORIZED_USERS:
         return True
 
+    if ctx.guild:
+        guild_id = str(ctx.guild.id)
+        guild_data = GUILD_PERMISSIONS.get(guild_id, {})
+        authorized_roles = guild_data.get("authorized_roles", [])
+        user_roles = [role.id for role in ctx.author.roles]
+        if any(role_id in authorized_roles for role_id in user_roles):
+            return True
+
     return False
 
 @bot.command()
@@ -124,6 +149,7 @@ async def skull(ctx, *args):
     action = args[0].lower()
     mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
+    # Check for missing required mention
     def require_mention():
         return discord.Embed(
             title="Missing Argument",
@@ -326,11 +352,6 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         embed = discord.Embed(title="Incomplete Command", description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`", color=discord.Color.orange())
         await ctx.send(embed=embed)
-    elif isinstance(error, commands.BadArgument):
-        embed = discord.Embed(title="Invalid Argument", description="Could not parse the arguments provided. Please check your input.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-    elif isinstance(error, commands.CommandNotFound):
-        return  # ignore unrecognized commands silently
     else:
         raise error
 
