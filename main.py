@@ -98,7 +98,7 @@ async def on_message(message):
         return  # Ignore non-command messages
 
     await bot.process_commands(message)  # Ensure commands are processed
-return
+    return
 
 # Skull Command
 @bot.command()
