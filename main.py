@@ -97,7 +97,6 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-keep_alive()
 start_time = datetime.datetime.utcnow()
 
 @bot.event
@@ -355,13 +354,16 @@ async def on_command_error(ctx, error):
     else:
         raise error
 
+@import os
+
 @bot.command()
 async def shutdown(ctx):
     if ctx.author.id != YOUR_USER_ID:
         await ctx.send("Only the bot owner can shut me down.")
         return
 
-    await ctx.send("Shutting down...")
+    await ctx.send("Shutdown command executed.")
     await bot.close()
+    os._exit(0)  # This will force the bot process to terminate
 
 bot.run(TOKEN)
