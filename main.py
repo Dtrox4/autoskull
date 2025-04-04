@@ -335,7 +335,3 @@ async def on_command_error(ctx, error):
         raise error
 
 bot.run(TOKEN)
-
-
-Done! Your bot now gracefully shows an error message with the correct command usage if a command is missing required arguments. Let me know if you want to customize the style or text of those error messages further.
-
