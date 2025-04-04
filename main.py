@@ -184,9 +184,6 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull list", value="Shows all users currently being skulled.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull authorized", value="Lists all authorized users.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grants authorization to a user.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Removes authorization from a user.", inline=False)
 
         # Show admin help link only to bot owner
         if ctx.author.id == YOUR_USER_ID:
