@@ -355,4 +355,13 @@ async def on_command_error(ctx, error):
     else:
         raise error
 
+@bot.command()
+async def shutdown(ctx):
+    if ctx.author.id != YOUR_USER_ID:
+        await ctx.send("Only the bot owner can shut me down.")
+        return
+
+    await ctx.send("Shutting down...")
+    await bot.close()
+
 bot.run(TOKEN)
