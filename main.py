@@ -13,7 +13,6 @@ from flask import Flask
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 if not TOKEN:
-    print("Environment variables available:", os.environ)  # Print all available env variables
     raise ValueError("Bot token is missing. Make sure you set it in GitHub Secrets.")
 
 print("Bot token loaded successfully!")
