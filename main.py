@@ -101,17 +101,20 @@ async def on_message(message):
 
 # Skull Command
 @bot.command()
-async def skull(ctx, action: str = None, user: discord.Member = None):
-    """Manages skull commands"""
-    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized"]:
+async def skull(ctx, *args):
+    if not args:
+        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    action = args[0].lower()
+
+    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized", "help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
 
-    if action is None:
-        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-        return
+    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
     if action == "help":
         embed = discord.Embed(title="Worthy Commands", color=discord.Color.blue())
@@ -142,37 +145,38 @@ async def skull(ctx, action: str = None, user: discord.Member = None):
         await ctx.send(embed=embed)
         return
 
-    if action == "authorize" and user:
-        if user.id not in AUTHORIZED_USERS:
-            AUTHORIZED_USERS.add(user.id)
+    if action == "authorize" and mentioned_user:
+        if mentioned_user.id not in AUTHORIZED_USERS:
+            AUTHORIZED_USERS.add(mentioned_user.id)
             save_authorized_users(AUTHORIZED_USERS)
-            await ctx.send(f"{user.mention} has been permanently authorized.")
+            await ctx.send(f"{mentioned_user.mention} has been permanently authorized.")
         else:
-            await ctx.send(f"{user.mention} is already authorized.")
+            await ctx.send(f"{mentioned_user.mention} is already authorized.")
         return
 
-    if action == "unauthorize" and user:
-        if user.id in AUTHORIZED_USERS and user.id != YOUR_USER_ID:
-            AUTHORIZED_USERS.remove(user.id)
+    if action == "unauthorize" and mentioned_user:
+        if mentioned_user.id in AUTHORIZED_USERS and mentioned_user.id != YOUR_USER_ID:
+            AUTHORIZED_USERS.remove(mentioned_user.id)
             save_authorized_users(AUTHORIZED_USERS)
-            await ctx.send(f"{user.mention} has been permanently unauthorized.")
+            await ctx.send(f"{mentioned_user.mention} has been permanently unauthorized.")
         else:
-            await ctx.send(f"{user.mention} is not an authorized user or cannot be unauthorized.")
+            await ctx.send(f"{mentioned_user.mention} is not an authorized user or cannot be unauthorized.")
         return
 
-    if action == "stop" and user:
-        if user.id in SKULL_LIST:
-            SKULL_LIST.remove(user.id)
+    if action == "stop" and mentioned_user:
+        if mentioned_user.id in SKULL_LIST:
+            SKULL_LIST.remove(mentioned_user.id)
             save_skull_list(SKULL_LIST)
-            await ctx.send(f"{user.mention} will no longer be skulled.")
+            await ctx.send(f"{mentioned_user.mention} will no longer be skulled.")
         else:
-            await ctx.send(f"{user.mention} is not in the skull list.")
+            await ctx.send(f"{mentioned_user.mention} is not in the skull list.")
         return
 
-    if user:
-        SKULL_LIST.add(user.id)
+    if action.startswith("<@") and mentioned_user:
+        # Handle !skull @user directly
+        SKULL_LIST.add(mentioned_user.id)
         save_skull_list(SKULL_LIST)
-        await ctx.send(f"Will skull {user.mention} from now on ☠️")
+        await ctx.send(f"Will skull {mentioned_user.mention} from now on ☠️")
         return
 
     embed = discord.Embed(title="Invalid Usage", description="Use `!skull help` for available commands.", color=discord.Color.red())
