@@ -149,38 +149,38 @@ async def skull(ctx, *args):
         if mentioned_user.id not in AUTHORIZED_USERS:
             AUTHORIZED_USERS.add(mentioned_user.id)
             save_authorized_users(AUTHORIZED_USERS)
-            await ctx.send(f"{mentioned_user.mention} has been permanently authorized.")
+            embed = discord.Embed(title="Authorized", description=f"{mentioned_user.mention} has been **permanently authorized**.", color=discord.Color.green())
         else:
-            await ctx.send(f"{mentioned_user.mention} is already authorized.")
+            embed = discord.Embed(title="Already Authorized", description=f"{mentioned_user.mention} is already authorized.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
         return
 
     if action == "unauthorize" and mentioned_user:
         if mentioned_user.id in AUTHORIZED_USERS and mentioned_user.id != YOUR_USER_ID:
             AUTHORIZED_USERS.remove(mentioned_user.id)
             save_authorized_users(AUTHORIZED_USERS)
-            await ctx.send(f"{mentioned_user.mention} has been permanently unauthorized.")
+            embed = discord.Embed(title="Unauthorized", description=f"{mentioned_user.mention} has been **permanently unauthorized**.", color=discord.Color.red())
         else:
-            await ctx.send(f"{mentioned_user.mention} is not an authorized user or cannot be unauthorized.")
+            embed = discord.Embed(title="Cannot Unauthorize", description=f"{mentioned_user.mention} is not authorized or cannot be unauthorized.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
         return
 
     if action == "stop" and mentioned_user:
         if mentioned_user.id in SKULL_LIST:
             SKULL_LIST.remove(mentioned_user.id)
             save_skull_list(SKULL_LIST)
-            await ctx.send(f"{mentioned_user.mention} will no longer be skulled.")
+            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
         else:
-            await ctx.send(f"{mentioned_user.mention} is not in the skull list.")
+            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
         return
 
     if action.startswith("<@") and mentioned_user:
-        # Handle !skull @user directly
         SKULL_LIST.add(mentioned_user.id)
         save_skull_list(SKULL_LIST)
-        await ctx.send(f"Will skull {mentioned_user.mention} from now on ☠️")
+        embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
+        await ctx.send(embed=embed)
         return
-
-    embed = discord.Embed(title="Invalid Usage", description="Use `!skull help` for available commands.", color=discord.Color.red())
-    await ctx.send(embed=embed)
 
 # Run the bot
 bot.run(TOKEN)
