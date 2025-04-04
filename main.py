@@ -262,23 +262,25 @@ async def skull(ctx, *args):
         return
 
     if action == "guilds":
-        if ctx.author.id != YOUR_USER_ID:
-            embed = discord.Embed(
-                title="Access Denied",
-                description="Only the bot owner can view authorized guilds.",
-                color=discord.Color.red()
-            )
-            await ctx.send(embed=embed)
-            return
-
-        embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
-        if AUTHORIZED_GUILDS:
-            for guild_id in AUTHORIZED_GUILDS:
-                embed.add_field(name="Guild", value=f"`{guild_id}`", inline=False)
-        else:
-            embed.description = "No guilds are currently authorized."
+    if ctx.author.id != YOUR_USER_ID:
+        embed = discord.Embed(
+            title="Access Denied",
+            description="Only the bot owner can view authorized guilds.",
+            color=discord.Color.red()
+        )
         await ctx.send(embed=embed)
         return
+
+    embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
+    if AUTHORIZED_GUILDS:
+        for guild_id in AUTHORIZED_GUILDS:
+            guild = bot.get_guild(guild_id)
+            guild_name = guild.name if guild else "Unknown"
+            embed.add_field(name="Guild", value=f"`{guild_id}` ({guild_name})", inline=False)
+    else:
+        embed.description = "No guilds are currently authorized."
+    await ctx.send(embed=embed)
+    return
 
     if action == "stop" and mentioned_user:
         if mentioned_user.id in SKULL_LIST:
