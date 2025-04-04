@@ -183,6 +183,7 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull allowguild", value="Authorize this server to use commands.", inline=False)
         embed.add_field(name=f"{PREFIX}skull disallowguild", value="Remove this server from the authorized list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull guilds", value="List all authorized guild IDs.", inline=False)
+        embed.add_field(name=f"{PREFIX}restart", value="Restart the bot from root.", inline=False)
         embed.set_footer(text="Admin use only — Owner privileges")
         await ctx.send(embed=embed)
         return
@@ -360,13 +361,13 @@ async def on_command_error(ctx, error):
         raise error
 
 @bot.command()
-async def shutdown(ctx):
+async def restart(ctx):
     if ctx.author.id != YOUR_USER_ID:
-        await ctx.send("Only the bot owner can shut me down.")
+        await ctx.send("Only the bot owner can restart.")
         return
 
-    await ctx.send("Shutdown command executed.")
+    await ctx.send("restart command executed.")
     await bot.close()
-    os._exit(0)  # This will force the bot process to terminate
+    os._exit(0)  # This will force the bot process to restart
 
 bot.run(TOKEN)
