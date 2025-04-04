@@ -35,6 +35,10 @@ def save_authorized_guilds(guilds):
     with open(AUTHORIZED_GUILDS_FILE, "w") as f:
         json.dump(list(guilds), f, indent=4)
 
+def chunk_list(data, size):
+    for i in range(0, len(data), size):
+        yield data[i:i + size]
+
 AUTHORIZED_GUILDS = load_authorized_guilds()
 
 # Load Skull List
@@ -262,24 +266,59 @@ async def skull(ctx, *args):
         return
 
     if action == "guilds":
-    if ctx.author.id != YOUR_USER_ID:
-        embed = discord.Embed(
-            title="Access Denied",
-            description="Only the bot owner can view authorized guilds.",
-            color=discord.Color.red()
+        if ctx.author.id != YOUR_USER_ID:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can view authorized guilds.",
+                color=discord.Color.red()
         )
         await ctx.send(embed=embed)
         return
 
-    embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
-    if AUTHORIZED_GUILDS:
-        for guild_id in AUTHORIZED_GUILDS:
-            guild = bot.get_guild(guild_id)
-            guild_name = guild.name if guild else "Unknown"
-            embed.add_field(name="Guild", value=f"`{guild_id}` ({guild_name})", inline=False)
-    else:
-        embed.description = "No guilds are currently authorized."
-    await ctx.send(embed=embed)
+    guild_entries = []
+    for guild_id in AUTHORIZED_GUILDS:
+        guild = bot.get_guild(guild_id)
+        name = guild.name if guild else "Unknown"
+        guild_entries.append(f"`{guild_id}` ({name})")
+
+    if not guild_entries:
+        embed = discord.Embed(
+            title="Authorized Guilds",
+            description="No guilds are currently authorized.",
+            color=discord.Color.blurple()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    pages = list(chunk_list(guild_entries, 5))  # 5 entries per page
+    current_page = 0
+
+    def generate_embed(page):
+        embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
+        for entry in pages[page]:
+            embed.add_field(name="Guild", value=entry, inline=False)
+        embed.set_footer(text=f"Page {page + 1} of {len(pages)}")
+        return embed
+
+    class Paginator(View):
+        def __init__(self):
+            super().__init__(timeout=60)
+
+        @discord.ui.button(label="Previous", style=discord.ButtonStyle.gray)
+        async def previous(self, interaction: discord.Interaction, button: Button):
+            nonlocal current_page
+            if current_page > 0:
+                current_page -= 1
+                await interaction.response.edit_message(embed=generate_embed(current_page), view=self)
+
+        @discord.ui.button(label="Next", style=discord.ButtonStyle.gray)
+        async def next(self, interaction: discord.Interaction, button: Button):
+            nonlocal current_page
+            if current_page < len(pages) - 1:
+                current_page += 1
+                await interaction.response.edit_message(embed=generate_embed(current_page), view=self)
+
+    await ctx.send(embed=generate_embed(current_page), view=Paginator())
     return
 
     if action == "stop" and mentioned_user:
