@@ -322,7 +322,7 @@ async def skull(ctx, *args):
         return
 
     if action.startswith("<@") and mentioned_user:
-    skull_list = load_skull_list()  # Load existing skull list
+        skull_list = load_skull_list()  # Load existing skull list
 
     if mentioned_user.id in skull_list:
         embed = discord.Embed(
