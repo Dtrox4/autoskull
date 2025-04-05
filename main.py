@@ -179,28 +179,41 @@ async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str =
     await asyncio.sleep(3)
     await confirmation.delete()
 
-
 @bot.command()
 async def skull(ctx, *args):
-    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
-
     if not args:
-        if mentioned_user:
-            # Default action: skull the mentioned user
-            if mentioned_user.id not in SKULL_LIST:
-                SKULL_LIST.add(mentioned_user.id)
-                save_skull_list(SKULL_LIST)
-                embed = discord.Embed(title="💀 Skull Added", description=f"{mentioned_user.mention} has been added to the skull list.", color=discord.Color.dark_red())
-            else:
-                embed = discord.Embed(title="Already Skulled", description=f"{mentioned_user.mention} is already in the skull list.", color=discord.Color.light_grey())
-            await ctx.send(embed=embed)
-            return
-
         embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
 
-    action = args[0].lower()
+    first_arg = args[0].lower()
+    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
+
+    def require_mention():
+        return discord.Embed(
+            title="Missing Argument",
+            description=f"Please mention a user.\nUsage: `{PREFIX}skull {first_arg} @user`",
+            color=discord.Color.orange()
+        )
+
+    # Handle `!skull @user`
+    if mentioned_user and not first_arg.isalpha():
+        if mentioned_user.id not in SKULL_LIST:
+            SKULL_LIST.add(mentioned_user.id)
+            save_skull_list(SKULL_LIST)
+            embed = discord.Embed(
+                title="💀 Skull Added",
+                description=f"{mentioned_user.mention} has been added to the skull list.",
+                color=discord.Color.dark_red()
+            )
+        else:
+            embed = discord.Embed(
+                title="Already Skulled",
+                description=f"{mentioned_user.mention} is already in the skull list.",
+                color=discord.Color.light_grey()
+            )
+        await ctx.send(embed=embed)
+        return
 
 
     # Check for missing required mention
