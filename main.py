@@ -232,7 +232,7 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull list", value="Shows all users currently being skulled.", inline=False)
-        embed.add_field(name=f"{PREFIX}botclear", value="Clears all bot's commands.", inline=False)
+        embed.add_field(name=f"{PREFIX}bc", value="Clears all bot's commands.", inline=False)
         if ctx.author.id == YOUR_USER_ID:
             embed.add_field(name=f"{PREFIX}skull adminhelp", value="Lists admin-only commands.", inline=False)
         embed.set_footer(text="made by - @xv9c")
