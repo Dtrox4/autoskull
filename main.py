@@ -163,6 +163,12 @@ async def skull(ctx, *args):
             description=f"skulling {mentioned_user.mention} starting now.",
             color=discord.Color.dark_red()
             )
+        elif mentioned_user.id in SKULL_LIST:
+            embed = discord.Embed(
+            title="Existing skull",
+            description=f"{mentioned_user.mention} is already being skulled",
+            color=discord.Color.light_grey()
+            )
         else:
             embed = discord.Embed(
             title="Existing skull",
@@ -172,8 +178,7 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-
-    if action in ["authorize", "unauthorize", "stop","userinfo","start"] and not mentioned_user:
+    if action in ["authorize", "unauthorize", "stop","userinfo"] and not mentioned_user:
         await ctx.send(embed=require_mention())
         return
 
@@ -183,6 +188,16 @@ async def skull(ctx, *args):
 
     if ctx.author.id not in AUTHORIZED_USERS and action not in ["list","help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
+        await ctx.send(embed=embed)
+        return
+
+    if action == "stop" and mentioned_user:
+        if mentioned_user.id in SKULL_LIST:
+            SKULL_LIST.remove(mentioned_user.id)
+            save_skull_list(SKULL_LIST)
+            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
+        else:
+            embed = discord.Embed(title="Not Skulled", description=f"ERROR: {mentioned_user.mention} is not being skulled.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
 
@@ -301,18 +316,8 @@ async def skull(ctx, *args):
         await ctx.send(embed=generate_embed(current_page), view=Paginator())
         return
 
-    if action == "stop" and mentioned_user:
-        if mentioned_user.id in SKULL_LIST:
-            SKULL_LIST.remove(mentioned_user.id)
-            save_skull_list(SKULL_LIST)
-            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
-        else:
-            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-        return
-
     # Fallback if command wasn't recognized
-    embed = discord.Embed(title="Unknown Command", description=f"Type `{PREFIX}skull help` to see available actions.", color=discord.Color.red())
+    embed = discord.Embed(title="Unknown Command", description=f"Type `{PREFIX}help` to see available actions.", color=discord.Color.red())
     await ctx.send(embed=embed)
 
 @bot.command()
@@ -571,7 +576,7 @@ def get_help_pages(user_id):
     pages = []
 
     skull_embed = discord.Embed(title="☠️ Skull Commands", color=discord.Color.blurple())
-    skull_embed.add_field(name="!skull start <@user>", value="Grant auto-skull privileges to a user.", inline=False)
+    skull_embed.add_field(name="!skull <@user>", value="Grant auto-skull privileges to a user.", inline=False)
     skull_embed.add_field(name="!skull stop <@user>", value="Remove auto-skull previleges from a user.", inline=False)
     skull_embed.add_field(name="!skull list", value="View all users with auto-skull privileges.", inline=False)
     pages.append(skull_embed)
