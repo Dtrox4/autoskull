@@ -368,13 +368,13 @@ async def skull(ctx, *args):
         del skull_list[str(member.id)]
         save_json(SKULL_LIST_FILE, skull_list)
 
-            embed = discord.Embed(
+        embed = discord.Embed(
             title="✅ Skull Removed",
             description=f"{member.mention} will not be skulled from now.",
             color=discord.Color.green()
-            )
-            await ctx.send(embed=embed)
-            return
+        )
+        await ctx.send(embed=embed)
+        return
 
     # List skulls
     elif action == "list":
