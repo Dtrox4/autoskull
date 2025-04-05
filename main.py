@@ -105,7 +105,6 @@ def require_mention(first_arg):
         color=discord.Color.orange()
     )
 
-
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -183,28 +182,57 @@ async def skull(ctx, *args):
     author_id = str(ctx.author.id)
     guild_id = str(ctx.guild.id)
 
-    if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
-        await ctx.send(embed=require_mention())
-        return
-
-    if action.startswith("<@") and not mentioned_user:
+    if action.startswith("skull") and not mentioned_user:
         await ctx.send(embed=require_mention(action))
         return
 
-    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized","help"]:
+    if ctx.author.id not in AUTHORIZED_USERS and YOUR_USER_ID and action not in ["list", "authorized","help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
 
-    if action == "stop" and mentioned_user:
-        if mentioned_user.id in SKULL_LIST:
-            SKULL_LIST.remove(mentioned_user.id)
-            save_skull_list(SKULL_LIST)
-            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
-        else:
-            embed = discord.Embed(title="Not Skulled", description=f"ERROR: {mentioned_user.mention} is not being skulled.", color=discord.Color.orange())
+    if action == "stop":
+    if not ctx.message.mentions:
+        await ctx.send(embed=require_mention("stop"))
+        return
+
+    member = ctx.message.mentions[0]
+
+    try:
+        with open(SKULL_LIST_FILE, "r") as f:
+            skull_list = json.load(f)
+    except FileNotFoundError:
+        skull_list = {}
+
+    if str(member.id) not in skull_list:
+        embed = discord.Embed(
+            title="Not Skulled",
+            description=f"{member.mention} **is not currently being skulled.**",
+            color=discord.Color.orange()
+        )
         await ctx.send(embed=embed)
         return
+
+    # Only allow if author is owner, authorized, or the one who did the skull
+    if str(ctx.author.id) != YOUR_USER_ID and str(ctx.author.id) not in authorized_users:
+        embed = discord.Embed(
+            title="Permission Denied",
+            description=f"You are not allowed to remove this skull.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    del skull_list[str(member.id)]
+    save_json(SKULL_LIST_FILE, skull_list)
+
+    embed = discord.Embed(
+        title="✅ Skull Removed",
+        description=f"{member.mention} **will no longer be skulled.**",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+    return
 
     if action == "list":
         embed = discord.Embed(title="Skulled Users", color=discord.Color.purple())
