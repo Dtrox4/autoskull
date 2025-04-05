@@ -452,6 +452,9 @@ async def skull(ctx, *args):
     )
     await ctx.send(embed=embed)
 
+@bot.command()
+async def showguilds(ctx):
+    # Build your `guild_entries` list here
         pages = list(chunk_list(guild_entries, 5))
         current_page = 0
 
