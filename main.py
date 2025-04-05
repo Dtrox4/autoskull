@@ -52,7 +52,7 @@ YOUR_USER_ID = 1212229549459374222 # Replace with your actual Discord ID
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
-keep_alive()
+
 start_time = datetime.datetime.utcnow()
 
 @bot.event
