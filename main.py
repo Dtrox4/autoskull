@@ -83,20 +83,6 @@ def load_config():
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
-# Keep bot alive
-def run():
-    app = Flask(__name__)
-
-    @app.route('/')
-    def home():
-        return "I'm alive!"
-
-    app.run(host='0.0.0.0', port=8080)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-
 keep_alive()
 start_time = datetime.datetime.utcnow()
 
@@ -192,6 +178,7 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull list", value="Shows all users currently being skulled.", inline=False)
+        embed.add_field(name=f"{PREFIX}bc", value="Clears all bot's messages.", inline=False)
         if ctx.author.id == YOUR_USER_ID:
             embed.add_field(name=f"{PREFIX}skull adminhelp", value="Lists admin-only commands.", inline=False)
         embed.set_footer(text="made by - @xv9c")
@@ -354,5 +341,44 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=embed)
     else:
         raise error
+
+@bot.command()
+async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
+    # Load authorized users
+    with open("authorized_users.json", "r") as f:
+        authorized_users = json.load(f)
+
+    # Check if the command user is authorized
+    if ctx.author.id not in authorized_users:
+        embed = discord.Embed(
+            title="🚫 Unauthorized",
+            description="You are not authorized to use this command.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed, delete_after=5)
+        return
+
+    # Define message deletion criteria
+    def check(msg):
+        if user and msg.author != user:
+            return False
+        if keyword and keyword.lower() not in msg.content.lower():
+            return False
+        if msg.author == bot.user or msg.content.startswith(ctx.prefix + ctx.command.name):
+            return True
+        return False
+
+    # Delete messages
+    deleted = await ctx.channel.purge(limit=limit, check=check)
+
+    # Send embedded confirmation
+    embed = discord.Embed(
+        title="🧹 Messages Cleared",
+        description=f"Deleted **{len(deleted)}** message(s) matching criteria.",
+        color=discord.Color.green()
+    )
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+    await ctx.send(embed=embed, delete_after=5)
+
 
 bot.run(TOKEN)
