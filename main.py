@@ -280,9 +280,9 @@ async def skull(ctx, action=None,*args):
             title="Missing Argument",
             description="Please mention a user.\nUsage: ```!skull start @user```",
             color=discord.Color.orange()
-        )
-        await ctx.send(embed=embed)
-        return
+            )
+            await ctx.send(embed=embed)
+            return
 
     member = ctx.message.mentions[0]
 
@@ -290,7 +290,7 @@ async def skull(ctx, action=None,*args):
         with open("skull_list.json", "r") as f:
             skull_list = json.load(f)
     except FileNotFoundError:
-        skull_list = {}
+        skull_list = []
 
     if str(member.id) in skull_list:
             embed = discord.Embed(
@@ -307,7 +307,7 @@ async def skull(ctx, action=None,*args):
 
         embed = discord.Embed(
         title="💀 Skulled!",
-        description=f"{member.mention} has been added to the skull list.",
+        description=f"{member.mention} will be skulled from now on.",
         color=discord.Color.dark_purple()
     )
     await ctx.send(embed=embed)
