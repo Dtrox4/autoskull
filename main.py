@@ -324,24 +324,24 @@ async def skull(ctx, *args):
     if action.startswith("<@") and mentioned_user:
         skull_list = load_skull_list()  # Load existing skull list
 
-    if mentioned_user.id in skull_list:
-        embed = discord.Embed(
-            title="Already Skulled",
-            description=f"{mentioned_user.mention} is already on the skull list.",
-            color=discord.Color.red()
-        )
-    else:
-        skull_list.add(mentioned_user.id)  # Add mentioned user ID
-        save_skull_list(skull_list)        # Save the updated list
+        if mentioned_user.id in skull_list:
+            embed = discord.Embed(
+                title="Already Skulled",
+                description=f"{mentioned_user.mention} is already on the skull list.",
+                color=discord.Color.red()
+            )
+        else:
+            skull_list.add(mentioned_user.id)  # Add mentioned user ID
+            save_skull_list(skull_list)        # Save the updated list
 
-        embed = discord.Embed(
-            title="💀 Skull added",
-            description=f"{mentioned_user.mention} will be **skulled** from now on! 💀",
-            color=discord.Color.purple()
-        )
+            embed = discord.Embed(
+                title="💀 Skull added",
+                description=f"{mentioned_user.mention} will be **skulled** from now on! 💀",
+                color=discord.Color.purple()
+            )
 
-    await ctx.send(embed=embed)
-    return
+        await ctx.send(embed=embed)
+        return
 
 
     # Fallback if command wasn't recognized
