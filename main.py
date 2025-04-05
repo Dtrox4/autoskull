@@ -98,12 +98,13 @@ keep_alive()
 
 start_time = datetime.datetime.utcnow()
 
-def require_mention():
-        return discord.Embed(
-            title="Missing Argument",
-            description=f"Please mention a user.\nUsage: `{PREFIX}skull {first_arg} @user`",
-            color=discord.Color.orange()
-            )
+def require_mention(first_arg):
+    return discord.Embed(
+        title="Missing Argument",
+        description=f"Please mention a user.\nUsage: `{PREFIX}skull {first_arg} @user`",
+        color=discord.Color.orange()
+    )
+
 
 @bot.event
 async def on_ready():
@@ -183,11 +184,11 @@ async def skull(ctx, *args):
     guild_id = str(ctx.guild.id)
 
     if action in ["authorize", "unauthorize", "stop","userinfo"] and not mentioned_user:
-        await ctx.send(embed=require_mention())
+        await ctx.send(embed=require_mention(action))
         return
 
     if action.startswith("<@") and not mentioned_user:
-        await ctx.send(embed=require_mention())
+        await ctx.send(embed=require_mention(action))
         return
 
     if ctx.author.id not in AUTHORIZED_USERS and action not in ["list","help"]:
