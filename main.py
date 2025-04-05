@@ -284,7 +284,7 @@ async def skull(ctx, *args):
             color=discord.Color.orange()
         )
 
-    if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
+    if action in ["start","authorize", "unauthorize", "stop"] and not mentioned_user:
         await ctx.send(embed=require_mention())
         return
 
@@ -438,7 +438,7 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-    if action.startswith("<@"):
+    if action.startswith("start"):
         mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
     if not mentioned_user:
@@ -534,13 +534,14 @@ def get_help_pages(user_id):
     pages = []
 
     skull_embed = discord.Embed(title="🦴 Skull Commands", color=discord.Color.blurple())
-    skull_embed.add_field(name="!skull <@user>", value="Assign a skull to a user.", inline=False)
-    skull_embed.add_field(name="!skull stop <@user>", value="Remove a skull from a user.", inline=False)
-    skull_embed.add_field(name="!skull list", value="View all users with skulls.", inline=False)
+    skull_embed.add_field(name="!skull start <@user>", value="Grant auto-skull privileges to a user.", inline=False)
+    skull_embed.add_field(name="!skull stop <@user>", value="Remove auto-skull previleges from a user.", inline=False)
+    skull_embed.add_field(name="!skull list", value="View all users with auto-skull privileges.", inline=False)
     pages.append(skull_embed)
 
     mod_embed = discord.Embed(title="🛠️ Moderation Tools", color=discord.Color.blurple())
-    mod_embed.add_field(name="!bc", value="Bulk delete messages.", inline=False)
+    mod_embed.add_field(name="!bc", value="Bulk delete bot command embed messages.", inline=False)
+    mod_embed.add_field(name="!bc <number> <@user>", value="Bulk delete commands with special arguments.", inline=False)
     mod_embed.add_field(name="!say", value="Echo a message and delete command.", inline=False)
     pages.append(mod_embed)
 
@@ -564,9 +565,9 @@ def get_help_pages(user_id):
     # Admin-only page
     if user_id == YOUR_USER_ID:
         admin_embed = discord.Embed(title="🔐 Admin Tools", color=discord.Color.red())
-        admin_embed.add_field(name="!skull authorize <@user>", value="Authorize someone to use skull commands.", inline=False)
-        admin_embed.add_field(name="!skull unauthorize <@user>", value="Revoke skull command access.", inline=False)
-        admin_embed.add_field(name="!skull authorized", value="List all authorized users.", inline=False)
+        admin_embed.add_field(name="!skull authorize <@user>", value="Make someone worthy enough to use skull commands.", inline=False)
+        admin_embed.add_field(name="!skull unauthorize <@user>", value="Make the user unworthy to use the skull commands.", inline=False)
+        admin_embed.add_field(name="!skull authorized", value="List all worthy users.", inline=False)
         admin_embed.add_field(name="!skull allowguild", value="Allow this guild to use skull commands.", inline=False)
         admin_embed.add_field(name="!skull disallowguild", value="Disallow this guild from skull commands.", inline=False)
         admin_embed.add_field(name="!skull guilds", value="List all allowed guilds.", inline=False)
