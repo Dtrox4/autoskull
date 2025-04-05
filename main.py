@@ -449,8 +449,8 @@ async def skull(ctx, *args):
             await ctx.send(embed=embed)
             return
 
-            # Load skull_list
-            with open("skull_list.json", "r") as f:
+        # Load skull_list
+        with open("skull_list.json", "r") as f:
             skull_list = json.load(f)
 
     # Already in skull list
