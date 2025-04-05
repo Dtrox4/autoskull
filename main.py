@@ -16,7 +16,7 @@ intents.members = True
 intents.message_content = True
 intents.guilds = True
 intents.messages = True
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 # Ensure files exist
 authorized_users_file = "authorized_users.json"
@@ -44,11 +44,156 @@ def create_embed(title, description=None, color=discord.Color.blue(), fields=Non
             embed.add_field(name=name, value=value, inline=inline)
     return embed
 
-YOUR_USER_ID = 123456789012345678  # Replace with your actual Discord ID
+YOUR_USER_ID =   # Replace with your actual Discord ID
+
+# Use `commands.Bot`
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
+
+keep_alive()
+# your bot stuff here
+
+start_time = datetime.datetime.utcnow()
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
+
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user}")
+    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if message.author.id in SKULL_LIST:
+        await asyncio.sleep(1)
+        await message.add_reaction("☠️")
+
+    if not message.content.startswith(PREFIX):
+        return
+    
+    await bot.process_commands(message)
+
+class ConfirmView(discord.ui.View):
+    def __init__(self, author, on_confirm, on_cancel):
+        super().__init__(timeout=30)
+        self.author = author
+        self.on_confirm = on_confirm
+        self.on_cancel = on_cancel
+
+    @discord.ui.button(label="✅ Confirm", style=discord.ButtonStyle.success)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user != self.author:
+            await interaction.response.send_message("You're not allowed to interact with this.", ephemeral=True)
+            return
+        await interaction.response.defer()
+        await self.on_confirm()
+        self.stop()
+
+    @discord.ui.button(label="❌ Cancel", style=discord.ButtonStyle.danger)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if interaction.user != self.author:
+            await interaction.response.send_message("You're not allowed to interact with this.", ephemeral=True)
+            return
+        await interaction.response.send_message("Action cancelled.", ephemeral=True)
+        await self.on_cancel()
+        self.stop()
+
+@bot.group()
+async def skull(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send(embed=create_embed("Skull Command", "Use a subcommand: list, start @user, stop @user", discord.Color.orange()))
+
+@skull.command()
+async def authorize(ctx, member: discord.Member):
+    if ctx.author.id != YOUR_USER_ID:
+        return await ctx.send(embed=create_embed("Unauthorized", "Only the bot owner can authorize users.", discord.Color.red()))
+
+    async def confirm_action():
+        authorized_users = read_json(authorized_users_file)
+        if member.id in authorized_users:
+            await ctx.send(embed=create_embed("Already Authorized", f"{member.display_name} is already authorized."))
+            return
+        authorized_users.append(member.id)
+        write_json(authorized_users_file, authorized_users)
+        await ctx.send(embed=create_embed("✅ Authorized", f"{member.display_name} has been authorized."))
+
+    async def cancel_action():
+        pass
+
+    view = ConfirmView(ctx.author, confirm_action, cancel_action)
+    await ctx.send(embed=create_embed("Confirm Authorization", f"Are you sure you want to authorize {member.mention}?"), view=view)
+
+@skull.command()
+async def unauthorize(ctx, member: discord.Member):
+    if ctx.author.id != YOUR_USER_ID:
+        return await ctx.send(embed=create_embed("Unauthorized", "Only the bot owner can unauthorize users.", discord.Color.red()))
+
+    async def confirm_action():
+        authorized_users = read_json(authorized_users_file)
+        if member.id not in authorized_users:
+            await ctx.send(embed=create_embed("Not Authorized", f"{member.display_name} is not authorized."))
+            return
+        authorized_users.remove(member.id)
+        write_json(authorized_users_file, authorized_users)
+        await ctx.send(embed=create_embed("🗑️ Unauthorize", f"{member.display_name} has been removed from the authorized list."))
+
+    async def cancel_action():
+        pass
+
+    view = ConfirmView(ctx.author, confirm_action, cancel_action)
+    await ctx.send(embed=create_embed("Confirm Unauthorization", f"Are you sure you want to remove {member.mention} from the authorized list?"), view=view)
+
+@bot.group()
+async def skull(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send(embed=create_embed("Skull Command", "Use a subcommand: list, start @user, stop @user", discord.Color.orange()))
+
+@skull.command()
+async def start(ctx, member: discord.Member):
+    authorized_users = read_json(authorized_users_file)
+    if ctx.author.id not in authorized_users and ctx.author.id != YOUR_USER_ID:
+        return await ctx.send(embed=create_embed("Unauthorized", "You are not authorized to use this command.", discord.Color.red()))
+
+    skull_list = read_json(skull_list_file)
+    if member.id in skull_list:
+        return await ctx.send(embed=create_embed("Already Skulled", f"{member.display_name} is already being skulled."))
+
+    skull_list.append(member.id)
+    write_json(skull_list_file, skull_list)
+    await ctx.send(embed=create_embed("✅ Skull Started", f"{member.display_name} will now be skulled."))
+
+@skull.command()
+async def stop(ctx, member: discord.Member):
+    authorized_users = read_json(authorized_users_file)
+    if ctx.author.id not in authorized_users and ctx.author.id != YOUR_USER_ID:
+        return await ctx.send(embed=create_embed("Unauthorized", "You are not authorized to use this command.", discord.Color.red()))
+
+    skull_list = read_json(skull_list_file)
+    if member.id not in skull_list:
+        return await ctx.send(embed=create_embed("Not Skulled", f"{member.display_name} is not being skulled."))
+
+    skull_list.remove(member.id)
+    write_json(skull_list_file, skull_list)
+    await ctx.send(embed=create_embed("🛑 Skull Stopped", f"{member.display_name} is no longer being skulled."))
+
+@skull.command()
+async def list(ctx):
+    skull_list = read_json(skull_list_file)
+    if not skull_list:
+        return await ctx.send(embed=create_embed("💀 Skull List", "No users are currently being skulled."))
+
+    users = []
+    for uid in skull_list:
+        member = ctx.guild.get_member(uid)
+        if member:
+            users.append(member.display_name)
+        else:
+            users.append(f"Unknown User ({uid})")
 
 @bot.command()
 async def say(ctx, *, message=None):
