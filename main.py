@@ -43,27 +43,48 @@ AUTHORIZED_GUILDS = load_authorized_guilds()
 
 # Load Skull List
 def load_skull_list():
+    """Loads the skull list from the JSON file."""
     try:
         with open(SKULL_LIST_FILE, "r") as f:
-            return set(json.load(f))
+            return set(json.load(f))  # Convert list back to set
     except (FileNotFoundError, json.JSONDecodeError):
-        return set()
+        return set()  # Return empty set if file doesn't exist or is invalid
 
 def save_skull_list(skull_list):
-    with open(SKULL_LIST_FILE, "w") as f:
-        json.dump(list(skull_list), f, indent=4)
+    """Saves the skull list to the JSON file."""
+    try:
+        with open(SKULL_LIST_FILE, "w") as f:
+            json.dump(list(skull_list), f, indent=4)  # Convert set to list before saving
+        print(f"✅ Skull list saved successfully: {skull_list}")  # Debugging log
+    except Exception as e:
+        print(f"❌ Error saving skull list: {e}")  # Debugging log
 
 # Load Authorized Users
 def load_authorized_users():
     try:
         with open(AUTHORIZED_USERS_FILE, "r") as f:
-            return set(json.load(f))
+            return set(json.load(f))  # Load as set
     except (FileNotFoundError, json.JSONDecodeError):
-        return {YOUR_USER_ID}
+        return set()  # Return empty set instead of {YOUR_USER_ID}
 
+# Save Authorized Users
 def save_authorized_users(authorized_users):
     with open(AUTHORIZED_USERS_FILE, "w") as f:
-        json.dump(list(authorized_users), f, indent=4)
+        json.dump(list(authorized_users), f, indent=4)  # Convert set to list
+
+# Command to authorize a user
+@bot.command()
+async def authorize(ctx, user: discord.User):
+    authorized_users = load_authorized_users()
+
+    if user.id in authorized_users:
+        await ctx.send(f"{user.name} is already authorized.")
+        return
+
+    authorized_users.add(user.id)  # Use .add() since it's a set
+    save_authorized_users(authorized_users)  # Correct function name
+
+    await ctx.send(f"{user.name} has been authorized.")
 
 # Load Config
 def load_config():
@@ -71,7 +92,11 @@ def load_config():
         with open(CONFIG_FILE, "r") as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        return {"prefix": "!"}
+        default_config = {"prefix": "!"}
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(default_config, f, indent=4)  # Create config file if missing/corrupted
+        return default_config
+
 
 config = load_config()
 PREFIX = config.get("prefix", "!")
@@ -311,7 +336,9 @@ async def skull(ctx, *args):
 
     if action.startswith("<@") and mentioned_user:
         SKULL_LIST.add(mentioned_user.id)
-        save_skull_list(SKULL_LIST)
+        skull_list = load_skull_list()  # Load existing skull list
+        skull_list.add(user.id)  # Add user ID
+        save_skull_list(skull_list)  # Save the updated list
         embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
         await ctx.send(embed=embed)
         return
