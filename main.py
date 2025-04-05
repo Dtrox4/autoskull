@@ -455,8 +455,8 @@ async def skull(ctx, *args):
             save_skull_list(SKULL_LIST)
             else:
                 embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
-                await ctx.send(embed=embed)
-                return
+            await ctx.send(embed=embed)
+            return
 
 @bot.command()
 async def stats(ctx):
