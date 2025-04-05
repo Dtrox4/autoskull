@@ -1,13 +1,12 @@
-import discord
+import discord 
 import asyncio
 import datetime
 import os
 import json
 from discord.ui import View, Button
 from discord.ext import commands
+from keep_alive import keep_alive
 from dotenv import load_dotenv
-from threading import Thread
-from flask import Flask
 
 # Load environment variables
 load_dotenv()
@@ -40,36 +39,38 @@ def chunk_list(data, size):
     for i in range(0, len(data), size):
         yield data[i:i + size]
 
-# Load data
-AUTHORIZED_GUILDS = set(load_json(AUTHORIZED_GUILDS_FILE, []))
-SKULL_LIST = set(load_json(SKULL_LIST_FILE, []))
-AUTHORIZED_USERS = set(load_json(AUTHORIZED_USERS_FILE, [YOUR_USER_ID]))
-CONFIG = load_json(CONFIG_FILE, {"prefix": "!"})
-PREFIX = CONFIG.get("prefix", "!")
+AUTHORIZED_GUILDS = load_authorized_guilds()
 
 # Load Skull List
 def load_skull_list():
+    """Loads the skull list from the JSON file."""
     try:
         with open(SKULL_LIST_FILE, "r") as f:
-            return set(json.load(f))
+            return set(json.load(f))  # Convert list back to set
     except (FileNotFoundError, json.JSONDecodeError):
-        return set()
+        return set()  # Return empty set if file doesn't exist or is invalid
 
 def save_skull_list(skull_list):
-    with open(SKULL_LIST_FILE, "w") as f:
-        json.dump(list(skull_list), f, indent=4)
+    """Saves the skull list to the JSON file."""
+    try:
+        with open(SKULL_LIST_FILE, "w") as f:
+            json.dump(list(skull_list), f, indent=4)  # Convert set to list before saving
+        print(f"✅ Skull list saved successfully: {skull_list}")  # Debugging log
+    except Exception as e:
+        print(f"❌ Error saving skull list: {e}")  # Debugging log
 
 # Load Authorized Users
 def load_authorized_users():
     try:
         with open(AUTHORIZED_USERS_FILE, "r") as f:
-            return set(json.load(f))
+            return set(json.load(f))  # Load as set
     except (FileNotFoundError, json.JSONDecodeError):
-        return {YOUR_USER_ID}
+        return set()  # Return empty set instead of {YOUR_USER_ID}
 
+# Save Authorized Users
 def save_authorized_users(authorized_users):
     with open(AUTHORIZED_USERS_FILE, "w") as f:
-        json.dump(list(authorized_users), f, indent=4)
+        json.dump(list(authorized_users), f, indent=4)  # Convert set to list
 
 # Load Config
 def load_config():
@@ -77,11 +78,20 @@ def load_config():
         with open(CONFIG_FILE, "r") as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
-        return {"prefix": "!"}
+        default_config = {"prefix": "!"}
+        with open(CONFIG_FILE, "w") as f:
+            json.dump(default_config, f, indent=4)  # Create config file if missing/corrupted
+        return default_config
+
+
+config = load_config()
+PREFIX = config.get("prefix", "!")
+AUTHORIZED_USERS = load_authorized_users()
+SKULL_LIST = load_skull_list()
 
 # Use `commands.Bot`
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix=PREFIX, intents=intents)
+bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 keep_alive()
 start_time = datetime.datetime.utcnow()
@@ -124,6 +134,45 @@ def is_user_authorized(ctx):
             return True
 
     return False
+
+@bot.command()
+async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
+    # Load authorized users
+    with open("authorized_users.json", "r") as f:
+        authorized_users = json.load(f)
+
+    # Check if the command user is authorized
+    if ctx.author.id not in authorized_users:
+        embed = discord.Embed(
+            title="🚫 Unauthorized",
+            description="You are not authorized to use this command.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed, delete_after=5)
+        return
+
+    # Define message deletion criteria
+    def check(msg):
+        if user and msg.author != user:
+            return False
+        if keyword and keyword.lower() not in msg.content.lower():
+            return False
+        if msg.author == bot.user or msg.content.startswith(ctx.prefix + ctx.command.name):
+            return True
+        return False
+
+    # Delete messages
+    deleted = await ctx.channel.purge(limit=limit, check=check)
+
+    # Send embedded confirmation
+    embed = discord.Embed(
+        title="🧹 Messages Cleared",
+        description=f"Deleted **{len(deleted)}** message(s) matching criteria.",
+        color=discord.Color.green()
+    )
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+    await ctx.send(embed=embed, delete_after=5)
+
 
 @bot.command()
 async def skull(ctx, *args):
@@ -341,44 +390,5 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=embed)
     else:
         raise error
-
-@bot.command()
-async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
-    # Load authorized users
-    with open("authorized_users.json", "r") as f:
-        authorized_users = json.load(f)
-
-    # Check if the command user is authorized
-    if ctx.author.id not in authorized_users:
-        embed = discord.Embed(
-            title="🚫 Unauthorized",
-            description="You are not authorized to use this command.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed, delete_after=5)
-        return
-
-    # Define message deletion criteria
-    def check(msg):
-        if user and msg.author != user:
-            return False
-        if keyword and keyword.lower() not in msg.content.lower():
-            return False
-        if msg.author == bot.user or msg.content.startswith(ctx.prefix + ctx.command.name):
-            return True
-        return False
-
-    # Delete messages
-    deleted = await ctx.channel.purge(limit=limit, check=check)
-
-    # Send embedded confirmation
-    embed = discord.Embed(
-        title="🧹 Messages Cleared",
-        description=f"Deleted **{len(deleted)}** message(s) matching criteria.",
-        color=discord.Color.green()
-    )
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
-    await ctx.send(embed=embed, delete_after=5)
-
 
 bot.run(TOKEN)
