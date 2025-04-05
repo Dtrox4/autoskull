@@ -252,6 +252,14 @@ async def skull(ctx, *args):
         return
 
     if action == "authorize" and mentioned_user:
+        if ctx.author.id != YOUR_USER_ID:
+        embed = discord.Embed(
+            title="⛔ Access Denied",
+            description="Only the bot owner can use the `authorize` subcommand.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
         if mentioned_user.id not in AUTHORIZED_USERS:
             AUTHORIZED_USERS.add(mentioned_user.id)
             save_authorized_users(AUTHORIZED_USERS)
@@ -262,6 +270,14 @@ async def skull(ctx, *args):
         return
 
     if action == "unauthorize" and mentioned_user:
+        if ctx.author.id != YOUR_USER_ID:
+        embed = discord.Embed(
+            title="⛔ Access Denied",
+            description="Only the bot owner can use the `unauthorize` subcommand.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
         if mentioned_user.id in AUTHORIZED_USERS and mentioned_user.id != YOUR_USER_ID:
             AUTHORIZED_USERS.remove(mentioned_user.id)
             save_authorized_users(AUTHORIZED_USERS)
