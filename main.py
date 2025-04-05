@@ -1,4 +1,4 @@
-import discord
+import discord 
 import asyncio
 import datetime
 import os
@@ -153,7 +153,9 @@ async def skull(ctx, *args):
     def require_mention():
         return discord.Embed(
             title="Missing Argument",
-            description=f"Please mention a user.\nUsage: ```{PREFIX}skull {action} @user```",
+            description=f"Please mention a user.\nUsage:
+{PREFIX}skull {action} @user
+",
             color=discord.Color.orange()
         )
 
@@ -183,6 +185,7 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull allowguild", value="Authorize this server to use commands.", inline=False)
         embed.add_field(name=f"{PREFIX}skull disallowguild", value="Remove this server from the authorized list.", inline=False)
         embed.add_field(name=f"{PREFIX}skull guilds", value="List all authorized guild IDs.", inline=False)
+        embed.add_field(name=f"{PREFIX}restart", value="Restart the bot from root.", inline=False)
         embed.set_footer(text="Admin use only — Owner privileges")
         await ctx.send(embed=embed)
         return
@@ -202,7 +205,7 @@ async def skull(ctx, *args):
         embed = discord.Embed(title="Skulled Users", color=discord.Color.purple())
         if SKULL_LIST:
             for user_id in SKULL_LIST:
-                embed.add_field(name="", value=f"<@{user_id}>", inline=False)
+                embed.add_field(name="User", value=f"<@{user_id}>", inline=False)
         else:
             embed.description = "No users are being skulled."
         await ctx.send(embed=embed)
@@ -211,7 +214,7 @@ async def skull(ctx, *args):
     if action == "authorized":
         embed = discord.Embed(title="Authorized Users", color=discord.Color.green())
         for user_id in AUTHORIZED_USERS:
-            embed.add_field(name="", value=f"<@{user_id}>", inline=False)
+            embed.add_field(name="User", value=f"<@{user_id}>", inline=False)
         await ctx.send(embed=embed)
         return
 
@@ -359,6 +362,14 @@ async def on_command_error(ctx, error):
     else:
         raise error
 
+@bot.command()
+async def restart(ctx):
+    if ctx.author.id != YOUR_USER_ID:
+        await ctx.send("Only the bot owner can restart.")
+        return
 
+    await ctx.send("restart command executed.")
+    await bot.close()
+    os._exit(0)  # This will force the bot process to restart
 
 bot.run(TOKEN)
