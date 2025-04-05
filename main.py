@@ -186,15 +186,15 @@ async def skull(ctx, *args):
             SKULL_LIST.add(mentioned_user.id)
             save_skull_list(SKULL_LIST)
             embed = discord.Embed(
-                title="💀 Skull Added",
-                description=f"{mentioned_user.mention} has been added to the skull list.",
-                color=discord.Color.dark_red()
+            title="💀 Skull Added",
+            description=f"{mentioned_user.mention} has been added to the skull list.",
+            color=discord.Color.dark_red()
             )
         else:
             embed = discord.Embed(
-                title="Already Skulled",
-                description=f"{mentioned_user.mention} is already in the skull list.",
-                color=discord.Color.light_grey()
+            title="Already Skulled",
+            description=f"{mentioned_user.mention} is already in the skull list.",
+            color=discord.Color.light_grey()
             )
         await ctx.send(embed=embed)
         return
