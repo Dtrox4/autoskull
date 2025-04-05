@@ -397,7 +397,7 @@ async def skull(ctx, *args):
             await ctx.send(embed=embed)
             return
 
-        if action == "stop" and mentioned_user:
+    if action == "stop" and mentioned_user:
         if mentioned_user.id in SKULL_LIST:
             SKULL_LIST.remove(mentioned_user.id)
             save_skull_list(SKULL_LIST)
