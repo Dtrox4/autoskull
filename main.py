@@ -183,15 +183,15 @@ async def skull(ctx, *args):
     author_id = str(ctx.author.id)
     guild_id = str(ctx.guild.id)
 
-    if action in ["authorize", "unauthorize", "stop","userinfo"] and not mentioned_user:
-        await ctx.send(embed=require_mention(action))
+    if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
+        await ctx.send(embed=require_mention())
         return
 
     if action.startswith("<@") and not mentioned_user:
         await ctx.send(embed=require_mention(action))
         return
 
-    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list","help"]:
+    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized","help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
@@ -580,7 +580,7 @@ class HelpView(discord.ui.View):
 def get_help_pages(user_id):
     pages = []
 
-    skull_embed = discord.Embed(title="☠️ Skull Commands", color=discord.Color.blurple())
+    skull_embed = discord.Embed(title="☠️ Auto-skull Commands", color=discord.Color.blurple())
     skull_embed.add_field(name="!skull <@user>", value="Grant auto-skull privileges to a user.", inline=False)
     skull_embed.add_field(name="!skull stop <@user>", value="Remove auto-skull previleges from a user.", inline=False)
     skull_embed.add_field(name="!skull list", value="View all users with auto-skull privileges.", inline=False)
@@ -594,7 +594,6 @@ def get_help_pages(user_id):
 
     info_embed = discord.Embed(title="📊 Info Commands", color=discord.Color.blurple())
     info_embed.add_field(name="!roleinfo", value="Show info about a role.", inline=False)
-    info_embed.add_field(name="!serverinfo", value="Show info about the server.", inline=False)
     info_embed.add_field(name="!userinfo", value="Show info about a user.", inline=False)
     info_embed.add_field(name="!serverstats", value="View server statistics.", inline=False)
     info_embed.add_field(name="!stats", value="Bot statistics and uptime.", inline=False)
@@ -618,6 +617,7 @@ def get_help_pages(user_id):
         admin_embed.add_field(name="!skull allowguild", value="Allow this guild to use skull commands.", inline=False)
         admin_embed.add_field(name="!skull disallowguild", value="Disallow this guild from skull commands.", inline=False)
         admin_embed.add_field(name="!skull guilds", value="List all allowed guilds.", inline=False)
+        admin_embed.add_field(name="!restart", value="Restart the bot.", inline=False)
         pages.append(admin_embed)
 
     return pages
