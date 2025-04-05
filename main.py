@@ -8,7 +8,6 @@ import random
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 intents = discord.Intents.default()
@@ -16,9 +15,10 @@ intents.members = True
 intents.message_content = True
 intents.guilds = True
 intents.messages = True
-PREFIX = os.getenv("PREFIX", "!")
+PREFIX = "!"
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
+keep_alive()
 # Ensure files exist
 authorized_users_file = "authorized_users.json"
 skull_list_file = "skull_list.json"
@@ -51,7 +51,6 @@ YOUR_USER_ID = 1212229549459374222 # Replace with your actual Discord ID
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
-keep_alive()
 start_time = datetime.datetime.utcnow()
 
 @bot.event
