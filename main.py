@@ -145,7 +145,7 @@ async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str =
         authorized_users = json.load(f)
     """
     Deletes messages by bot (or user/keyword), including the command message.
-    Usage: !clearbot [limit] [@user (optional)] [keyword (optional)]
+    Usage: !bc [limit] [@user (optional)] [keyword (optional)]
     """
     # Delete the command message itself first
     try:
@@ -181,22 +181,6 @@ async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str =
 
 @bot.command()
 async def skull(ctx, *args):
-    if not args:
-        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-        return
-
-    first_arg = args[0].lower()
-    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
-
-    def require_mention():
-        return discord.Embed(
-            title="Missing Argument",
-            description=f"Please mention a user.\nUsage: `{PREFIX}skull {first_arg} @user`",
-            color=discord.Color.orange()
-        )
-
-    # Handle `!skull @user`
     if mentioned_user and not first_arg.isalpha():
         if mentioned_user.id not in SKULL_LIST:
             SKULL_LIST.add(mentioned_user.id)
@@ -214,12 +198,20 @@ async def skull(ctx, *args):
             )
         await ctx.send(embed=embed)
         return
+        
+    if not args:
+        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
 
+    first_arg = args[0].lower()
+    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
-    # Check for missing required mention
     def require_mention():
         return discord.Embed(
-            title="Missing Argument",description=f"Please mention a user.\nUsage:{PREFIX}skull {action} @user",color=discord.Color.orange()
+            title="Missing Argument",
+            description=f"Please mention a user.\nUsage: `{PREFIX}skull {first_arg} @user`",
+            color=discord.Color.orange()
         )
 
     if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
@@ -647,7 +639,7 @@ def get_help_pages(user_id):
     pages = []
 
     skull_embed = discord.Embed(title="☠️ Skull Commands", color=discord.Color.blurple())
-    skull_embed.add_field(name="!skull start <@user>", value="Grant auto-skull privileges to a user.", inline=False)
+    skull_embed.add_field(name="!skull<@user>", value="Grant auto-skull privileges to a user.", inline=False)
     skull_embed.add_field(name="!skull stop <@user>", value="Remove auto-skull previleges from a user.", inline=False)
     skull_embed.add_field(name="!skull list", value="View all users with auto-skull privileges.", inline=False)
     pages.append(skull_embed)
