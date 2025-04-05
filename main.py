@@ -170,7 +170,7 @@ async def skull(ctx, member: discord.Member = None):
         )
     else:
         embed = discord.Embed(
-            title="👀 Already Skulled",
+            title=" Already Skulled",
             description=f"{member.mention} is already in the skull list.",
             color=discord.Color.light_grey()
         )
