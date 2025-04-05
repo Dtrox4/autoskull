@@ -4,6 +4,8 @@ from discord.ext.commands import MissingPermissions, MissingRequiredArgument
 import json
 import os
 import asyncio
+from flask import Flask
+from threading import Thread
 import random
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -18,7 +20,6 @@ intents.messages = True
 PREFIX = "!"
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
-keep_alive()
 # Ensure files exist
 authorized_users_file = "authorized_users.json"
 skull_list_file = "skull_list.json"
@@ -51,6 +52,7 @@ YOUR_USER_ID = 1212229549459374222 # Replace with your actual Discord ID
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
+keep_alive()
 start_time = datetime.datetime.utcnow()
 
 @bot.event
