@@ -197,7 +197,7 @@ async def skull(ctx, *args):
     if action == "authorized":
         embed = discord.Embed(title="Authorized Users", color=discord.Color.green())
         for user_id in AUTHORIZED_USERS:
-            embed.add_field(name="User", value=f"<@{user_id}>", inline=False)
+            embed.add_field(name="", value=f"<@{user_id}>", inline=False)
         await ctx.send(embed=embed)
         return
 
@@ -274,7 +274,7 @@ async def skull(ctx, *args):
         def generate_embed(page):
             embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
             for entry in pages[page]:
-                embed.add_field(name="Guild", value=entry, inline=False)
+                embed.add_field(name="", value=entry, inline=False)
             embed.set_footer(text=f"Page {page + 1} of {len(pages)}")
             return embed
 
