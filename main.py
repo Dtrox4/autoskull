@@ -451,8 +451,8 @@ async def skull(ctx, *args):
                 description=f"{member.mention} is already being skulled.",
                 color=discord.Color.orange()
                 )
-            SKULL_LIST.add(mentioned_user.id)
-            save_skull_list(SKULL_LIST)
+                SKULL_LIST.add(mentioned_user.id)
+                save_skull_list(SKULL_LIST)
             else:
                 embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
             await ctx.send(embed=embed)
