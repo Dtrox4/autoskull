@@ -365,31 +365,46 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-    if action.startswith("<@"):
-        if not mentioned_user:
-            await ctx.send("❌ Please mention a valid user.")
-            return
-
-    skull_list = load_skull_list()
-
-    if mentioned_user.id in skull_list:
+@bot.command()
+async def skull(ctx, member: discord.Member = None):
+    if member is None:
         embed = discord.Embed(
-            title="Already Skulled",
-            description=f"{mentioned_user.mention} is already on the skull list.",
-            color=discord.Color.red()
+            title="⚠️ Missing Argument",
+            description="Please mention a user to skull.\nUsage: `!skull @user`",
+            color=discord.Color.orange()
+        )
+        await ctx.send(embed=embed, delete_after=5)
+        return
+
+    # Ensure skull_list.json exists
+    if not os.path.exists("skull_list.json"):
+        with open("skull_list.json", "w") as f:
+            json.dump([], f)
+
+    # Load existing skull list
+    with open("skull_list.json", "r") as f:
+        skull_list = json.load(f)
+
+    # Add user if not already in list
+    if member.id not in skull_list:
+        skull_list.append(member.id)
+        with open("skull_list.json", "w") as f:
+            json.dump(skull_list, f, indent=4)
+
+        embed = discord.Embed(
+            title="💀 Skull Added",
+            description=f"{member.mention} has been added to the skull list.",
+            color=discord.Color.dark_red()
         )
     else:
-        skull_list.add(mentioned_user.id)
-        save_skull_list(skull_list)
-
         embed = discord.Embed(
-            title="💀 Skulled",
-            description=f"{mentioned_user.mention} will be **skulled** from now on! 💀",
-            color=discord.Color.purple()
+            title="👀 Already Skulled",
+            description=f"{member.mention} is already in the skull list.",
+            color=discord.Color.light_grey()
         )
 
     await ctx.send(embed=embed)
-    return
+
 
     # Fallback if command wasn't recognized
     embed = discord.Embed(title="Unknown Command", description=f"Type `{PREFIX}skull help` to see available actions.", color=discord.Color.red())
