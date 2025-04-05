@@ -252,7 +252,7 @@ async def userinfo(ctx, member: discord.Member = None):
 
 @bot.command()
 async def roleinfo(ctx, *, role: discord.Role):
-    embed = discord.Embed(
+        embed = discord.Embed(
         title=f"🏷️ Role Info — {role.name}",
         color=role.color if role.color.value else discord.Color.dark_gray()
     )
@@ -341,6 +341,7 @@ async def skull(ctx, *args):
         )
         await ctx.send(embed=embed)
         return
+        
         if mentioned_user.id in AUTHORIZED_USERS and mentioned_user.id != YOUR_USER_ID:
             AUTHORIZED_USERS.remove(mentioned_user.id)
             save_authorized_users(AUTHORIZED_USERS)
@@ -413,7 +414,7 @@ async def skull(ctx, *args):
             title="Missing Argument",
             description="Please mention a user.\nUsage: ```!skull start @user```",
             color=discord.Color.orange()
-            )
+        )
         await ctx.send(embed=embed)
         return
 
@@ -430,7 +431,7 @@ async def skull(ctx, *args):
             title="Already Skulled",
             description=f"{member.mention} is already being skulled.",
             color=discord.Color.orange()
-            )
+        )
         await ctx.send(embed=embed)
         return
 
