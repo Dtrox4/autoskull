@@ -440,11 +440,7 @@ async def skull(ctx, *args):
 
     if action.startswith("start"):
         mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
-
-    if not mentioned_user:
-        await ctx.send(embed=require_mention())
-        return
-
+        
     member = mentioned_user
 
     try:
