@@ -255,16 +255,16 @@ async def roleinfo(ctx, *, role: discord.Role):
         embed = discord.Embed(
         title=f"🏷️ Role Info — {role.name}",
         color=role.color if role.color.value else discord.Color.dark_gray()
-    )
-    embed.add_field(name="ID", value=role.id, inline=True)
-    embed.add_field(name="Mentionable", value=role.mentionable, inline=True)
-    embed.add_field(name="Displayed Separately", value=role.hoist, inline=True)
-    embed.add_field(name="Position", value=role.position, inline=True)
-    embed.add_field(name="Members with Role", value=len(role.members), inline=True)
-    embed.add_field(name="Permissions", value=", ".join([perm[0] for perm in role.permissions if perm[1]]) or "None", inline=False)
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+        )
+        embed.add_field(name="ID", value=role.id, inline=True)
+        embed.add_field(name="Mentionable", value=role.mentionable, inline=True)
+        embed.add_field(name="Displayed Separately", value=role.hoist, inline=True)
+        embed.add_field(name="Position", value=role.position, inline=True)
+        embed.add_field(name="Members with Role", value=len(role.members), inline=True)
+        embed.add_field(name="Permissions", value=", ".join([perm[0] for perm in role.permissions if perm[1]]) or "None", inline=False)
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
 
-    await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
 @bot.command()
 async def skull(ctx, *args):
