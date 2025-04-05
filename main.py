@@ -183,6 +183,103 @@ async def say(ctx, *, message: str):
     
     await ctx.send(message)
 
+@bot.command()
+async def userinfo(ctx, member: discord.Member = None):
+    member = member or ctx.author
+    embed = discord.Embed(title=f"👤 User Info - {member}", color=discord.Color.green())
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.add_field(name="ID", value=member.id, inline=False)
+    embed.add_field(name="Joined", value=member.joined_at.strftime("%Y-%m-%d"), inline=True)
+    embed.add_field(name="Created", value=member.created_at.strftime("%Y-%m-%d"), inline=True)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def poll(ctx, *, question):
+    embed = discord.Embed(title="🗳️ New Poll", description=question, color=discord.Color.orange())
+    embed.set_footer(text=f"Started by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+    message = await ctx.send(embed=embed)
+    await message.add_reaction("👍")
+    await message.add_reaction("👎")
+
+@bot.command()
+async def remind(ctx, time_in_seconds: int, *, reminder: str):
+    await ctx.send(embed=discord.Embed(
+        description=f"⏰ Reminder set for **{time_in_seconds}** seconds.",
+        color=discord.Color.teal()
+    ))
+    await asyncio.sleep(time_in_seconds)
+    await ctx.send(embed=discord.Embed(
+        title="⏰ Reminder!",
+        description=reminder,
+        color=discord.Color.red()
+    ).set_footer(text=f"Reminder for {ctx.author}", icon_url=ctx.author.display_avatar.url))
+
+@bot.command()
+async def serverstats(ctx):
+    guild = ctx.guild
+    embed = discord.Embed(title="📈 Server Stats", color=discord.Color.purple())
+    embed.set_thumbnail(url=guild.icon.url)
+    embed.add_field(name="Server Name", value=guild.name)
+    embed.add_field(name="Members", value=guild.member_count)
+    embed.add_field(name="Created", value=guild.created_at.strftime("%Y-%m-%d"))
+    embed.add_field(name="Owner", value=guild.owner)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+    await ctx.send(embed=embed)
+
+import random
+
+@bot.command()
+async def eightball(ctx, *, question):
+    responses = ["Yes", "No", "Maybe", "Definitely", "Ask again later", "Absolutely not"]
+    response = random.choice(responses)
+    embed = discord.Embed(title="🎱 8Ball", color=discord.Color.random())
+    embed.add_field(name="Question", value=question, inline=False)
+    embed.add_field(name="Answer", value=response, inline=False)
+    embed.set_footer(text=f"Asked by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def userinfo(ctx, member: discord.Member = None):
+    member = member or ctx.author
+    roles = [role.mention for role in member.roles if role != ctx.guild.default_role]
+    roles_display = ", ".join(roles) if roles else "No roles"
+
+    embed = discord.Embed(
+        title=f"👤 User Info — {member.display_name}",
+        color=discord.Color.blurple()
+    )
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.add_field(name="Username", value=str(member), inline=True)
+    embed.add_field(name="ID", value=member.id, inline=True)
+    embed.add_field(name="Status", value=str(member.status).title(), inline=True)
+    embed.add_field(name="Top Role", value=member.top_role.mention, inline=True)
+    embed.add_field(name="Roles", value=roles_display, inline=False)
+    embed.add_field(name="Account Created", value=member.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
+    embed.add_field(name="Joined Server", value=member.joined_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def roleinfo(ctx, *, role: discord.Role):
+    embed = discord.Embed(
+        title=f"🏷️ Role Info — {role.name}",
+        color=role.color if role.color.value else discord.Color.dark_gray()
+    )
+    embed.add_field(name="ID", value=role.id, inline=True)
+    embed.add_field(name="Mentionable", value=role.mentionable, inline=True)
+    embed.add_field(name="Displayed Separately", value=role.hoist, inline=True)
+    embed.add_field(name="Position", value=role.position, inline=True)
+    embed.add_field(name="Members with Role", value=len(role.members), inline=True)
+    embed.add_field(name="Permissions", value=", ".join([perm[0] for perm in role.permissions if perm[1]]) or "None", inline=False)
+    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+
+    await ctx.send(embed=embed)
+
+
+
+
 
 @bot.command()
 async def skull(ctx, *args):
@@ -220,30 +317,88 @@ async def skull(ctx, *args):
             embed = discord.Embed(title="Access Denied", description="Only the bot owner can view admin commands.", color=discord.Color.red())
             await ctx.send(embed=embed)
             return
-
-        embed = discord.Embed(title="Admin Commands", color=discord.Color.dark_red())
-        embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grant command access to a user.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Revoke access from a user.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull authorized", value="Lists all authorized users.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull allowguild", value="Authorize this server to use commands.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull disallowguild", value="Remove this server from the authorized list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull guilds", value="List all authorized guild IDs.", inline=False)
-        embed.set_footer(text="Admin use only — Owner privileges")
-        await ctx.send(embed=embed)
-        return
-
-    if action == "help":
-        embed = discord.Embed(title="Worthy Commands", color=discord.Color.blue())
-        embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull list", value="Shows all users currently being skulled.", inline=False)
-        embed.add_field(name=f"{PREFIX}bc", value="Clears all bot's messages.", inline=False)
-        embed.add_field(name=f"{PREFIX}say <text>", value="say anything using the bots function.", inline=False)
-        if ctx.author.id == YOUR_USER_ID:
-            embed.add_field(name=f"{PREFIX}skull adminhelp", value="Lists admin-only commands.", inline=False)
-        embed.set_footer(text="made by - @xv9c")
-        await ctx.send(embed=embed)
-        return
+        else:
+            class HelpView(discord.ui.View):
+                def __init__(self, pages, author):
+                    super().__init__(timeout=120)
+                    self.pages = pages
+                    self.current_page = 0
+                    self.author = author
+        
+                    self.message = None  # will be set when the message is sent
+        
+                async def send_initial(self, ctx):
+                    embed = self.pages[self.current_page]
+                    self.message = await ctx.send(embed=embed, view=self)
+        
+                async def interaction_check(self, interaction: discord.Interaction) -> bool:
+                    return interaction.user.id == self.author.id
+        
+                async def update_page(self, interaction):
+                    embed = self.pages[self.current_page]
+                    await interaction.response.edit_message(embed=embed, view=self)
+        
+                @discord.ui.button(label="◀️", style=discord.ButtonStyle.secondary)
+                async def previous(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    self.current_page = (self.current_page - 1) % len(self.pages)
+                    await self.update_page(interaction)
+        
+                @discord.ui.button(label="▶️", style=discord.ButtonStyle.secondary)
+                async def next(self, interaction: discord.Interaction, button: discord.ui.Button):
+                    self.current_page = (self.current_page + 1) % len(self.pages)
+                    await self.update_page(interaction)
+        
+            # Create your help pages as embeds
+            def get_help_pages(user_id):
+                pages = []
+        
+                skull_embed = discord.Embed(title="🦴 Skull Commands", color=discord.Color.blurple())
+                skull_embed.add_field(name="!skull <@user>", value="Assign a skull to a user.", inline=False)
+                skull_embed.add_field(name="!skull stop <@user>", value="Remove a skull from a user.", inline=False)
+                skull_embed.add_field(name="!skull list", value="View all users with skulls.", inline=False)
+                pages.append(skull_embed)
+        
+                mod_embed = discord.Embed(title="🛠️ Moderation Tools", color=discord.Color.blurple())
+                mod_embed.add_field(name="!bc", value="Bulk delete messages.", inline=False)
+                mod_embed.add_field(name="!say", value="Echo a message and delete command.", inline=False)
+                pages.append(mod_embed)
+        
+                info_embed = discord.Embed(title="📊 Info Commands", color=discord.Color.blurple())
+                info_embed.add_field(name="!roleinfo", value="Show info about a role.", inline=False)
+                info_embed.add_field(name="!serverinfo", value="Show info about the server.", inline=False)
+                info_embed.add_field(name="!userinfo", value="Show info about a user.", inline=False)
+                info_embed.add_field(name="!serverstats", value="View server statistics.", inline=False)
+                info_embed.add_field(name="!stats", value="Bot statistics and uptime.", inline=False)
+                pages.append(info_embed)
+        
+                fun_embed = discord.Embed(title="🎲 Engagement Commands", color=discord.Color.blurple())
+                fun_embed.add_field(name="!eightball", value="Ask the magic 8-ball a question.", inline=False)
+                fun_embed.add_field(name="!poll", value="Create a poll with reactions.", inline=False)
+                pages.append(fun_embed)
+        
+                util_embed = discord.Embed(title="🧰 Utility Commands", color=discord.Color.blurple())
+                util_embed.add_field(name="!remind", value="Set a reminder for yourself.", inline=False)
+                pages.append(util_embed)
+        
+                # Admin-only page
+                if user_id == YOUR_USER_ID:
+                    admin_embed = discord.Embed(title="🔐 Admin Tools", color=discord.Color.red())
+                    admin_embed.add_field(name="!skull authorize <@user>", value="Authorize someone to use skull commands.", inline=False)
+                    admin_embed.add_field(name="!skull unauthorize <@user>", value="Revoke skull command access.", inline=False)
+                    admin_embed.add_field(name="!skull authorized", value="List all authorized users.", inline=False)
+                    admin_embed.add_field(name="!skull allowguild", value="Allow this guild to use skull commands.", inline=False)
+                    admin_embed.add_field(name="!skull disallowguild", value="Disallow this guild from skull commands.", inline=False)
+                    admin_embed.add_field(name="!skull guilds", value="List all allowed guilds.", inline=False)
+                    pages.append(admin_embed)
+        
+                return pages
+        
+            # Main help command
+            @bot.command()
+            async def help(ctx):
+                pages = get_help_pages(ctx.author.id)
+                view = HelpView(pages, ctx.author)
+                await view.send_initial(ctx)
 
     if action == "list":
         embed = discord.Embed(title="Skulled Users", color=discord.Color.purple())
