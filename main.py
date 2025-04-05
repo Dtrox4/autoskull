@@ -272,83 +272,127 @@ async def roleinfo(ctx, *, role: discord.Role = None):
     await ctx.send(embed=embed)
 
 
-@bot.command()
-async def skull(ctx, action=None,*args):
-    if action == "start":
-        if not ctx.message.mentions:
-            embed = discord.Embed(
-            title="Missing Argument",
-            description="Please mention a user.\nUsage: ```!skull start @user```",
-            color=discord.Color.orange()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    member = ctx.message.mentions[0]
-
-    try:
-        with open("skull_list.json", "r") as f:
-            skull_list = json.load(f)
-    except FileNotFoundError:
-        skull_list = {}
-
-    if str(member.id) in skull_list:
-            embed = discord.Embed(
-            title="Already Skulled",
-            description=f"{member.mention} is already being skulled.",
-            color=discord.Color.orange()
-            )
-            await ctx.send(embed=embed)
-            return
-
-    skull_list[str(member.id)] = ctx.author.id
-    with open("skull_list.json", "w") as f:
-        json.dump(skull_list, f, indent=4)
-
-        embed = discord.Embed(
-        title="💀 Skulled!",
-        description=f"{member.mention} has been added to the skull list.",
-        color=discord.Color.dark_purple()
-    )
-    await ctx.send(embed=embed)
-    return
-
+@bot.command(name="skull")
+async def skull(ctx, *args):
     if not args:
-        embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
+        embed = discord.Embed(title="Missing Argument", description="Please provide a subcommand or mention a user.\nUsage: ```!skull start @user```", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
 
     action = args[0].lower()
-    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
+    author_id = str(ctx.author.id)
+    guild_id = str(ctx.guild.id)
 
-    # Check for missing required mention
-    def require_mention():
-        return discord.Embed(
-            title="Missing Argument",
-            description=f"Please mention a user.\nUsage: ```{PREFIX}skull {action} @user```",
-            color=discord.Color.orange()
-        )
-
-    if action in ["start","authorize", "unauthorize", "stop"] and not mentioned_user:
-        await ctx.send(embed=require_mention())
-        return
-
-    if action.startswith("<@") and not mentioned_user:
-        await ctx.send(embed=require_mention())
-        return
-
-    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized", "help"]:
-        embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
+    # Check authorization
+    if author_id not in authorized_users and guild_id not in authorized_guilds:
+        embed = discord.Embed(title="Unauthorized", description="You are not authorized to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
-        
-    if action == "list":
-        embed = discord.Embed(title="Skulled Users", color=discord.Color.purple())
-        if SKULL_LIST:
-            for user_id in SKULL_LIST:
-                embed.add_field(name="", value=f"<@{user_id}>", inline=False)
-        else:
-            embed.description = "No users are being skulled."
+
+    # Start skull command
+    if action == "start":
+        if not ctx.message.mentions:
+            embed = discord.Embed(
+                title="Missing Argument",
+                description="Please mention a user.\nUsage: ```!skull start @user```",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        member = ctx.message.mentions[0]
+
+        try:
+            with open(SKULL_LIST_FILE, "r") as f:
+                skull_list = json.load(f)
+        except FileNotFoundError:
+            skull_list = {}
+
+        if str(member.id) in skull_list:
+            embed = discord.Embed(
+                title="Already Skulled",
+                description=f"{member.mention} is already being skulled.",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        skull_list[str(member.id)] = ctx.author.id
+        save_json(SKULL_LIST_FILE, skull_list)
+
+        embed = discord.Embed(
+            title="💀 Skulled!",
+            description=f"{member.mention} has been added to the skull list.",
+            color=discord.Color.dark_purple()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    # Stop skull command
+    elif action == "stop":
+        if not ctx.message.mentions:
+            embed = discord.Embed(
+                title="Missing Argument",
+                description="Please mention a user.\nUsage: ```!skull stop @user```",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        member = ctx.message.mentions[0]
+
+        try:
+            with open(SKULL_LIST_FILE, "r") as f:
+                skull_list = json.load(f)
+        except FileNotFoundError:
+            skull_list = {}
+
+        if str(member.id) not in skull_list:
+            embed = discord.Embed(
+                title="Not Skulled",
+                description=f"{member.mention} is not currently being skulled.",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        del skull_list[str(member.id)]
+        save_json(SKULL_LIST_FILE, skull_list)
+
+        embed = discord.Embed(
+            title="✅ Skull Removed",
+            description=f"{member.mention} has been removed from the skull list.",
+            color=discord.Color.green()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    # List skulls
+    elif action == "list":
+        try:
+            with open(SKULL_LIST_FILE, "r") as f:
+                skull_list = json.load(f)
+        except FileNotFoundError:
+            skull_list = {}
+
+        if not skull_list:
+            embed = discord.Embed(title="Skull List", description="No users are currently being skulled.", color=discord.Color.blurple())
+            await ctx.send(embed=embed)
+            return
+
+        embed = discord.Embed(title="💀 Skull List", color=discord.Color.blurple())
+        for user_id, author_id in skull_list.items():
+            member = ctx.guild.get_member(int(user_id))
+            skuller = ctx.guild.get_member(int(author_id))
+            name = member.mention if member else f"User ID {user_id}"
+            skuller_name = skuller.mention if skuller else f"User ID {author_id}"
+            embed.add_field(name=name, value=f"Skulled by: {skuller_name}", inline=False)
+        await ctx.send(embed=embed)
+        return
+
+    # Unknown action
+    else:
+        embed = discord.Embed(title="Unknown Subcommand", description=f"Subcommand `{action}` not recognized.\nUsage: ```!skull start|stop|list @user```", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
 
@@ -442,17 +486,6 @@ async def skull(ctx, action=None,*args):
             embed = discord.Embed(title="Authorized Guilds", description="No guilds are currently authorized.", color=discord.Color.blurple())
             await ctx.send(embed=embed)
             return
-
-    if action == "stop" and mentioned_user:
-        if mentioned_user.id in SKULL_LIST:
-            SKULL_LIST.remove(mentioned_user.id)
-            save_skull_list(SKULL_LIST)
-            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
-        else:
-            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-        return
-
 
 @bot.command()
 async def showguilds(ctx):
