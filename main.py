@@ -146,7 +146,15 @@ def is_user_authorized(ctx):
 
 @bot.command()
 async def skull(ctx, *args):
-    if start and mentioned_user():
+    if not args:
+        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    first_arg = args[0].lower()
+    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
+        
+    if mentioned_user and not first_arg.isalpha():
         if mentioned_user.id not in SKULL_LIST:
             SKULL_LIST.add(mentioned_user.id)
             save_skull_list(SKULL_LIST)
@@ -163,14 +171,6 @@ async def skull(ctx, *args):
             )
         await ctx.send(embed=embed)
         return
-        
-    if not args:
-        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-        return
-
-    first_arg = args[0].lower()
-    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
 
     if action in ["authorize", "unauthorize", "stop","userinfo","start"] and not mentioned_user:
