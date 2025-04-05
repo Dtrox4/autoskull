@@ -438,42 +438,40 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-    if action.startswith("<@>") and mentioned_user:
-        if mentioned.user.id in SKULL_LIST:
-            # Add to skull_list
-        skull_list[str(member.id)] = ctx.author.id
-        with open("skull_list.json", "w") as f:
-            json.dump(skull_list, f, indent=4)
-        
-            embed = discord.Embed(
-            title="💀 Skulled!",
-            description=f"{member.mention} will be skulled from now on.",
-            color=discord.Color.dark_purple()
-            )
-        await ctx.send(embed=embed)
-        if action is None:
-            if not member:
-                embed = discord.Embed(
-                title="Missing Argument",
-                description="You must mention a user to skull.\nUsage: `!skull @user`",
-                color=discord.Color.red()
-                )
-            await ctx.send(embed=embed)
-            return
+    if action.startswith("<@"):
+    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
-        # Load skull_list
+    if not mentioned_user:
+        await ctx.send(embed=require_mention())
+        return
+
+    member = mentioned_user
+
+    try:
         with open("skull_list.json", "r") as f:
             skull_list = json.load(f)
+    except FileNotFoundError:
+        skull_list = {}
 
-    # Already in skull list
     if str(member.id) in skull_list:
             embed = discord.Embed(
-            title="Already Skulled!",
+            title="Already Skulled",
             description=f"{member.mention} is already being skulled.",
             color=discord.Color.orange()
-            )
+        )
+        await ctx.send(embed=embed)
+        return
+
+    skull_list[str(member.id)] = ctx.author.id
+    with open("skull_list.json", "w") as f:
+        json.dump(skull_list, f, indent=4)
+
+        embed = discord.Embed(
+        title="💀 Skulled!",
+        description=f"{member.mention} has been added to the skull list.",
+        color=discord.Color.dark_purple()
+    )
     await ctx.send(embed=embed)
-    return
 
 
 @bot.command()
