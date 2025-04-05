@@ -229,7 +229,7 @@ async def skull(ctx, action=None, member: discord.Member = None):
         ))
 
 
-        elif action == "list":
+         elif action == "list":
             if not is_authorized(ctx.author.id):
                 return await ctx.send(embed=discord.Embed(
                     title="❌ Unauthorized",
