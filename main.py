@@ -415,8 +415,8 @@ async def skull(ctx, *args):
         return
 
     if action == "start":
-        if not ctx.message.mentions:
-            embed = discord.Embed(
+    if not ctx.message.mentions:
+        embed = discord.Embed(
             title="Missing Argument",
             description="Please mention a user.\nUsage: ```!skull start @user```",
             color=discord.Color.orange()
@@ -424,16 +424,16 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-        member = ctx.message.mentions[0]
+    member = ctx.message.mentions[0]
 
-        try:
-            with open("skull_list.json", "r") as f:
-                skull_list = json.load(f)
-        except FileNotFoundError:
-            skull_list = {}
+    try:
+        with open("skull_list.json", "r") as f:
+            skull_list = json.load(f)
+    except FileNotFoundError:
+        skull_list = {}
 
-        if str(member.id) in skull_list:
-            embed = discord.Embed(
+    if str(member.id) in skull_list:
+        embed = discord.Embed(
             title="Already Skulled",
             description=f"{member.mention} is already being skulled.",
             color=discord.Color.orange()
@@ -441,16 +441,17 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-        skull_list[str(member.id)] = ctx.author.id
-        with open("skull_list.json", "w") as f:
-            json.dump(skull_list, f, indent=4)
+    skull_list[str(member.id)] = ctx.author.id
+    with open("skull_list.json", "w") as f:
+        json.dump(skull_list, f, indent=4)
 
-            embed = discord.Embed(
-            title="💀 Skulled!",
-            description=f"{member.mention} has been added to the skull list.",
-            color=discord.Color.dark_purple()
-        )
-        await ctx.send(embed=embed)
+    embed = discord.Embed(
+        title="💀 Skulled!",
+        description=f"{member.mention} has been added to the skull list.",
+        color=discord.Color.dark_purple()
+    )
+    await ctx.send(embed=embed)
+
 
     
 
