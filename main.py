@@ -173,6 +173,16 @@ async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str =
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
     await ctx.send(embed=embed, delete_after=5)
 
+@bot.command(name='say')
+async def say(ctx, *, message: str):
+    try:
+        await ctx.message.delete()  # Deletes the user's command message
+    except discord.Forbidden:
+        # If the bot doesn't have permission to delete messages
+        pass
+    
+    await ctx.send(message)
+
 
 @bot.command()
 async def skull(ctx, *args):
