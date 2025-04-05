@@ -419,7 +419,7 @@ async def skull(ctx, *args):
 
     if action == "authorize" and mentioned_user:
         if ctx.author.id != YOUR_USER_ID:
-        embed = discord.Embed(
+            embed = discord.Embed(
             title="⛔ Access Denied",
             description="Only the bot owner can use the `authorize` subcommand.",
             color=discord.Color.red()
