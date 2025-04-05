@@ -83,21 +83,9 @@ SKULL_LIST = load_skull_list()
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 
-# Keep bot alive
-def run():
-    app = Flask(__name__)
-
-    @app.route('/')
-    def home():
-        return "I'm alive!"
-
-    app.run(host='0.0.0.0', port=8080)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-
 keep_alive()
+# your bot stuff here
+
 start_time = datetime.datetime.utcnow()
 
 @bot.event
