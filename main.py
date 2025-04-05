@@ -229,7 +229,7 @@ async def skull(ctx, action=None, member: discord.Member = None):
         ))
 
 
-         elif action == "list":
+    elif action == "list":
             if not is_authorized(ctx.author.id):
                 return await ctx.send(embed=discord.Embed(
                     title="❌ Unauthorized",
@@ -257,7 +257,7 @@ async def skull(ctx, action=None, member: discord.Member = None):
                 color=discord.Color.purple()
             ))
 
-        elif action == "authorize":
+    elif action == "authorize":
             if not is_authorized(ctx.author.id):
                 return await ctx.send(embed=discord.Embed(
                     title="❌ Unauthorized",
@@ -289,7 +289,7 @@ async def skull(ctx, action=None, member: discord.Member = None):
             ))
 
 
-        elif action == "unauthorize":
+    elif action == "unauthorize":
             if not is_authorized(ctx.author.id):
                 return await ctx.send(embed=discord.Embed(
                     title="❌ Unauthorized",
@@ -320,7 +320,7 @@ async def skull(ctx, action=None, member: discord.Member = None):
                 color=discord.Color.red()
             ))
 
-        elif action == "authorized":
+    elif action == "authorized":
             if not is_authorized(ctx.author.id):
                 return await ctx.send(embed=discord.Embed(
                     title="❌ Unauthorized",
@@ -347,7 +347,7 @@ async def skull(ctx, action=None, member: discord.Member = None):
                 color=discord.Color.blue()
             ))
 
-        if action == "allowguild":
+    if action == "allowguild":
             if ctx.author.id != YOUR_USER_ID:
                 embed = discord.Embed(title="Access Denied", description="Only the bot owner can allow guilds.", color=discord.Color.red())
                 await ctx.send(embed=embed)
