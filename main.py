@@ -80,7 +80,7 @@ SKULL_LIST = load_skull_list()
 
 # Use `commands.Bot`
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix=PREFIX, intents=intents)
+bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 keep_alive()
 # your bot stuff here
