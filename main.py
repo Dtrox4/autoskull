@@ -351,11 +351,22 @@ async def on_command_error(ctx, error):
 @bot.command()
 async def restart(ctx):
     if ctx.author.id != YOUR_USER_ID:
-        await ctx.send("Only the bot owner can restart.")
+        embed = discord.Embed(
+            title="Access Denied",
+            description="Only the bot owner can restart the bot.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
         return
 
-    await ctx.send("restart command executed.")
+    embed = discord.Embed(
+        title="Restarting...",
+        description="The bot is restarting now. Please wait a few seconds.",
+        color=discord.Color.orange()
+    )
+    await ctx.send(embed=embed)
     await bot.close()
-    os._exit(0)  # This will force the bot process to restart
+    os._exit(0)  # Render will auto-restart the process
+
 
 bot.run(TOKEN)
