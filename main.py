@@ -440,14 +440,14 @@ async def skull(ctx, *args):
 
     if action.startswith("<@>") and mentioned_user:
         if action is None:
-        if not member:
-            embed = discord.Embed(
-            title="Missing Argument",
-            description="You must mention a user to skull.\nUsage: `!skull @user`",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-        return
+            if not member:
+                embed = discord.Embed(
+                title="Missing Argument",
+                description="You must mention a user to skull.\nUsage: `!skull @user`",
+                color=discord.Color.red()
+                )
+            await ctx.send(embed=embed)
+            return
 
         # Load skull_list
         with open("skull_list.json", "r") as f:
@@ -459,7 +459,7 @@ async def skull(ctx, *args):
             title="Already Skulled!",
             description=f"{member.mention} is already being skulled.",
             color=discord.Color.orange()
-        )
+            )
         await ctx.send(embed=embed)
         return
 
