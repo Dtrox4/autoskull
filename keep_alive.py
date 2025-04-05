@@ -14,5 +14,3 @@ def run():
 def keep_alive():
     t = Thread(target=run)
     t.start()
-
-bot.run("DISCORD_TOKEN")
