@@ -273,7 +273,46 @@ async def roleinfo(ctx, *, role: discord.Role = None):
 
 
 @bot.command()
-async def skull(ctx, *args):
+async def skull(ctx, action=None,*args):
+    if action == "start":
+        if not ctx.message.mentions:
+            embed = discord.Embed(
+            title="Missing Argument",
+            description="Please mention a user.\nUsage: ```!skull start @user```",
+            color=discord.Color.orange()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    member = ctx.message.mentions[0]
+
+    try:
+        with open("skull_list.json", "r") as f:
+            skull_list = json.load(f)
+    except FileNotFoundError:
+        skull_list = {}
+
+    if str(member.id) in skull_list:
+            embed = discord.Embed(
+            title="Already Skulled",
+            description=f"{member.mention} is already being skulled.",
+            color=discord.Color.orange()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    skull_list[str(member.id)] = ctx.author.id
+    with open("skull_list.json", "w") as f:
+        json.dump(skull_list, f, indent=4)
+
+        embed = discord.Embed(
+        title="💀 Skulled!",
+        description=f"{member.mention} has been added to the skull list.",
+        color=discord.Color.dark_purple()
+    )
+    await ctx.send(embed=embed)
+    return
+
     if not args:
         embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
         await ctx.send(embed=embed)
@@ -413,45 +452,6 @@ async def skull(ctx, *args):
             embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
-    
-    if action == "start":
-        if not ctx.message.mentions:
-            embed = discord.Embed(
-            title="Missing Argument",
-            description="Please mention a user.\nUsage: ```!skull start @user```",
-            color=discord.Color.orange()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    member = ctx.message.mentions[0]
-
-    try:
-        with open("skull_list.json", "r") as f:
-            skull_list = json.load(f)
-    except FileNotFoundError:
-        skull_list = {}
-
-    if str(member.id) in skull_list:
-        embed = discord.Embed(
-            title="Already Skulled",
-            description=f"{member.mention} is already being skulled.",
-            color=discord.Color.orange()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    skull_list[str(member.id)] = ctx.author.id
-    with open("skull_list.json", "w") as f:
-        json.dump(skull_list, f, indent=4)
-
-    embed = discord.Embed(
-        title="💀 Skulled!",
-        description=f"{member.mention} will be skulled from now.",
-        color=discord.Color.dark_purple()
-    )
-    await ctx.send(embed=embed)
-    return
 
 
 @bot.command()
