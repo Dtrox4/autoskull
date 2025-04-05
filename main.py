@@ -146,7 +146,7 @@ def is_user_authorized(ctx):
 
     return False
 
-@bot.command(n)
+@bot.command()
 async def skull(ctx, *args):
     if not args:
         embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
@@ -348,6 +348,10 @@ async def skull(ctx, action=None, member: discord.Member = None):
                 description=description,
                 color=discord.Color.blue()
             ))
+
+    else:
+        embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
 
     if action == "allowguild":
             if ctx.author.id != YOUR_USER_ID:
