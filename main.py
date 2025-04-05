@@ -273,7 +273,29 @@ async def roleinfo(ctx, *, role: discord.Role = None):
 
 
 @bot.command()
-async def skull(ctx, action=None,*args):
+async def skull(ctx, *args):
+    if action == "start" and mentioned_user:
+        if mentioned_user.id in SKULL_LIST:
+            embed = discord.Embed(
+            title="Already Skulled",
+            description=f"{member.mention} is already being skulled.",
+            color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
+            return
+            save_skull_list(SKULL_LIST)
+        else:
+            with open("skull_list.json", "w") as f:
+                json.dump(skull_list, f, indent=4)
+    
+                embed = discord.Embed(
+                title="💀 Skulled!",
+                description=f"{member.mention} will be skulled from now on.",
+                color=discord.Color.dark_purple()
+                )
+                await ctx.send(embed=embed)
+                return
+        
     if action == "start":
         if not ctx.message.mentions:
             embed = discord.Embed(
@@ -283,36 +305,7 @@ async def skull(ctx, action=None,*args):
             )
             await ctx.send(embed=embed)
             return
-
-    member = ctx.message.mentions[0]
-
-    try:
-        with open("skull_list.json", "r") as f:
-            skull_list = json.load(f)
-    except FileNotFoundError:
-        skull_list = []
-
-    if str(member.id) in skull_list:
-            embed = discord.Embed(
-            title="Already Skulled",
-            description=f"{member.mention} is already being skulled.",
-            color=discord.Color.orange()
-            )
-            await ctx.send(embed=embed)
-            return
-
-    skull_list[str(member.id)] = ctx.author.id
-    with open("skull_list.json", "w") as f:
-        json.dump(skull_list, f, indent=4)
-
-        embed = discord.Embed(
-        title="💀 Skulled!",
-        description=f"{member.mention} will be skulled from now on.",
-        color=discord.Color.dark_purple()
-    )
-    await ctx.send(embed=embed)
-    return
-
+    
     if not args:
         embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
         await ctx.send(embed=embed)
