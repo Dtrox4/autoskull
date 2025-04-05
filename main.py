@@ -138,11 +138,7 @@ async def skull(ctx, *args):
     # Check for missing required mention
     def require_mention():
         return discord.Embed(
-            title="Missing Argument",
-            description=f"Please mention a user.\nUsage:
-{PREFIX}skull {action} @user
-",
-            color=discord.Color.orange()
+            title="Missing Argument",description=f"Please mention a user.\nUsage:{PREFIX}skull {action} @user",color=discord.Color.orange()
         )
 
     if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
