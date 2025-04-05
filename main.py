@@ -333,13 +333,13 @@ async def skull(ctx, *args):
         skull_list[str(member.id)] = ctx.author.id
         save_json(SKULL_LIST_FILE, skull_list)
 
-            embed = discord.Embed(
+        embed = discord.Embed(
             title="💀 Skulled!",
             description=f"{member.mention} will be skulled from now.",
             color=discord.Color.dark_purple()
-            )
-            await ctx.send(embed=embed)
-            return
+        )
+        await ctx.send(embed=embed)
+        return
 
     # Stop skull command
     elif action == "stop":
