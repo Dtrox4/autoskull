@@ -139,7 +139,7 @@ def is_user_authorized(ctx):
 
 @bot.command()
 @commands.has_permissions(manage_messages=True)
-async def clearbot(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
+async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
     # Load authorized users
     with open("authorized_users.json", "r") as f:
         authorized_users = json.load(f)
