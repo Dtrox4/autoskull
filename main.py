@@ -251,20 +251,26 @@ async def userinfo(ctx, member: discord.Member = None):
     await ctx.send(embed=embed)
 
 @bot.command()
-async def roleinfo(ctx, *, role: discord.Role):
+async def roleinfo(ctx, *, role: discord.Role = None):
+    if role is None:
         embed = discord.Embed(
-        title=f"🏷️ Role Info — {role.name}",
-        color=role.color if role.color.value else discord.Color.dark_gray()
+            title="Missing Argument",
+            description="Please specify a role.\nUsage: ```!roleinfo <role name>```",
+            color=discord.Color.orange()
         )
-        embed.add_field(name="ID", value=role.id, inline=True)
-        embed.add_field(name="Mentionable", value=role.mentionable, inline=True)
-        embed.add_field(name="Displayed Separately", value=role.hoist, inline=True)
-        embed.add_field(name="Position", value=role.position, inline=True)
-        embed.add_field(name="Members with Role", value=len(role.members), inline=True)
-        embed.add_field(name="Permissions", value=", ".join([perm[0] for perm in role.permissions if perm[1]]) or "None", inline=False)
-        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
-
         await ctx.send(embed=embed)
+        return
+
+    embed = discord.Embed(title=f"Role Info: {role.name}", color=role.color)
+    embed.add_field(name="ID", value=role.id, inline=True)
+    embed.add_field(name="Color", value=str(role.color), inline=True)
+    embed.add_field(name="Mentionable", value=role.mentionable, inline=True)
+    embed.add_field(name="Hoisted", value=role.hoist, inline=True)
+    embed.add_field(name="Position", value=role.position, inline=True)
+    embed.add_field(name="Member Count", value=len(role.members), inline=True)
+    embed.set_footer(text=f"Created at: {role.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
+    await ctx.send(embed=embed)
+
 
 @bot.command()
 async def skull(ctx, *args):
