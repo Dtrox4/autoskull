@@ -44,15 +44,13 @@ def create_embed(title, description=None, color=discord.Color.blue(), fields=Non
             embed.add_field(name=name, value=value, inline=inline)
     return embed
 
-YOUR_USER_ID =   # Replace with your actual Discord ID
+YOUR_USER_ID = 1212229549459374222 # Replace with your actual Discord ID
 
 # Use `commands.Bot`
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 keep_alive()
-# your bot stuff here
-
 start_time = datetime.datetime.utcnow()
 
 @bot.event
