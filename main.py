@@ -147,7 +147,7 @@ def is_user_authorized(ctx):
 @bot.command()
 async def skull(ctx, *args):
     if not args:
-        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
+        embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
 
