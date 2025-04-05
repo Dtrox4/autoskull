@@ -192,9 +192,9 @@ async def skull(ctx, *args):
         return
 
     if action == "stop":
-    if not ctx.message.mentions:
-        await ctx.send(embed=require_mention("stop"))
-        return
+        if not ctx.message.mentions:
+            await ctx.send(embed=require_mention("stop"))
+            return
 
     member = ctx.message.mentions[0]
 
