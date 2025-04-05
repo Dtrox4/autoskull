@@ -438,7 +438,7 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-    if action.startswith("<@") and mentioned_user:
+    if action.startswith("add") and mentioned_user:
         # Load your skull list
         with open("skull_list.json", "r") as f:
             skull_list = json.load(f)
@@ -451,12 +451,12 @@ async def skull(ctx, *args):
                 description=f"{member.mention} is already being skulled.",
                 color=discord.Color.orange()
                 )
-                SKULL_LIST.add(mentioned_user.id)
-                save_skull_list(SKULL_LIST)
-        else:
-            embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
-        await ctx.send(embed=embed)
-        return
+            SKULL_LIST.add(mentioned_user.id)
+            save_skull_list(SKULL_LIST)
+            else:
+                embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
+                await ctx.send(embed=embed)
+                return
 
 @bot.command()
 async def stats(ctx):
