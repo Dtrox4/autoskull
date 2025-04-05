@@ -443,7 +443,7 @@ async def skull(ctx, *args):
             title="💀 Skulled!",
             description=f"{member.mention} has been added to the skull list.",
             color=discord.Color.dark_purple()
-            )
+        )
         await ctx.send(embed=embed)
 
     
