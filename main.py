@@ -438,25 +438,43 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-    if action.startswith("add") and mentioned_user:
-        # Load your skull list
-        with open("skull_list.json", "r") as f:
-            skull_list = json.load(f)
+    if action.startswith("<@>") and mentioned_user:
+        if action is None:
+        if not member:
+            embed = discord.Embed(
+            title="Missing Argument",
+            description="You must mention a user to skull.\nUsage: `!skull @user`",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
 
-        if action is None and member:
-            # Check if user is already in skull_list
-            if str(member.id) in skull_list:
-                embed = discord.Embed(
-                title="Already Skulled!",
-                description=f"{member.mention} is already being skulled.",
-                color=discord.Color.orange()
-                )
-                SKULL_LIST.add(mentioned_user.id)
-                save_skull_list(SKULL_LIST)
-            else:
-                embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
-            await ctx.send(embed=embed)
-            return
+        # Load skull_list
+        with open("skull_list.json", "r") as f:
+        skull_list = json.load(f)
+
+    # Already in skull list
+    if str(member.id) in skull_list:
+            embed = discord.Embed(
+            title="Already Skulled!",
+            description=f"{member.mention} is already being skulled.",
+            color=discord.Color.orange()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    # Add to skull_list
+    skull_list[str(member.id)] = ctx.author.id
+    with open("skull_list.json", "w") as f:
+        json.dump(skull_list, f, indent=4)
+        
+        embed = discord.Embed(
+        title="💀 Skulled!",
+        description=f"{member.mention} will be skulled from now on.",
+        color=discord.Color.dark_purple()
+    )
+    await ctx.send(embed=embed)
+
 
 @bot.command()
 async def stats(ctx):
