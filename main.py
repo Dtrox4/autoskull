@@ -182,18 +182,7 @@ async def say(ctx, *, message: str):
         pass
     
     await ctx.send(message)
-
-@bot.command()
-async def userinfo(ctx, member: discord.Member = None):
-    member = member or ctx.author
-    embed = discord.Embed(title=f"👤 User Info - {member}", color=discord.Color.green())
-    embed.set_thumbnail(url=member.display_avatar.url)
-    embed.add_field(name="ID", value=member.id, inline=False)
-    embed.add_field(name="Joined", value=member.joined_at.strftime("%Y-%m-%d"), inline=True)
-    embed.add_field(name="Created", value=member.created_at.strftime("%Y-%m-%d"), inline=True)
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
-    await ctx.send(embed=embed)
-
+    
 @bot.command()
 async def poll(ctx, *, question):
     embed = discord.Embed(title="🗳️ New Poll", description=question, color=discord.Color.orange())
@@ -276,10 +265,6 @@ async def roleinfo(ctx, *, role: discord.Role):
     embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
 
     await ctx.send(embed=embed)
-
-
-
-
 
 @bot.command()
 async def skull(ctx, *args):
