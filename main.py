@@ -103,7 +103,7 @@ async def on_message(message):
 
     if not message.content.startswith(PREFIX):
         return
-
+    
     await bot.process_commands(message)
 
 def is_user_authorized(ctx):
@@ -336,8 +336,6 @@ async def stats(ctx):
     embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
     embed.add_field(name="Users", value=f"{user_count}", inline=True)
     await ctx.send(embed=embed)
-
-
 
 @bot.command()
 async def restart(ctx):
