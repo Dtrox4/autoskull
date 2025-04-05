@@ -72,20 +72,6 @@ def save_authorized_users(authorized_users):
     with open(AUTHORIZED_USERS_FILE, "w") as f:
         json.dump(list(authorized_users), f, indent=4)  # Convert set to list
 
-# Command to authorize a user
-@bot.command()
-async def authorize(ctx, user: discord.User):
-    authorized_users = load_authorized_users()
-
-    if user.id in authorized_users:
-        await ctx.send(f"{user.name} is already authorized.")
-        return
-
-    authorized_users.add(user.id)  # Use .add() since it's a set
-    save_authorized_users(authorized_users)  # Correct function name
-
-    await ctx.send(f"{user.name} has been authorized.")
-
 # Load Config
 def load_config():
     try:
