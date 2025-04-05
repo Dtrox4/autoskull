@@ -445,12 +445,14 @@ async def skull(ctx, *args):
     with open("skull_list.json", "w") as f:
         json.dump(skull_list, f, indent=4)
 
-        embed = discord.Embed(
+    embed = discord.Embed(
         title="💀 Skulled!",
-        description=f"{member.mention} has been added to the skull list.",
+        description=f"{member.mention} will be skulled from now.",
         color=discord.Color.dark_purple()
     )
     await ctx.send(embed=embed)
+    return
+
 
 @bot.command()
 async def showguilds(ctx):
