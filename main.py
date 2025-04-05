@@ -439,7 +439,7 @@ async def skull(ctx, *args):
         return
 
     if action.startswith("<@"):
-    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
+        mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
     if not mentioned_user:
         await ctx.send(embed=require_mention())
