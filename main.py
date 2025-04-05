@@ -439,6 +439,18 @@ async def skull(ctx, *args):
         return
 
     if action.startswith("<@>") and mentioned_user:
+        if mentioned.user.id in SKULL_LIST:
+            # Add to skull_list
+        skull_list[str(member.id)] = ctx.author.id
+        with open("skull_list.json", "w") as f:
+            json.dump(skull_list, f, indent=4)
+        
+            embed = discord.Embed(
+            title="💀 Skulled!",
+            description=f"{member.mention} will be skulled from now on.",
+            color=discord.Color.dark_purple()
+            )
+        await ctx.send(embed=embed)
         if action is None:
             if not member:
                 embed = discord.Embed(
@@ -462,18 +474,6 @@ async def skull(ctx, *args):
             )
     await ctx.send(embed=embed)
     return
-
-    # Add to skull_list
-    skull_list[str(member.id)] = ctx.author.id
-    with open("skull_list.json", "w") as f:
-        json.dump(skull_list, f, indent=4)
-        
-        embed = discord.Embed(
-        title="💀 Skulled!",
-        description=f"{member.mention} will be skulled from now on.",
-        color=discord.Color.dark_purple()
-    )
-    await ctx.send(embed=embed)
 
 
 @bot.command()
