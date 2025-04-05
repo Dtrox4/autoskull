@@ -152,7 +152,7 @@ def is_user_authorized(ctx):
     return False
 
 @bot.command()
-async def addskullid(ctx, user_id: int):
+async def add(ctx, user_id: int):
     skull_list = load_skull_list()
 
     if user_id in skull_list:
@@ -177,7 +177,7 @@ async def addskullid(ctx, user_id: int):
 import discord
 
 @bot.command()
-async def removeskullid(ctx, user_id: int):
+async def remove(ctx, user_id: int):
     skull_list = load_skull_list()
 
     if user_id not in skull_list:
