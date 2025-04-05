@@ -24,3 +24,4 @@ jobs:
       - name: Run
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          run: python main.py
