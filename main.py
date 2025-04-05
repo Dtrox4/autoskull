@@ -347,11 +347,22 @@ async def skull(ctx, *args):
     await ctx.send(embed=embed)
     return
 
-
-
     # Fallback if command wasn't recognized
     embed = discord.Embed(title="Unknown Command", description=f"Type `{PREFIX}skull help` to see available actions.", color=discord.Color.red())
     await ctx.send(embed=embed)
+
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def botclear(ctx, limit: int = 100):
+    """Clears the bot's messages from the channel. Optional limit (default: 100)"""
+    deleted = await ctx.channel.purge(
+        limit=limit,
+        check=lambda msg: msg.author == bot.user
+    )
+
+    confirmation = await ctx.send(f"🧹 Deleted {len(deleted)} of my messages.")
+    await asyncio.sleep(3)
+    await confirmation.delete()
 
 @bot.command()
 async def stats(ctx):
