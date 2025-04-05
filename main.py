@@ -337,13 +337,7 @@ async def stats(ctx):
     embed.add_field(name="Users", value=f"{user_count}", inline=True)
     await ctx.send(embed=embed)
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        embed = discord.Embed(title="Incomplete Command", description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-    else:
-        raise error
+
 
 @bot.command()
 async def restart(ctx):
