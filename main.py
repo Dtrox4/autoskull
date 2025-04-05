@@ -193,7 +193,7 @@ async def skull(ctx, *args):
 
     if action == "stop":
         if not ctx.message.mentions:
-            await ctx.send(embed=require_mention("stop"))
+            await ctx.send(embed=require_mention(action))
             return
 
     member = ctx.message.mentions[0]
@@ -202,9 +202,9 @@ async def skull(ctx, *args):
         with open(SKULL_LIST_FILE, "r") as f:
             skull_list = json.load(f)
     except FileNotFoundError:
-        skull_list = {}
+        skull_list = []
 
-    if str(member.id) not in skull_list:
+    if str(member.id) not in SKULL_LIST:
         embed = discord.Embed(
             title="Not Skulled",
             description=f"{member.mention} **is not currently being skulled.**",
@@ -214,7 +214,7 @@ async def skull(ctx, *args):
         return
 
     # Only allow if author is owner, authorized, or the one who did the skull
-    if str(ctx.author.id) != YOUR_USER_ID and str(ctx.author.id) not in authorized_users:
+    if ctx.author.id != YOUR_USER_ID and ctx.author.id not in authorized_users:
         embed = discord.Embed(
             title="Permission Denied",
             description=f"You are not allowed to remove this skull.",
