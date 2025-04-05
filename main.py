@@ -413,10 +413,10 @@ async def skull(ctx, *args):
             embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
-
+    
     if action == "start":
-    if not ctx.message.mentions:
-        embed = discord.Embed(
+        if not ctx.message.mentions:
+            embed = discord.Embed(
             title="Missing Argument",
             description="Please mention a user.\nUsage: ```!skull start @user```",
             color=discord.Color.orange()
@@ -445,15 +445,12 @@ async def skull(ctx, *args):
     with open("skull_list.json", "w") as f:
         json.dump(skull_list, f, indent=4)
 
-    embed = discord.Embed(
+        embed = discord.Embed(
         title="💀 Skulled!",
         description=f"{member.mention} has been added to the skull list.",
         color=discord.Color.dark_purple()
     )
     await ctx.send(embed=embed)
-
-
-    
 
         pages = list(chunk_list(guild_entries, 5))
         current_page = 0
