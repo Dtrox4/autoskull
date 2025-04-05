@@ -152,54 +152,6 @@ def is_user_authorized(ctx):
     return False
 
 @bot.command()
-async def add(ctx, user_id: int):
-    skull_list = load_skull_list()
-
-    if user_id in skull_list:
-        embed = discord.Embed(
-            title="⚠️ Already Exists",
-            description=f"User ID `{user_id}` is already in the skull list.",
-            color=discord.Color.orange()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    skull_list.add(user_id)
-    save_skull_list(skull_list)
-
-    embed = discord.Embed(
-        title="✅ Skull Added",
-        description=f"User ID `{user_id}` has been added to the skull list.",
-        color=discord.Color.green()
-    )
-    await ctx.send(embed=embed)
-
-import discord
-
-@bot.command()
-async def remove(ctx, user_id: int):
-    skull_list = load_skull_list()
-
-    if user_id not in skull_list:
-        embed = discord.Embed(
-            title="⚠️ Not Found",
-            description=f"User ID `{user_id}` is not in the skull list.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    skull_list.remove(user_id)
-    save_skull_list(skull_list)
-
-    embed = discord.Embed(
-        title="✅ Skull Removed",
-        description=f"User ID `{user_id}` has been removed from the skull list.",
-        color=discord.Color.green()
-    )
-    await ctx.send(embed=embed)
-
-@bot.command()
 async def skull(ctx, *args):
     if not args:
         embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
