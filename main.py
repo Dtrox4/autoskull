@@ -397,6 +397,56 @@ async def skull(ctx, *args):
             await ctx.send(embed=embed)
             return
 
+        if action == "stop" and mentioned_user:
+        if mentioned_user.id in SKULL_LIST:
+            SKULL_LIST.remove(mentioned_user.id)
+            save_skull_list(SKULL_LIST)
+            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
+        else:
+            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    if action == "start":
+        if not ctx.message.mentions:
+            embed = discord.Embed(
+            title="Missing Argument",
+            description="Please mention a user.\nUsage: ```!skull start @user```",
+            color=discord.Color.orange()
+            )
+        await ctx.send(embed=embed)
+        return
+
+        member = ctx.message.mentions[0]
+
+        try:
+            with open("skull_list.json", "r") as f:
+                skull_list = json.load(f)
+        except FileNotFoundError:
+            skull_list = {}
+
+        if str(member.id) in skull_list:
+            embed = discord.Embed(
+            title="Already Skulled",
+            description=f"{member.mention} is already being skulled.",
+            color=discord.Color.orange()
+            )
+        await ctx.send(embed=embed)
+        return
+
+        skull_list[str(member.id)] = ctx.author.id
+        with open("skull_list.json", "w") as f:
+            json.dump(skull_list, f, indent=4)
+
+            embed = discord.Embed(
+            title="💀 Skulled!",
+            description=f"{member.mention} has been added to the skull list.",
+            color=discord.Color.dark_purple()
+            )
+        await ctx.send(embed=embed)
+
+    
+
         pages = list(chunk_list(guild_entries, 5))
         current_page = 0
 
@@ -427,47 +477,6 @@ async def skull(ctx, *args):
 
         await ctx.send(embed=generate_embed(current_page), view=Paginator())
         return
-
-    if action == "stop" and mentioned_user:
-        if mentioned_user.id in SKULL_LIST:
-            SKULL_LIST.remove(mentioned_user.id)
-            save_skull_list(SKULL_LIST)
-            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
-        else:
-            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-        return
-
-    if action.startswith("start"):
-        mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
-        
-    member = mentioned_user
-
-    try:
-        with open("skull_list.json", "r") as f:
-            skull_list = json.load(f)
-    except FileNotFoundError:
-        skull_list = {}
-
-    if str(member.id) in skull_list:
-            embed = discord.Embed(
-            title="Already Skulled",
-            description=f"{member.mention} is already being skulled.",
-            color=discord.Color.orange()
-        )
-    await ctx.send(embed=embed)
-    return
-
-    skull_list[str(member.id)] = ctx.author.id
-    with open("skull_list.json", "w") as f:
-        json.dump(skull_list, f, indent=4)
-
-        embed = discord.Embed(
-        title="💀 Skulled!",
-        description=f"{member.mention} has been added to the skull list.",
-        color=discord.Color.dark_purple()
-    )
-    await ctx.send(embed=embed)
 
 
 @bot.command()
