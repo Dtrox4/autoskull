@@ -98,6 +98,13 @@ keep_alive()
 
 start_time = datetime.datetime.utcnow()
 
+def require_mention():
+        return discord.Embed(
+            title="Missing Argument",
+            description=f"Please mention a user.\nUsage: `{PREFIX}skull {first_arg} @user`",
+            color=discord.Color.orange()
+            )
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -186,14 +193,14 @@ async def skull(ctx, *args):
             SKULL_LIST.add(mentioned_user.id)
             save_skull_list(SKULL_LIST)
             embed = discord.Embed(
-            title="💀 Skull Added",
-            description=f"{mentioned_user.mention} has been added to the skull list.",
+            title="💀 Skull granted",
+            description=f"skulling {mentioned_user.mention} starting now.",
             color=discord.Color.dark_red()
             )
         else:
             embed = discord.Embed(
-            title="Already Skulled",
-            description=f"{mentioned_user.mention} is already in the skull list.",
+            title="Existing skull",
+            description=f"{mentioned_user.mention} is already being skulled",
             color=discord.Color.light_grey()
             )
         await ctx.send(embed=embed)
@@ -207,12 +214,6 @@ async def skull(ctx, *args):
     first_arg = args[0].lower()
     mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
-    def require_mention():
-        return discord.Embed(
-            title="Missing Argument",
-            description=f"Please mention a user.\nUsage: `{PREFIX}skull {first_arg} @user`",
-            color=discord.Color.orange()
-        )
 
     if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
         await ctx.send(embed=require_mention())
@@ -222,41 +223,10 @@ async def skull(ctx, *args):
         await ctx.send(embed=require_mention())
         return
 
-    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized", "help"]:
+    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list","help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
-
-    if action == "adminhelp":
-        if ctx.author.id != YOUR_USER_ID:
-            embed = discord.Embed(title="Access Denied", description="Only the bot owner can view admin commands.", color=discord.Color.red())
-            await ctx.send(embed=embed)
-            return
-
-        embed = discord.Embed(title="Admin Commands", color=discord.Color.dark_red())
-        embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grant command access to a user.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Revoke access from a user.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull authorized", value="Lists all authorized users.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull allowguild", value="Authorize this server to use commands.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull disallowguild", value="Remove this server from the authorized list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull guilds", value="List all authorized guild IDs.", inline=False)
-        embed.add_field(name=f"{PREFIX}restart", value="Restart the bot from root.", inline=False)
-        embed.set_footer(text="Admin use only — Owner privileges")
-        await ctx.send(embed=embed)
-        return
-
-    if action == "help":
-        embed = discord.Embed(title="Worthy Commands", color=discord.Color.blue())
-        embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull list", value="Shows all users currently being skulled.", inline=False)
-        embed.add_field(name=f"{PREFIX}bc", value="Clears all bot's commands.", inline=False)
-        if ctx.author.id == YOUR_USER_ID:
-            embed.add_field(name=f"{PREFIX}skull adminhelp", value="Lists admin-only commands.", inline=False)
-        embed.set_footer(text="made by - @xv9c")
-        await ctx.send(embed=embed)
-        return
-
 
     if action == "list":
         embed = discord.Embed(title="Skulled Users", color=discord.Color.purple())
