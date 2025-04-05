@@ -272,6 +272,23 @@ async def roleinfo(ctx, *, role: discord.Role = None):
     await ctx.send(embed=embed)
 
 
+# Utility: Safe JSON loader
+def load_json_safe(path, fallback):
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return fallback
+
+# Load authorized users and guilds
+authorized_users = load_json_safe(AUTHORIZED_USERS_FILE, [])
+authorized_guilds = load_json_safe(AUTHORIZED_GUILDS_FILE, [])
+
+# Utility: Save JSON
+def save_json(filename, data):
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
+
 @bot.command(name="skull")
 async def skull(ctx, *args):
     if not args:
@@ -302,14 +319,10 @@ async def skull(ctx, *args):
 
         member = ctx.message.mentions[0]
 
-        try:
-            with open(SKULL_LIST_FILE, "r") as f:
-                skull_list = json.load(f)
-        except FileNotFoundError:
-            skull_list = {}
+        skull_list = load_json_safe(SKULL_LIST_FILE, {})
 
         if str(member.id) in skull_list:
-            embed = discord.Embed(
+                embed = discord.Embed(
                 title="Already Skulled",
                 description=f"{member.mention} is already being skulled.",
                 color=discord.Color.orange()
@@ -320,9 +333,9 @@ async def skull(ctx, *args):
         skull_list[str(member.id)] = ctx.author.id
         save_json(SKULL_LIST_FILE, skull_list)
 
-        embed = discord.Embed(
+            embed = discord.Embed(
             title="💀 Skulled!",
-            description=f"{member.mention} has been added to the skull list.",
+            description=f"{member.mention} will be skulled from now.",
             color=discord.Color.dark_purple()
         )
         await ctx.send(embed=embed)
@@ -331,7 +344,7 @@ async def skull(ctx, *args):
     # Stop skull command
     elif action == "stop":
         if not ctx.message.mentions:
-            embed = discord.Embed(
+                embed = discord.Embed(
                 title="Missing Argument",
                 description="Please mention a user.\nUsage: ```!skull stop @user```",
                 color=discord.Color.orange()
@@ -341,14 +354,10 @@ async def skull(ctx, *args):
 
         member = ctx.message.mentions[0]
 
-        try:
-            with open(SKULL_LIST_FILE, "r") as f:
-                skull_list = json.load(f)
-        except FileNotFoundError:
-            skull_list = {}
+        skull_list = load_json_safe(SKULL_LIST_FILE, {})
 
         if str(member.id) not in skull_list:
-            embed = discord.Embed(
+                embed = discord.Embed(
                 title="Not Skulled",
                 description=f"{member.mention} is not currently being skulled.",
                 color=discord.Color.orange()
@@ -359,9 +368,9 @@ async def skull(ctx, *args):
         del skull_list[str(member.id)]
         save_json(SKULL_LIST_FILE, skull_list)
 
-        embed = discord.Embed(
+            embed = discord.Embed(
             title="✅ Skull Removed",
-            description=f"{member.mention} has been removed from the skull list.",
+            description=f"{member.mention} will not be skulled from now.",
             color=discord.Color.green()
         )
         await ctx.send(embed=embed)
@@ -369,11 +378,7 @@ async def skull(ctx, *args):
 
     # List skulls
     elif action == "list":
-        try:
-            with open(SKULL_LIST_FILE, "r") as f:
-                skull_list = json.load(f)
-        except FileNotFoundError:
-            skull_list = {}
+        skull_list = load_json_safe(SKULL_LIST_FILE, {})
 
         if not skull_list:
             embed = discord.Embed(title="Skull List", description="No users are currently being skulled.", color=discord.Color.blurple())
@@ -395,6 +400,7 @@ async def skull(ctx, *args):
         embed = discord.Embed(title="Unknown Subcommand", description=f"Subcommand `{action}` not recognized.\nUsage: ```!skull start|stop|list @user```", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
+
 
     if action == "authorized":
         embed = discord.Embed(title="Authorized Users", color=discord.Color.green())
