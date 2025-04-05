@@ -439,9 +439,21 @@ async def skull(ctx, *args):
         return
 
     if action.startswith("<@") and mentioned_user:
-        SKULL_LIST.add(mentioned_user.id)
-        save_skull_list(SKULL_LIST)
-        embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
+        # Load your skull list
+        with open("skull_list.json", "r") as f:
+            skull_list = json.load(f)
+
+        if action is None and member:
+            # Check if user is already in skull_list
+            if str(member.id) in skull_list:
+                embed = discord.Embed(
+                title="Already Skulled!",
+                description=f"{member.mention} is already being skulled.",
+                color=discord.Color.orange()
+                SKULL_LIST.add(mentioned_user.id)
+                save_skull_list(SKULL_LIST)
+        else:
+            embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
         await ctx.send(embed=embed)
         return
 
