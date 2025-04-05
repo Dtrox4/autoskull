@@ -16,7 +16,8 @@ intents.members = True
 intents.message_content = True
 intents.guilds = True
 intents.messages = True
-bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
+PREFIX = os.getenv("PREFIX", "!")
+bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 # Ensure files exist
 authorized_users_file = "authorized_users.json"
