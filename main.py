@@ -144,7 +144,7 @@ def is_user_authorized(ctx):
 
     return False
 
-@bot.command()
+@bot.command(name="skull")
 async def skull(ctx, *args):
     if not args:
         embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
@@ -177,6 +177,10 @@ async def skull(ctx, *args):
             )
         await ctx.send(embed=embed)
         return
+        
+    action = args[0].lower()  # <-- This must come BEFORE any use of `action`
+    author_id = str(ctx.author.id)
+    guild_id = str(ctx.guild.id)
 
     if action in ["authorize", "unauthorize", "stop","userinfo"] and not mentioned_user:
         await ctx.send(embed=require_mention())
