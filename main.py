@@ -66,7 +66,7 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-start_time = datetime.datetime.utcnow()
+run()
 
 @bot.event
 async def on_ready():
