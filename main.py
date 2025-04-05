@@ -146,8 +146,8 @@ def is_user_authorized(ctx):
 
     return False
 
-@bot.command(name="skull")
-async def skull(ctx, action=None, member: discord.Member = None):
+@bot.command(n)
+async def skull(ctx, *args):
     if not args:
         embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
         await ctx.send(embed=embed)
@@ -188,6 +188,8 @@ async def skull(ctx, action=None, member: discord.Member = None):
         await ctx.send(embed=require_mention(action))
         return
 
+@bot.command(name="skull")
+async def skull(ctx, action=None, member: discord.Member = None):
     if action == "stop":
         if not is_authorized(ctx.author.id):
             return await ctx.send(embed=discord.Embed(
