@@ -138,6 +138,46 @@ def is_user_authorized(ctx):
     return False
 
 @bot.command()
+async def skull(ctx, member: discord.Member = None):
+    if member is None:
+        embed = discord.Embed(
+            title="⚠️ Missing Argument",
+            description="Please mention a user to skull.\nUsage: `!skull @user`",
+            color=discord.Color.orange()
+        )
+        await ctx.send(embed=embed, delete_after=5)
+        return
+
+    # Ensure skull_list.json exists
+    if not os.path.exists("skull_list.json"):
+        with open("skull_list.json", "w") as f:
+            json.dump([], f)
+
+    # Load existing skull list
+    with open("skull_list.json", "r") as f:
+        skull_list = json.load(f)
+
+    # Add user if not already in list
+    if member.id not in skull_list:
+        skull_list.append(member.id)
+        with open("skull_list.json", "w") as f:
+            json.dump(skull_list, f, indent=4)
+
+        embed = discord.Embed(
+            title="💀 Skull Added",
+            description=f"{member.mention} has been added to the skull list.",
+            color=discord.Color.dark_red()
+        )
+    else:
+        embed = discord.Embed(
+            title="👀 Already Skulled",
+            description=f"{member.mention} is already in the skull list.",
+            color=discord.Color.light_grey()
+        )
+
+    await ctx.send(embed=embed)
+
+@bot.command()
 @commands.has_permissions(manage_messages=True)
 async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
     # Load authorized users
@@ -364,47 +404,6 @@ async def skull(ctx, *args):
             embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
-
-@bot.command()
-async def skull(ctx, member: discord.Member = None):
-    if member is None:
-        embed = discord.Embed(
-            title="⚠️ Missing Argument",
-            description="Please mention a user to skull.\nUsage: `!skull @user`",
-            color=discord.Color.orange()
-        )
-        await ctx.send(embed=embed, delete_after=5)
-        return
-
-    # Ensure skull_list.json exists
-    if not os.path.exists("skull_list.json"):
-        with open("skull_list.json", "w") as f:
-            json.dump([], f)
-
-    # Load existing skull list
-    with open("skull_list.json", "r") as f:
-        skull_list = json.load(f)
-
-    # Add user if not already in list
-    if member.id not in skull_list:
-        skull_list.append(member.id)
-        with open("skull_list.json", "w") as f:
-            json.dump(skull_list, f, indent=4)
-
-        embed = discord.Embed(
-            title="💀 Skull Added",
-            description=f"{member.mention} has been added to the skull list.",
-            color=discord.Color.dark_red()
-        )
-    else:
-        embed = discord.Embed(
-            title="👀 Already Skulled",
-            description=f"{member.mention} is already in the skull list.",
-            color=discord.Color.light_grey()
-        )
-
-    await ctx.send(embed=embed)
-
 
     # Fallback if command wasn't recognized
     embed = discord.Embed(title="Unknown Command", description=f"Type `{PREFIX}skull help` to see available actions.", color=discord.Color.red())
