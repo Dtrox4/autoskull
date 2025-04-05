@@ -238,7 +238,7 @@ async def skull(ctx, *args):
         embed = discord.Embed(title="Skulled Users", color=discord.Color.purple())
         if SKULL_LIST:
             for user_id in SKULL_LIST:
-                embed.add_field(name="User", value=f"<@{user_id}>", inline=False)
+                embed.add_field(name="", value=f"<@{user_id}>", inline=False)
         else:
             embed.description = "No users are being skulled."
         await ctx.send(embed=embed)
@@ -247,7 +247,7 @@ async def skull(ctx, *args):
     if action == "authorized":
         embed = discord.Embed(title="Authorized Users", color=discord.Color.green())
         for user_id in AUTHORIZED_USERS:
-            embed.add_field(name="User", value=f"<@{user_id}>", inline=False)
+            embed.add_field(name="", value=f"<@{user_id}>", inline=False)
         await ctx.send(embed=embed)
         return
 
