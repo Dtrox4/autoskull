@@ -459,8 +459,8 @@ async def skull(ctx, *args):
             description=f"{member.mention} is already being skulled.",
             color=discord.Color.orange()
         )
-        await ctx.send(embed=embed)
-        return
+    await ctx.send(embed=embed)
+    return
 
     skull_list[str(member.id)] = ctx.author.id
     with open("skull_list.json", "w") as f:
