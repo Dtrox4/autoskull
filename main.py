@@ -23,14 +23,11 @@ AUTHORIZED_USERS_FILE = "authorized_users.json"
 CONFIG_FILE = "config.json"
 AUTHORIZED_GUILDS_FILE = "authorized_guilds.json"
 
-# Load Authorized Guilds List
-def load_authorized_guilds():
-    try:
-        with open(AUTHORIZED_GUILDS_FILE, "r") as f:
-            return set(json.load(f))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return set()
-
+# Load authorized guilds
+if os.path.exists(AUTHORIZED_GUILDS_FILE):
+    with open(AUTHORIZED_GUILDS_FILE, "r") as f:
+        authorized_guilds = json.load(f)
+        
 def save_authorized_guilds(guilds):
     with open(AUTHORIZED_GUILDS_FILE, "w") as f:
         json.dump(list(guilds), f, indent=4)
@@ -38,6 +35,11 @@ def save_authorized_guilds(guilds):
 def chunk_list(data, size):
     for i in range(0, len(data), size):
         yield data[i:i + size]
+
+# Utility: Save JSON
+def save_json(filename, data):
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=4)
 
 AUTHORIZED_GUILDS = load_authorized_guilds()
 
@@ -59,13 +61,12 @@ def save_skull_list(skull_list):
     except Exception as e:
         print(f"❌ Error saving skull list: {e}")  # Debugging log
 
-# Load Authorized Users
-def load_authorized_users():
-    try:
-        with open(AUTHORIZED_USERS_FILE, "r") as f:
-            return set(json.load(f))  # Load as set
-    except (FileNotFoundError, json.JSONDecodeError):
-        return set()  # Return empty set instead of {YOUR_USER_ID}
+# Load authorized users
+if os.path.exists(AUTHORIZED_USERS_FILE):
+    with open(AUTHORIZED_USERS_FILE, "r") as f:
+        authorized_users = json.load(f)
+else:
+    authorized_users = []
 
 # Save Authorized Users
 def save_authorized_users(authorized_users):
@@ -90,8 +91,7 @@ AUTHORIZED_USERS = load_authorized_users()
 SKULL_LIST = load_skull_list()
 
 # Use `commands.Bot`
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
+bot = commands.Bot(command_prefix='!',help_command=None, intents=discord.Intents.all())
 
 keep_alive()
 start_time = datetime.datetime.utcnow()
