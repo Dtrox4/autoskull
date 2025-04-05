@@ -145,50 +145,8 @@ def is_user_authorized(ctx):
     return False
 
 @bot.command()
-@commands.has_permissions(manage_messages=True)
-async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
-    # Load authorized users
-    with open("authorized_users.json", "r") as f:
-        authorized_users = json.load(f)
-    """
-    Deletes messages by bot (or user/keyword), including the command message.
-    Usage: !bc [limit] [@user (optional)] [keyword (optional)]
-    """
-    # Delete the command message itself first
-    try:
-        await ctx.message.delete()
-    except discord.NotFound:
-        pass  # It may already be gone
-    if ctx.author.id not in authorized_users:
-        embed = discord.Embed(
-            title="🚫 Unauthorized",
-            description="You are not authorized to use this command.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed, delete_after=5)
-        return
-        
-    def check(msg):
-        if user and msg.author != user:
-            return False
-        if keyword and keyword.lower() not in msg.content.lower():
-            return False
-        return msg.author == bot.user if not user else msg.author == user
-
-    deleted = await ctx.channel.purge(limit=limit, check=check)
-
-    embed = discord.Embed(
-        title="Messages Cleared 🧹",
-        description=f"Deleted {len(deleted)} message(s).",
-        color=discord.Color.orange()
-    )
-    confirmation = await ctx.send(embed=embed)
-    await asyncio.sleep(3)
-    await confirmation.delete()
-
-@bot.command()
 async def skull(ctx, *args):
-    if mentioned_user and not first_arg.isalpha():
+    if start and mentioned_user():
         if mentioned_user.id not in SKULL_LIST:
             SKULL_LIST.add(mentioned_user.id)
             save_skull_list(SKULL_LIST)
@@ -215,7 +173,7 @@ async def skull(ctx, *args):
     mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
 
-    if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
+    if action in ["authorize", "unauthorize", "stop","userinfo","start"] and not mentioned_user:
         await ctx.send(embed=require_mention())
         return
 
@@ -374,13 +332,21 @@ async def stats(ctx):
     embed.add_field(name="Users", value=f"{user_count}", inline=True)
     await ctx.send(embed=embed)
 
-@bot.command()
+bot.command()
+@commands.has_permissions(manage_messages=True)
 async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
     # Load authorized users
     with open("authorized_users.json", "r") as f:
         authorized_users = json.load(f)
-
-    # Check if the command user is authorized
+    """
+    Deletes messages by bot (or user/keyword), including the command message.
+    Usage: !bc [limit] [@user (optional)] [keyword (optional)]
+    """
+    # Delete the command message itself first
+    try:
+        await ctx.message.delete()
+    except discord.NotFound:
+        pass  # It may already be gone
     if ctx.author.id not in authorized_users:
         embed = discord.Embed(
             title="🚫 Unauthorized",
@@ -389,28 +355,24 @@ async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str =
         )
         await ctx.send(embed=embed, delete_after=5)
         return
-
-    # Define message deletion criteria
+        
     def check(msg):
         if user and msg.author != user:
             return False
         if keyword and keyword.lower() not in msg.content.lower():
             return False
-        if msg.author == bot.user or msg.content.startswith(ctx.prefix + ctx.command.name):
-            return True
-        return False
+        return msg.author == bot.user if not user else msg.author == user
 
-    # Delete messages
     deleted = await ctx.channel.purge(limit=limit, check=check)
 
-    # Send embedded confirmation
     embed = discord.Embed(
-        title="🧹 Messages Cleared",
-        description=f"Deleted **{len(deleted)}** message(s) matching criteria.",
-        color=discord.Color.green()
+        title="Messages Cleared 🧹",
+        description=f"Deleted {len(deleted)} message(s).",
+        color=discord.Color.orange()
     )
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
-    await ctx.send(embed=embed, delete_after=5)
+    confirmation = await ctx.send(embed=embed)
+    await asyncio.sleep(3)
+    await confirmation.delete()
 
 @bot.command(name='say')
 async def say(ctx, *, message: str):
@@ -609,7 +571,7 @@ def get_help_pages(user_id):
     pages = []
 
     skull_embed = discord.Embed(title="☠️ Skull Commands", color=discord.Color.blurple())
-    skull_embed.add_field(name="!skull<@user>", value="Grant auto-skull privileges to a user.", inline=False)
+    skull_embed.add_field(name="!skull start <@user>", value="Grant auto-skull privileges to a user.", inline=False)
     skull_embed.add_field(name="!skull stop <@user>", value="Remove auto-skull previleges from a user.", inline=False)
     skull_embed.add_field(name="!skull list", value="View all users with auto-skull privileges.", inline=False)
     pages.append(skull_embed)
