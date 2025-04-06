@@ -38,7 +38,7 @@ def write_json(file, data):
     with open(temp_file, 'w') as f:
         json.dump(data, f, indent=4)
     shutil.move(temp_file, file)
-
+    print(f"[✔] Wrote data to {file}")
 
 class AutoSkullBot(commands.Bot):
     def __init__(self, intents):
