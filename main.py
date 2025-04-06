@@ -45,9 +45,8 @@ def write_json(file, data):
 
 class AutoSkullBot(commands.Bot):
     def __init__(self, *args, **kwargs):
-        super().__init__(command_prefix,*args, **kwargs)
-        bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
-
+        super().__init__(*args, **kwargs)
+       
         # Load authorized users
         self.authorized_users = read_json(authorized_users_file)
 
@@ -64,6 +63,8 @@ class AutoSkullBot(commands.Bot):
         print(f"✅ Logged in as {self.user} ({self.user.id})")
         await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
+    bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
+
 
     async def on_message(self, message):
         if message.author == self.user:
@@ -78,6 +79,11 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
+# Example command to verify bot is working
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Pong!")
+    
 app = Flask(__name__)
 
 @app.route('/')
