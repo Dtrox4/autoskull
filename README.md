@@ -15,3 +15,18 @@ A Discord bot for skull-reacting users and managing authorization. Created using
 
 1. Create a new Web Service on [Render](https://render.com)
 2. Set your `start command` to: python main.py
+3. Add your environment variable:
+- `DISCORD_TOKEN` = `your-bot-token-here`
+
+4. That's it! Your bot should be running.
+
+## 📁 Project Structure
+
+## ✅ To Run Locally
+
+```bash
+pip install -r requirements.txt
+echo DISCORD_TOKEN=your_token > .env
+python main.py
+
+
