@@ -181,10 +181,6 @@ async def on_message(message):
                 )
             else:
                 await message.channel.send("Please mention a user to skull!")
-
-class OtherCommands(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
         
 class GeneralCommands(commands.Cog):
     def __init__(self, bot):
