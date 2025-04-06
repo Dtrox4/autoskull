@@ -136,7 +136,7 @@ async def skull(ctx, subcommand=None, *args):
     else:
         await ctx.send(embed=discord.Embed(description="❓ Please mention a user to skull or use `!skull stop @user`.", color=discord.Color.orange()))
 
-    elif subcommand == "authorized":
+    if subcommand == "authorized":
         if not bot.is_authorized(ctx):
             await ctx.send(embed=discord.Embed(
                 description="❌ You are not authorized to use this command.",
@@ -164,7 +164,7 @@ async def skull(ctx, subcommand=None, *args):
                 color=discord.Color.green()
             ))
 
-    elif subcommand == "authorize" and args:
+    if subcommand == "authorize" and args:
         if not bot.is_authorized(ctx):
             await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
             return
@@ -180,7 +180,7 @@ async def skull(ctx, subcommand=None, *args):
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is already authorized.", color=discord.Color.orange()))
 
 
-    elif subcommand == "unauthorize" and args:
+    if subcommand == "unauthorize" and args:
         if not bot.is_authorized(ctx):
             await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
             return
@@ -195,7 +195,7 @@ async def skull(ctx, subcommand=None, *args):
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is not authorized.", color=discord.Color.orange()))
 
 
-    elif subcommand == "list":
+    if subcommand == "list":
         if not bot.is_authorized(ctx):
             await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
             return
