@@ -14,8 +14,6 @@ if not TOKEN:
     raise ValueError(
         "Bot token is missing. Make sure you set it in the .env file.")
 
-start_time = datetime.datetime.utcnow()
-
 # Replace with your Discord User ID
 YOUR_USER_ID = 1212229549459374222  # Change this to your actual Discord ID
 
