@@ -51,8 +51,7 @@ def save_authorized_users(authorized_users):
     with open(AUTHORIZED_USERS_FILE, "w") as f:
         json.dump(list(authorized_users), f, indent=4)  # Convert set to list
 
-
-PREFIX = config.get("prefix", "!")
+PREFIX = "!"
 AUTHORIZED_USERS = load_authorized_users()
 SKULL_LIST = load_skull_list()
 
