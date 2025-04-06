@@ -71,6 +71,9 @@ class AutoSkullBot(commands.Bot):
         if message.author == self.user:
             return
 
+        if message.author.id in bot.user_skull_list:
+            await message.add_reaction("☠️")  # Skull reaction
+
         if message.content.lower() == "skull me":
             await message.add_reaction("☠️")
 
@@ -116,15 +119,21 @@ async def skull(ctx, subcommand=None, *args):
 
     skull_list = read_json(skull_list_file)
 
-    if subcommand == "stop" and args:
-        user = args[0]
-        user_id = user.strip('<@!>')
-        new_skull_list = [entry for entry in skull_list if entry["user_id"] != user_id]
-        if len(new_skull_list) != len(skull_list):
-            write_json(skull_list_file, new_skull_list)
-            await ctx.send(embed=discord.Embed(description=f"🛑 Stopped skull on <@{user_id}>.", color=discord.Color.red()))
+    if subcommand == "stop" and mentioned_user:
+        if mentioned_user.id in SKULL_LIST:
+            SKULL_LIST.remove(mentioned_user.id)
+            save_skull_list(SKULL_LIST)
+            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
         else:
-            await ctx.send(embed=discord.Embed(description=f"⚠️ <@{user_id}> is not being skulled.", color=discord.Color.orange()))
+            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    if action.startswith("<@") and mentioned_user:
+        SKULL_LIST.add(mentioned_user.id)
+        save_skull_list(SKULL_LIST)
+        embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
+        await ctx.send(embed=embed)
         return
 
     if subcommand == "authorized":
@@ -184,21 +193,6 @@ async def skull(ctx, subcommand=None, *args):
             await ctx.send(embed=discord.Embed(description=f"❌ User <@{user_id}> unauthorized.", color=discord.Color.red()))
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is not authorized.", color=discord.Color.orange()))
-
-    # Default behavior: !skull @user
-    if ctx.message.mentions:
-        user = ctx.message.mentions[0]
-        if all(entry["user_id"] != str(user.id) for entry in skull_list):
-            skull_list.append({
-                "user_id": str(user.id),
-                "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            })
-            write_json(skull_list_file, skull_list)
-            await ctx.send(embed=discord.Embed(description=f"☠️ Started skull on {user.mention}.", color=discord.Color.purple()))
-        else:
-            await ctx.send(embed=discord.Embed(description=f"⚠️ {user.mention} is already being skulled.", color=discord.Color.orange()))
-    else:
-        await ctx.send(embed=discord.Embed(description="❓ Please mention a user to skull or use `!skull stop @user`.", color=discord.Color.orange()))
 
     if subcommand == "list":
         if not bot.is_authorized(ctx):
