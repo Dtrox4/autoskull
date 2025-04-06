@@ -219,10 +219,10 @@ async def skull(ctx, subcommand=None, *args):
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ <@{user_id}> is not being skulled.", color=discord.Color.orange()))
 
-            elif ctx.message.mentions:
-                if not bot.is_authorized(ctx):
-                    await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
-                    return
+        elif ctx.message.mentions:
+            if not bot.is_authorized(ctx):
+                await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
+                return
 
             user = ctx.message.mentions[0]
             skull_list = read_json(skull_list_file)
