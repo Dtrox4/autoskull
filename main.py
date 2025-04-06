@@ -300,7 +300,7 @@ async def serverinfo(ctx):
 import random
 
 @bot.command()
-async def eightball(ctx, *, question):
+async def 8ball(ctx, *, question):
     responses = ["Yes", "No", "Maybe", "Definitely", "Ask again later", "Absolutely not"]
     response = random.choice(responses)
     embed = discord.Embed(title="🎱 8Ball", color=discord.Color.random())
@@ -437,7 +437,7 @@ def get_help_pages(user_id):
     pages.append(info_embed)
 
     fun_embed = discord.Embed(title="🎲 Engagement Commands", color=discord.Color.blurple())
-    fun_embed.add_field(name="!eightball", value="Ask the magic 8-ball a question.", inline=False)
+    fun_embed.add_field(name="!8ball", value="Ask the magic 8-ball a question.", inline=False)
     fun_embed.add_field(name="!poll", value="Create a poll with reactions.", inline=False)
     pages.append(fun_embed)
 
