@@ -3,4 +3,4 @@ services:
     name: autoskull
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python main.py"
+    startCommand: "bash start.sh"
