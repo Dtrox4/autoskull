@@ -115,13 +115,23 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
-
+        
+        #skull users in skull list
     if message.author.id in SKULL_LIST:
         await asyncio.sleep(1)
         await message.add_reaction("☠️")
 
     if not message.content.startswith(PREFIX):
         return
+
+        # React to keywords
+    for keyword, emoji in keyword_reactions.items():
+        if keyword in message.content.lower():
+            try:
+                await message.add_reaction(emoji)
+            except discord.HTTPException:
+                pass  # Invalid emoji or permission issue
+
 
     await bot.process_commands(message)
 
@@ -398,6 +408,38 @@ async def restart(ctx):
 
     os.execv(sys.executable, ['python'] + sys.argv)
 
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
+    """
+    Deletes messages by bot (or user/keyword), including the command message.
+    Usage: !bc [limit] [@user (optional)] [keyword (optional)]
+    """
+    # Delete the command message itself first
+    try:
+        await ctx.message.delete()
+    except discord.NotFound:
+        pass  # It may already be gone
+
+    def check(msg):
+        if user and msg.author != user:
+            return False
+        if keyword and keyword.lower() not in msg.content.lower():
+            return False
+        return msg.author == bot.user if not user else msg.author == user
+
+    deleted = await ctx.channel.purge(limit=limit, check=check)
+
+    embed = discord.Embed(
+        title="Messages Cleared 🧹",
+        description=f"Deleted {len(deleted)} message(s).",
+        color=discord.Color.orange()
+    )
+    confirmation = await ctx.send(embed=embed)
+    await asyncio.sleep(3)
+    await confirmation.delete()
+
+
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -451,8 +493,9 @@ def get_help_pages(user_id):
 
     mod_embed = discord.Embed(title="🛠️ Moderation Tools", color=discord.Color.blurple())
     mod_embed.add_field(name="!bc", value="Bulk delete bot command embed messages.", inline=False)
-    mod_embed.add_field(name="!bc <number> <@user>", value="Bulk delete commands with special arguments.", inline=False)
+    mod_embed.add_field(name="!bc <limit> {@user}/[keyword] (optional)", value="Bulk delete commands with special arguments.", inline=False)
     mod_embed.add_field(name="!say", value="Echo a message and delete command.", inline=False)
+    skull_embed.add_field(name="!addreact <keyword> <emoji>", value="Add reactions to keywords.", inline=False)
     pages.append(mod_embed)
 
     info_embed = discord.Embed(title="📊 Info Commands", color=discord.Color.blurple())
