@@ -96,8 +96,6 @@ def home():
 def start_flask():
     Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
 
-bot.is_authorized = is_authorized.__get__(bot)
-
 @bot.command()
 async def skull(ctx, subcommand=None, *args):
     # Base auth: Only allow command if user is authorized or bot owner
