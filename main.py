@@ -160,47 +160,91 @@ async def unauthorize(ctx, member: discord.Member):
     view = ConfirmView(ctx.author, confirm_action, cancel_action)
     await ctx.send(embed=create_embed("Confirm Unauthorization", f"Are you sure you want to remove {member.mention} from the authorized list?"), view=view)
 
-@skull.command()
-async def start(ctx, member: discord.Member):
-    authorized_users = read_json(authorized_users_file)
-    if ctx.author.id not in authorized_users and ctx.author.id != YOUR_USER_ID:
-        return await ctx.send(embed=create_embed("Unauthorized", "You are not authorized to use this command.", discord.Color.red()))
+@bot.command()
+async def skull(ctx, subcommand=None, *args):
+    if not is_authorized(ctx):
+        await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
+        return
 
-    skull_list = read_json(skull_list_file)
-    if member.id in skull_list:
-        return await ctx.send(embed=create_embed("Already Skulled", f"{member.display_name} is already being skulled."))
+    if subcommand is None:
+        await ctx.send(embed=discord.Embed(description="Usage: `!skull <@user>` or `!skull <subcommand>`\nType `!skull help` for subcommands.", color=discord.Color.orange()))
+        return
 
-    skull_list.append(member.id)
-    write_json(skull_list_file, skull_list)
-    await ctx.send(embed=create_embed("✅ Skull Started", f"{member.display_name} will now be skulled."))
-
-@skull.command()
-async def stop(ctx, member: discord.Member):
-    authorized_users = read_json(authorized_users_file)
-    if ctx.author.id not in authorized_users and ctx.author.id != YOUR_USER_ID:
-        return await ctx.send(embed=create_embed("Unauthorized", "You are not authorized to use this command.", discord.Color.red()))
-
-    skull_list = read_json(skull_list_file)
-    if member.id not in skull_list:
-        return await ctx.send(embed=create_embed("Not Skulled", f"{member.display_name} is not being skulled."))
-
-    skull_list.remove(member.id)
-    write_json(skull_list_file, skull_list)
-    await ctx.send(embed=create_embed("🛑 Skull Stopped", f"{member.display_name} is no longer being skulled."))
-
-@skull.command()
-async def list(ctx):
-    skull_list = read_json(skull_list_file)
-    if not skull_list:
-        return await ctx.send(embed=create_embed("💀 Skull List", "No users are currently being skulled."))
-
-    users = []
-    for uid in skull_list:
-        member = ctx.guild.get_member(uid)
-        if member:
-            users.append(member.display_name)
+    elif subcommand.lower() == "authorize":
+        if not args:
+            await ctx.send("❌ Usage: `!skull authorize @user`")
+            return
+        user = ctx.message.mentions[0]
+        authorized_users = read_json(authorized_users_file)
+        if str(user.id) in authorized_users:
+            await ctx.send(f"✅ {user.mention} is already authorized.")
         else:
-            users.append(f"Unknown User ({uid})")
+            authorized_users.append(str(user.id))
+            write_json(authorized_users_file, authorized_users)
+            await ctx.send(f"✅ {user.mention} has been authorized.")
+
+    elif subcommand.lower() == "unauthorize":
+        if not args:
+            await ctx.send("❌ Usage: `!skull unauthorize @user`")
+            return
+        user = ctx.message.mentions[0]
+        authorized_users = read_json(authorized_users_file)
+        if str(user.id) not in authorized_users:
+            await ctx.send(f"❌ {user.mention} is not authorized.")
+        else:
+            authorized_users.remove(str(user.id))
+            write_json(authorized_users_file, authorized_users)
+            await ctx.send(f"✅ {user.mention} has been unauthorized.")
+
+    elif subcommand.lower() == "list":
+        skull_list = read_json(skull_list_file)
+        if not skull_list:
+            await ctx.send(embed=discord.Embed(description="☠️ No one is currently being skulled.", color=discord.Color.orange()))
+        else:
+            names = []
+            for uid in skull_list:
+                user = await bot.fetch_user(int(uid))
+                names.append(f"{user.name}#{user.discriminator} ({uid})")
+            await ctx.send(embed=discord.Embed(title="☠️ Skull Targets", description="\n".join(names), color=discord.Color.dark_purple()))
+
+    elif subcommand.lower() == "authorized":
+        authorized_users = read_json(authorized_users_file)
+        if not authorized_users:
+            await ctx.send(embed=discord.Embed(description="No authorized users.", color=discord.Color.orange()))
+        else:
+            names = []
+            for uid in authorized_users:
+                user = await bot.fetch_user(int(uid))
+                names.append(f"{user.name}#{user.discriminator} ({uid})")
+            await ctx.send(embed=discord.Embed(title="Authorized Users", description="\n".join(names), color=discord.Color.green()))
+
+    elif subcommand.lower() == "stop":
+        if not args:
+            await ctx.send("❌ Usage: `!skull stop @user`")
+            return
+        user = ctx.message.mentions[0]
+        skull_list = read_json(skull_list_file)
+        if str(user.id) not in skull_list:
+            await ctx.send(f"❌ {user.mention} is not currently being skulled.")
+        else:
+            skull_list.remove(str(user.id))
+            write_json(skull_list_file, skull_list)
+            await ctx.send(f"✅ {user.mention} is no longer being skulled.")
+
+    elif ctx.message.mentions:
+        # Assume this is a skull start command
+        user = ctx.message.mentions[0]
+        skull_list = read_json(skull_list_file)
+        if str(user.id) in skull_list:
+            await ctx.send(f"☠️ {user.mention} is already being skulled.")
+        else:
+            skull_list.append(str(user.id))
+            write_json(skull_list_file, skull_list)
+            await ctx.send(f"☠️ {user.mention} has been skulled.")
+
+    else:
+        await ctx.send(embed=discord.Embed(description="❌ Unknown subcommand. Use `!help` for available options.", color=discord.Color.red()))
+
 
 @bot.command()
 async def say(ctx, *, message=None):
