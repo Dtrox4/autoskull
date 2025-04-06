@@ -67,8 +67,6 @@ class AutoSkullBot(commands.Bot):
         print(f"✅ Logged in as {self.user} ({self.user.id})")
         await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
-bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
-
     async def on_message(self, message):
         if message.author == self.user:
             return
@@ -77,6 +75,8 @@ bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
             await message.add_reaction("☠️")
 
         await self.process_commands(message)
+
+bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
 
 intents = discord.Intents.default()
 intents.message_content = True
