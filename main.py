@@ -130,8 +130,8 @@ async def skull(ctx, subcommand=None, *args):
         ))
 
     elif subcommand == "authorize" and args:
-    if not bot.is_authorized(ctx):
-        await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
+        if not bot.is_authorized(ctx):
+            await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
         return
 
     user = args[0]
@@ -146,9 +146,9 @@ async def skull(ctx, subcommand=None, *args):
 
 
     elif subcommand == "unauthorize" and args:
-    if not bot.is_authorized(ctx):
-        await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
-        return
+        if not bot.is_authorized(ctx):
+            await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
+            return
 
     user = args[0]
     user_id = user.strip('<@!>')
@@ -161,9 +161,9 @@ async def skull(ctx, subcommand=None, *args):
 
 
     elif subcommand == "list":
-    if not bot.is_authorized(ctx):
-        await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
-        return
+        if not bot.is_authorized(ctx):
+            await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
+            return
 
     skull_list = read_json(skull_list_file)
     if not skull_list:
