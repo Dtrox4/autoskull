@@ -1,5 +1,7 @@
 import discord
 import os
+import sys
+from discord.ext import commands
 from dotenv import load_dotenv
 from threading import Thread
 from flask import Flask
