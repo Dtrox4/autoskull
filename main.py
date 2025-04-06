@@ -239,7 +239,7 @@ async def user(ctx, subcommand=None, *args):
 
         if user_id not in bot.authorized_users:
             bot.authorized_users.append(user_id)
-            write_json(, bot.authorized_users)
+            write_json(AUTHORIZED_USERS_FILE, bot.authorized_users)
             await ctx.send(embed=discord.Embed(description=f"✅ User <@{user_id}> authorized.", color=discord.Color.green()))
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is already authorized.", color=discord.Color.orange()))
