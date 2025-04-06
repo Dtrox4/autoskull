@@ -10,6 +10,11 @@ from threading import Thread
 from dotenv import load_dotenv
 
 load_dotenv()
+token = os.getenv("DISCORD_TOKEN")
+if token:
+    asyncio.run(bot.start(token))
+else:
+    print("❌ DISCORD_TOKEN not found in environment variables.")
 
 # File paths
 authorized_users_file = "authorized_users.json"
@@ -63,6 +68,12 @@ def home():
 
 app = Flask(__name__)
 
+if __name__ == '__main__':
+    def run_flask():
+        app.run(host='0.0.0.0', port=3000)
+
+    Thread(target=run_flask).start()
+
 @bot.command()
 async def skull(ctx, subcommand=None, *args):
     if not bot.is_authorized(ctx):
@@ -111,7 +122,7 @@ async def skull(ctx, subcommand=None, *args):
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is not authorized.", color=discord.Color.orange()))
 
-        elif subcommand == "list":
+    elif subcommand == "list":
         skull_list = read_json(skull_list_file)
         if not skull_list:
             await ctx.send(embed=discord.Embed(description="☠️ No users have been skulled yet!", color=discord.Color.orange()))
@@ -397,15 +408,4 @@ async def help(ctx):
     view = HelpView(pages, ctx.author)
     await view.send_initial(ctx)
 
-
-if __name__ == '__main__':
-    def run_flask():
-        app.run(host='0.0.0.0', port=3000)
-
-    Thread(target=run_flask).start()
-
-    token = os.getenv("DISCORD_TOKEN")
-    if token:
-        asyncio.run(bot.start(token))
-    else:
-        print("❌ DISCORD_TOKEN not found in environment variables.")
+    
