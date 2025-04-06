@@ -130,20 +130,15 @@ intents.members = True
 
 @bot.command()
 async def skull(ctx, *args):
-    if not args:
-        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-        return
-
-    action = args[0].lower()
-
-    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized", "help"]:
+    if ctx.author.id not in AUTHORIZED_USERS and not YOUR_USER_ID and action not in ["list", "authorized", "help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
 
     mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
+    action = args[0].lower()
+    
     if action == "stop" and mentioned_user:
         if mentioned_user.id in SKULL_LIST:
             SKULL_LIST.remove(mentioned_user.id)
