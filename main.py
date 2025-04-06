@@ -101,10 +101,6 @@ def home():
 def start_flask():
     Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
-
 # Auto-react to messages
 @bot.event
 async def on_message(message):
