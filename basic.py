@@ -181,10 +181,15 @@ async def on_message(message):
                 )
             else:
                 await message.channel.send("Please mention a user to skull!")
-        
-class GeneralCommands(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+
+bot = AutoSkullBot(command_prefix="!", intents=discord.Intents.all())
+
+class GeneralCommands(commands.Bot):  # <- IMPORTANT
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    async def setup_hook(self):
+        await self.load_extension("general_commands")  # Load Cogs here instead of main()
 
     @commands.command()
     async def stats(self, ctx):
@@ -343,8 +348,10 @@ async def setup(bot):
 
 async def main():
     async with bot:
-        await bot.load_extension("general_commands")  # Assuming the file is named general_commands.py
         await bot.start(os.getenv("DISCORD_TOKEN"))
+
+asyncio.run(main())
+
 
 asyncio.run(main())
 
