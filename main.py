@@ -219,7 +219,7 @@ async def skull(ctx, *args):
         return
 
     # Fallback if command wasn't recognized
-    embed = discord.Embed(title="Unknown Command", description=f"Type `{PREFIX}skull help` to see available actions.", color=discord.Color.red())
+    embed = discord.Embed(title="Unknown Command", description=f"Type `{PREFIX}help` to see available actions.", color=discord.Color.red())
     await ctx.send(embed=embed)
 
 @bot.command()
