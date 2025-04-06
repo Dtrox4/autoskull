@@ -174,43 +174,43 @@ async def authorized(ctx):
                 await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
                 return
     
-            SKULL_LIST = read_json(SKULL_LIST_FILE)
-            if not SKULL_LIST:
-                await ctx.send(embed=discord.Embed(description="☠️ No users have been skulled yet!", color=discord.Color.orange()))
-                return
-    
-            pages = []
-            for i in range(0, len(SKULL_LIST), 10):
-                chunk = skull_list[i:i + 10]
-                desc = ""
-                for entry in chunk:
-                    user = await bot.fetch_user(entry["user_id"])
-                    timestamp = entry["timestamp"]
-                    desc += f"{user.mention} - {timestamp}\n"
-                    embed = discord.Embed(title="💀 Skull List", description=desc, color=discord.Color.purple())
-                    embed.set_footer(text=f"Page {i//10+1} of {(len(SKULL_LIST)-1)//10+1}")
-                    pages.append(embed)
-    
-            current = 0
-            message = await ctx.send(embed=pages[current])
-            await message.add_reaction("⏮️")
-            await message.add_reaction("⏭️")
-    
-            def check(reaction, user):
-                return user == ctx.author and str(reaction.emoji) in ["⏮️", "⏭️"] and reaction.message.id == message.id
-    
-            while True:
-                try:
-                    reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
-                    if str(reaction.emoji) == "⏮️":
-                        current = (current - 1) % len(pages)
-                        await message.edit(embed=pages[current])
-                    elif str(reaction.emoji) == "⏭️":
-                        current = (current + 1) % len(pages)
-                        await message.edit(embed=pages[current])
-                    await message.remove_reaction(reaction, user)
-                except asyncio.TimeoutError:
-                    break
+                SKULL_LIST = read_json(SKULL_LIST_FILE)
+                if not SKULL_LIST:
+                    await ctx.send(embed=discord.Embed(description="☠️ No users have been skulled yet!", color=discord.Color.orange()))
+                    return
+        
+                pages = []
+                for i in range(0, len(SKULL_LIST), 10):
+                    chunk = skull_list[i:i + 10]
+                    desc = ""
+                    for entry in chunk:
+                        user = await bot.fetch_user(entry["user_id"])
+                        timestamp = entry["timestamp"]
+                        desc += f"{user.mention} - {timestamp}\n"
+                        embed = discord.Embed(title="💀 Skull List", description=desc, color=discord.Color.purple())
+                        embed.set_footer(text=f"Page {i//10+1} of {(len(SKULL_LIST)-1)//10+1}")
+                        pages.append(embed)
+        
+                current = 0
+                message = await ctx.send(embed=pages[current])
+                await message.add_reaction("⏮️")
+                await message.add_reaction("⏭️")
+        
+                def check(reaction, user):
+                    return user == ctx.author and str(reaction.emoji) in ["⏮️", "⏭️"] and reaction.message.id == message.id
+        
+                while True:
+                    try:
+                        reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
+                        if str(reaction.emoji) == "⏮️":
+                            current = (current - 1) % len(pages)
+                            await message.edit(embed=pages[current])
+                        elif str(reaction.emoji) == "⏭️":
+                            current = (current + 1) % len(pages)
+                            await message.edit(embed=pages[current])
+                        await message.remove_reaction(reaction, user)
+                    except asyncio.TimeoutError:
+                        break
  
         
 
