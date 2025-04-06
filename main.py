@@ -2,6 +2,7 @@ import discord
 import asyncio
 import datetime
 import os
+import sys
 import json
 import tempfile
 import shutil
@@ -120,21 +121,6 @@ async def skull(ctx, subcommand=None, *args):
             await ctx.send(embed=discord.Embed(description=f"⚠️ <@{user_id}> is not being skulled.", color=discord.Color.orange()))
         return
 
-    # Default behavior: !skull @user
-    if ctx.message.mentions:
-        user = ctx.message.mentions[0]
-        if all(entry["user_id"] != str(user.id) for entry in skull_list):
-            skull_list.append({
-                "user_id": str(user.id),
-                "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            })
-            write_json(skull_list_file, skull_list)
-            await ctx.send(embed=discord.Embed(description=f"☠️ Started skull on {user.mention}.", color=discord.Color.purple()))
-        else:
-            await ctx.send(embed=discord.Embed(description=f"⚠️ {user.mention} is already being skulled.", color=discord.Color.orange()))
-    else:
-        await ctx.send(embed=discord.Embed(description="❓ Please mention a user to skull or use `!skull stop @user`.", color=discord.Color.orange()))
-
     if subcommand == "authorized":
         if not bot.is_authorized(ctx):
             await ctx.send(embed=discord.Embed(
@@ -193,6 +179,20 @@ async def skull(ctx, subcommand=None, *args):
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is not authorized.", color=discord.Color.orange()))
 
+    # Default behavior: !skull @user
+    if ctx.message.mentions:
+        user = ctx.message.mentions[0]
+        if all(entry["user_id"] != str(user.id) for entry in skull_list):
+            skull_list.append({
+                "user_id": str(user.id),
+                "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            write_json(skull_list_file, skull_list)
+            await ctx.send(embed=discord.Embed(description=f"☠️ Started skull on {user.mention}.", color=discord.Color.purple()))
+        else:
+            await ctx.send(embed=discord.Embed(description=f"⚠️ {user.mention} is already being skulled.", color=discord.Color.orange()))
+    else:
+        await ctx.send(embed=discord.Embed(description="❓ Please mention a user to skull or use `!skull stop @user`.", color=discord.Color.orange()))
 
     if subcommand == "list":
         if not bot.is_authorized(ctx):
@@ -277,7 +277,7 @@ async def remind(ctx, time_in_seconds: int, *, reminder: str):
     ).set_footer(text=f"Reminder for {ctx.author}", icon_url=ctx.author.display_avatar.url))
 
 @bot.command()
-async def serverstats(ctx):
+async def serverinfo(ctx):
     guild = ctx.guild
     embed = discord.Embed(title="📈 Server Stats", color=discord.Color.purple())
     embed.set_thumbnail(url=guild.icon.url)
@@ -302,7 +302,7 @@ async def eightball(ctx, *, question):
 
 @bot.command()
 async def userinfo(ctx, member: discord.Member = None):
-    if role is None:
+        member = member or ctx.author
         embed = discord.Embed(
             title="Missing Argument",
             description="Please mention.\nUsage: ```!roleinfo <@user>```",
@@ -355,7 +355,7 @@ async def roleinfo(ctx, *, role: discord.Role = None):
 
 @bot.command()
 async def restart(ctx):
-    if ctx.author.id != YOUR_USER_ID:
+    if str(ctx.author.id) != YOUR_USER_ID:
         embed = discord.Embed(
             title="Access Denied",
             description="Only the bot owner can restart the bot.",
@@ -364,14 +364,13 @@ async def restart(ctx):
         await ctx.send(embed=embed)
         return
 
-    embed = discord.Embed(
-        title="Restarting...",
-        description="The bot is restarting now. Please wait a few seconds.",
+    await ctx.send(embed=discord.Embed(
+        title="♻️ Restarting...",
+        description="The bot is restarting. Please wait.",
         color=discord.Color.orange()
-    )
-    await ctx.send(embed=embed)
-    await bot.close()
-    os._exit(0)  # Render will auto-restart the process
+    ))
+
+    os.execv(sys.executable, ['python'] + sys.argv)
 
 
 @bot.event
@@ -432,7 +431,6 @@ def get_help_pages(user_id):
     info_embed.add_field(name="!roleinfo", value="Show info about a role.", inline=False)
     info_embed.add_field(name="!serverinfo", value="Show info about the server.", inline=False)
     info_embed.add_field(name="!userinfo", value="Show info about a user.", inline=False)
-    info_embed.add_field(name="!serverstats", value="View server statistics.", inline=False)
     info_embed.add_field(name="!stats", value="Bot statistics and uptime.", inline=False)
     pages.append(info_embed)
 
