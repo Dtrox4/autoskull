@@ -10,11 +10,7 @@ from threading import Thread
 from dotenv import load_dotenv
 
 load_dotenv()
-token = os.getenv("DISCORD_TOKEN")
-if token:
-    asyncio.run(bot.start(token))
-else:
-    print("❌ DISCORD_TOKEN not found in environment variables.")
+TOKEN = os.getenv("DISCORD_TOKEN")
 
 # File paths
 authorized_users_file = "authorized_users.json"
@@ -398,4 +394,4 @@ async def help(ctx):
     view = HelpView(pages, ctx.author)
     await view.send_initial(ctx)
 
-    
+bot.run(TOKEN)  
