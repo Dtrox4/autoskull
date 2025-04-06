@@ -284,33 +284,6 @@ async def stats(ctx):
     embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
     embed.add_field(name="Users", value=f"{user_count}", inline=True)
     await ctx.send(embed=embed)
-
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        embed = discord.Embed(title="Incomplete Command", description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-    else:
-        raise error
-
-bot.run(TOKEN)
-
-@bot.command()
-async def stats(ctx):
-    now = datetime.datetime.utcnow()
-    uptime = now - start_time
-    uptime_str = str(uptime).split('.')[0]
-
-    latency = round(bot.latency * 1000)
-    guild_count = len(bot.guilds)
-    user_count = len(set(member.id for guild in bot.guilds for member in guild.members))
-
-    embed = discord.Embed(title="Bot Stats", color=discord.Color.teal())
-    embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
-    embed.add_field(name="Uptime", value=uptime_str, inline=True)
-    embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
-    embed.add_field(name="Users", value=f"{user_count}", inline=True)
-    await ctx.send(embed=embed)
     
 @bot.command()
 async def poll(ctx, *, question):
