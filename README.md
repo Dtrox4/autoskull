@@ -14,4 +14,4 @@ A Discord bot for skull-reacting users and managing authorization. Created using
 ## 🚀 Deploying to Render
 
 1. Create a new Web Service on [Render](https://render.com)
-2. Set your `start command` to:
+2. Set your `start command` to: python main.py
