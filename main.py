@@ -10,8 +10,12 @@ import random
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+if not TOKEN:
+    raise ValueError("Bot token is missing. Make sure you set it in the .env file.")
+
 PREFIX = os.getenv("PREFIX", "!")
 
 # Use `commands.Bot`
