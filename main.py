@@ -19,11 +19,15 @@ YOUR_USER_ID = "1212229549459374222"
 
 # Load Skull List
 def load_skull_list():
-    try:
-        with open(SKULL_LIST_FILE, "r") as f:
-            return set(json.load(f))
-    except (FileNotFoundError, json.JSONDecodeError):
+    if not os.path.exists("skull_list.json"):
         return set()
+
+    with open("skull_list.json", "r") as f:
+        try:
+            data = json.load(f)
+            return set(str(item) for item in data if isinstance(item, (str, int)))
+        except json.JSONDecodeError:
+            return set()
 
 def save_skull_list(skull_list):
     with open(SKULL_LIST_FILE, "w") as f:
@@ -31,11 +35,15 @@ def save_skull_list(skull_list):
 
 # Load Authorized Users
 def load_authorized_users():
+    if not os.path.exists(AUTHORIZED_USERS_FILE):
+        return {YOUR_USER_ID}  # Replace with your actual user ID
+
     try:
         with open(AUTHORIZED_USERS_FILE, "r") as f:
-            return set(json.load(f))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {YOUR_USER_ID}  # Default authorized users
+            data = json.load(f)
+            return set(str(user_id) for user_id in data if isinstance(user_id, (str, int)))
+    except json.JSONDecodeError:
+        return {YOUR_USER_ID}
 
 def save_authorized_users(authorized_users):
     with open(AUTHORIZED_USERS_FILE, "w") as f:
