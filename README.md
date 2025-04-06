@@ -22,7 +22,12 @@ A Discord bot for skull-reacting users and managing authorization. Created using
 
 ## 📁 Project Structure
  
- ├── main.py ├── skull_list.json ├── authorized_users.json ├── requirements.txt ├── render.yaml (optional) └── README.md
+ ├── main.py 
+ ├── skull_list.json 
+ ├── authorized_users.json 
+ ├── requirements.txt 
+ ├── render.yaml (optional) 
+ └── README.md
 
 ## ✅ To Run Locally
 
