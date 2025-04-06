@@ -73,18 +73,8 @@ async def skull(ctx, subcommand=None, *args):
         await ctx.send(embed=discord.Embed(description="Usage: `!skull <@user>` or `!skull <subcommand>`\nType `!skull help` for subcommands.", color=discord.Color.orange()))
         return
 
-    if subcommand == "help":
-        embed = discord.Embed(title="☠️ Skull Command Help ☠️", color=discord.Color.blurple())
-        embed.add_field(name="!skull <@user>", value="Start skull on user", inline=False)
-        embed.add_field(name="!skull stop <@user>", value="Stop skull on user", inline=False)
-        embed.add_field(name="!skull list", value="List all skull targets", inline=False)
-        embed.add_field(name="!skull authorize <@user>", value="Authorize a user", inline=False)
-        embed.add_field(name="!skull unauthorize <@user>", value="Unauthorize a user", inline=False)
-        embed.add_field(name="!skull authorized", value="List authorized users", inline=False)
-        embed.add_field(name="!skull adminhelp", value="Show admin-only skull command help", inline=False)
-        await ctx.send(embed=embed)
 
-    elif subcommand == "authorized":
+    if subcommand == "authorized":
         authorized_users = read_json(authorized_users_file)
         if not authorized_users:
             await ctx.send(embed=discord.Embed(description="No authorized users.", color=discord.Color.orange()))
@@ -121,16 +111,45 @@ async def skull(ctx, subcommand=None, *args):
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is not authorized.", color=discord.Color.orange()))
 
-    elif subcommand == "list":
+        elif subcommand == "list":
         skull_list = read_json(skull_list_file)
         if not skull_list:
-            await ctx.send(embed=discord.Embed(description="☠️ No users are currently being skulled.", color=discord.Color.dark_gray()))
-        else:
-            embed = discord.Embed(title="☠️ Skull List ☠️", color=discord.Color.dark_purple())
-            for uid in skull_list:
-                user = await bot.fetch_user(int(uid))
-                embed.add_field(name=user.name, value=f"ID: {uid}", inline=False)
-            await ctx.send(embed=embed)
+            await ctx.send(embed=discord.Embed(description="☠️ No users have been skulled yet!", color=discord.Color.orange()))
+            return
+
+        pages = []
+        for i in range(0, len(skull_list), 10):
+            chunk = skull_list[i:i + 10]
+            desc = ""
+            for entry in chunk:
+                user = await bot.fetch_user(entry["user_id"])
+                timestamp = entry["timestamp"]
+                desc += f"{user.mention} - {timestamp}\n"
+            embed = discord.Embed(title="💀 Skull List", description=desc, color=discord.Color.purple())
+            embed.set_footer(text=f"Page {i//10+1} of {(len(skull_list)-1)//10+1}")
+            pages.append(embed)
+
+        current = 0
+        message = await ctx.send(embed=pages[current])
+        await message.add_reaction("⏮️")
+        await message.add_reaction("⏭️")
+
+        def check(reaction, user):
+            return user == ctx.author and str(reaction.emoji) in ["⏮️", "⏭️"] and reaction.message.id == message.id
+
+        while True:
+            try:
+                reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
+                if str(reaction.emoji) == "⏮️":
+                    current = (current - 1) % len(pages)
+                    await message.edit(embed=pages[current])
+                elif str(reaction.emoji) == "⏭️":
+                    current = (current + 1) % len(pages)
+                    await message.edit(embed=pages[current])
+                await message.remove_reaction(reaction, user)
+            except asyncio.TimeoutError:
+                break
+
 
     elif subcommand == "stop" and args:
         user = args[0]
