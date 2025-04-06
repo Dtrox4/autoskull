@@ -21,6 +21,10 @@ authorized_users_file = "authorized_users.json"
 skull_list_file = "skull_list.json"
 start_time = datetime.datetime.utcnow()
 
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = Tru
+
 def read_json(file):
     if not os.path.exists(file):
         with open(file, 'w') as f:
