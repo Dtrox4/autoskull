@@ -5,7 +5,6 @@ import os
 import json
 from discord.ui import View, Button
 from discord.ext import commands
-from keep_alive import keep_alive
 from dotenv import load_dotenv
 
 # Load environment variables
