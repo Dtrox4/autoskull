@@ -70,7 +70,7 @@ class AutoSkullBot(commands.Bot):
     def is_authorized(self, ctx):
         return str(ctx.author.id) == YOUR_USER_ID or str(ctx.author.id) in self.authorized_users
 
-    bot.is_authorized = is_authorized.__get__(bot)
+    
 
 
 
@@ -78,7 +78,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-bot = AutoSkullBot(intents)
+bot = AutoSkullBot(command_prefix="!", intents=intents)
 
 app = Flask(__name__)
 
@@ -89,6 +89,7 @@ def home():
 def start_flask():
     Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
 
+bot.is_authorized = is_authorized.__get__(bot)
 
 @bot.command()
 async def skull(ctx, subcommand=None, *args):
