@@ -44,7 +44,7 @@ def write_json(file, data):
 
 class AutoSkullBot(commands.Bot):
     def __init__(self, intents):
-        super().__init__(command_prefix='!', intents=intents, help_command=None)
+        super().__init__(*args, **kwargs)  # Pass all arguments to the parent constructor
         self.authorized_users = read_json(authorized_users_file)
         self.skull_list = read_json(skull_list_file)
 
