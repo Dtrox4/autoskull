@@ -106,7 +106,7 @@ async def on_message(message):
     
     await bot.process_commands(message)
 
-@bot.command()
+@bot.command(action="skull")
 async def skull(ctx, *args):
     if not args:
         embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
