@@ -74,10 +74,23 @@ async def on_ready():
 
 start_time = datetime.datetime.utcnow()
 
+# Check for missing required mention
+def require_mention(action):
+    return discord.Embed(
+        title="Missing Argument",description=f"Please mention a user.\nUsage:{PREFIX}skull {action} @user",color=discord.Color.orange()
+        )
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+
+def is_user_authorized(ctx):
+    if ctx.author.id == YOUR_USER_ID:
+        return True
+
+    if ctx.author.id in AUTHORIZED_USERS:
+        return True
 
 @bot.event
 async def on_message(message):
@@ -93,37 +106,17 @@ async def on_message(message):
     
     await bot.process_commands(message)
 
-def is_user_authorized(ctx):
-    if ctx.guild and ctx.guild.id not in AUTHORIZED_GUILDS:
-        return False
-
-    if ctx.author.id == YOUR_USER_ID:
-        return True
-
-    if ctx.author.id in AUTHORIZED_USERS:
-        return True
-
-    if ctx.guild:
-        guild_id = str(ctx.guild.id)
-        guild_data = GUILD_PERMISSIONS.get(guild_id, {})
-        authorized_roles = guild_data.get("authorized_roles", [])
-        user_roles = [role.id for role in ctx.author.roles]
-        if any(role_id in authorized_roles for role_id in user_roles):
-            return True
-
-    return False
-
 @bot.command()
 async def skull(ctx, *args):
     if not args:
-        embed = discord.Embed(title="Need Help?", description="Type `!skull help` to view all commands.", color=discord.Color.orange())
+        embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
         await ctx.send(embed=embed)
         return
 
     first_arg = args[0].lower()
     mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
 
-    def require_mention():
+    def require_mention(first_arg):
         return discord.Embed(
             title="Missing Argument",
             description=f"Please mention a user.\nUsage: `{PREFIX}skull {first_arg} @user`",
@@ -150,12 +143,6 @@ async def skull(ctx, *args):
         return
 
 
-    # Check for missing required mention
-    def require_mention():
-        return discord.Embed(
-            title="Missing Argument",description=f"Please mention a user.\nUsage:{PREFIX}skull {action} @user",color=discord.Color.orange()
-        )
-
     if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
         await ctx.send(embed=require_mention())
         return
@@ -179,26 +166,10 @@ async def skull(ctx, *args):
         embed.add_field(name=f"{PREFIX}skull authorize @user", value="Grant command access to a user.", inline=False)
         embed.add_field(name=f"{PREFIX}skull unauthorize @user", value="Revoke access from a user.", inline=False)
         embed.add_field(name=f"{PREFIX}skull authorized", value="Lists all authorized users.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull allowguild", value="Authorize this server to use commands.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull disallowguild", value="Remove this server from the authorized list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull guilds", value="List all authorized guild IDs.", inline=False)
         embed.add_field(name=f"{PREFIX}restart", value="Restart the bot from root.", inline=False)
         embed.set_footer(text="Admin use only — Owner privileges")
         await ctx.send(embed=embed)
         return
-
-    if action == "help":
-        embed = discord.Embed(title="Worthy Commands", color=discord.Color.blue())
-        embed.add_field(name=f"{PREFIX}skull @user", value="Adds a user to the skull list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull stop @user", value="Removes a user from the skull list.", inline=False)
-        embed.add_field(name=f"{PREFIX}skull list", value="Shows all users currently being skulled.", inline=False)
-        embed.add_field(name=f"{PREFIX}bc", value="Clears all bot's commands.", inline=False)
-        if ctx.author.id == YOUR_USER_ID:
-            embed.add_field(name=f"{PREFIX}skull adminhelp", value="Lists admin-only commands.", inline=False)
-        embed.set_footer(text="made by - @xv9c")
-        await ctx.send(embed=embed)
-        return
-
 
     if action == "list":
         embed = discord.Embed(title="Skulled Users", color=discord.Color.purple())
@@ -267,54 +238,6 @@ async def stats(ctx):
     embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
     embed.add_field(name="Users", value=f"{user_count}", inline=True)
     await ctx.send(embed=embed)
-
-@bot.command()
-async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
-    # Load authorized users
-    with open("authorized_users.json", "r") as f:
-        authorized_users = json.load(f)
-
-    # Check if the command user is authorized
-    if ctx.author.id not in authorized_users:
-        embed = discord.Embed(
-            title="🚫 Unauthorized",
-            description="You are not authorized to use this command.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed, delete_after=5)
-        return
-
-    # Define message deletion criteria
-    def check(msg):
-        if user and msg.author != user:
-            return False
-        if keyword and keyword.lower() not in msg.content.lower():
-            return False
-        if msg.author == bot.user or msg.content.startswith(ctx.prefix + ctx.command.name):
-            return True
-        return False
-
-    # Delete messages
-    deleted = await ctx.channel.purge(limit=limit, check=check)
-
-    # Send embedded confirmation
-    embed = discord.Embed(
-        title="🧹 Messages Cleared",
-        description=f"Deleted **{len(deleted)}** message(s) matching criteria.",
-        color=discord.Color.green()
-    )
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
-    await ctx.send(embed=embed, delete_after=5)
-
-@bot.command(name='say')
-async def say(ctx, *, message: str):
-    try:
-        await ctx.message.delete()  # Deletes the user's command message
-    except discord.Forbidden:
-        # If the bot doesn't have permission to delete messages
-        pass
-    
-    await ctx.send(message)
     
 @bot.command()
 async def poll(ctx, *, question):
@@ -403,40 +326,6 @@ async def roleinfo(ctx, *, role: discord.Role = None):
     embed.add_field(name="Member Count", value=len(role.members), inline=True)
     embed.set_footer(text=f"Created at: {role.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
     await ctx.send(embed=embed)
-
-@bot.command()
-async def showguilds(ctx):
-    # Build your `guild_entries` list here
-        pages = list(chunk_list(guild_entries, 5))
-        current_page = 0
-
-        def generate_embed(page):
-            embed = discord.Embed(title="Authorized Guilds", color=discord.Color.blurple())
-            for entry in pages[page]:
-                embed.add_field(name="Guild", value=entry, inline=False)
-            embed.set_footer(text=f"Page {page + 1} of {len(pages)}")
-            return embed
-
-        class Paginator(View):
-            def __init__(self):
-                super().__init__(timeout=60)
-
-            @discord.ui.button(label="Previous", style=discord.ButtonStyle.gray)
-            async def previous(self, interaction: discord.Interaction, button: Button):
-                nonlocal current_page
-                if current_page > 0:
-                    current_page -= 1
-                    await interaction.response.edit_message(embed=generate_embed(current_page), view=self)
-
-            @discord.ui.button(label="Next", style=discord.ButtonStyle.gray)
-            async def next(self, interaction: discord.Interaction, button: Button):
-                nonlocal current_page
-                if current_page < len(pages) - 1:
-                    current_page += 1
-                    await interaction.response.edit_message(embed=generate_embed(current_page), view=self)
-
-        await ctx.send(embed=generate_embed(current_page), view=Paginator())
-        return
 
 
 @bot.command()
@@ -537,6 +426,7 @@ def get_help_pages(user_id):
         admin_embed.add_field(name="!skull authorize <@user>", value="Make someone worthy enough to use skull commands.", inline=False)
         admin_embed.add_field(name="!skull unauthorize <@user>", value="Make the user unworthy to use the skull commands.", inline=False)
         admin_embed.add_field(name="!skull authorized", value="List all worthy users.", inline=False)
+        admin_embed.add_field(name="!restart", value="Restart the bot from root.", inline=False)
         pages.append(admin_embed)
 
     return pages
