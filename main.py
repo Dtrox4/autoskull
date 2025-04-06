@@ -410,6 +410,8 @@ class HelpView(discord.ui.View):
         self.current_page = (self.current_page + 1) % len(self.pages)
         await self.update_page(interaction)
 
+bot.remove_command("help")
+
 # Create your help pages as embeds
 def get_help_pages(user_id):
     pages = []
