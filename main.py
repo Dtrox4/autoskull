@@ -97,6 +97,13 @@ class AutoSkullBot(commands.Bot):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
+    async def setup_hook(self):
+        print("🔧 setup_hook completed.")
+
+    async def on_ready(self):
+        print(f"✅ Logged in as {self.user} ({self.user.id})")
+        await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+
 # Instantiate the bot
 bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
 
@@ -104,23 +111,13 @@ bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
-        return
-
-    if message.author.id in SKULL_LIST:
-        await message.add_reaction("☠️")  
+        return 
 
     if not message.content.startswith(PREFIX):
         return  # Ignore non-command messages
 
     await bot.process_commands(message)  # Ensure commands are processed
     
-    async def setup_hook(self):
-        print("🔧 setup_hook completed.")
-
-
-    async def on_ready(self):
-        print(f"✅ Logged in as {self.user} ({self.user.id})")
-        await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
 bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
 
@@ -150,6 +147,8 @@ async def skull(ctx, *args):
 
     if action.startswith("<@") and mentioned_user:
         # Handle !skull @user directly
+        if message.author.id in SKULL_LIST:
+            await message.add_reaction("☠️") 
         SKULL_LIST.add(mentioned_user.id)
         save_skull_list(SKULL_LIST)
         await ctx.send(f"Will skull {mentioned_user.mention} from now on ☠️")
