@@ -12,22 +12,49 @@ from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
+if not TOKEN:
+    raise ValueError("Bot token is missing. Make sure you set it in GitHub Secrets.")
 
-YOUR_USER_ID = "1212229549459374222"
+print("Bot token loaded successfully!")
+
+# Owner's user ID
+YOUR_USER_ID = 1212229549459374222
+
+# File locations
+SKULL_LIST_FILE = "skull_list.json"
+AUTHORIZED_USERS_FILE = "authorized_users.json"
+CONFIG_FILE = "config.json"
+AUTHORIZED_GUILDS_FILE = "authorized_guilds.json"
+REACTION_FILE = "reactions.json"
+
+# Load Authorized Guilds List
+def load_authorized_guilds():
+    try:
+        with open(AUTHORIZED_GUILDS_FILE, "r") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set()
+
+def save_authorized_guilds(guilds):
+    with open(AUTHORIZED_GUILDS_FILE, "w") as f:
+        json.dump(list(guilds), f, indent=4)
+
+def chunk_list(data, size):
+    for i in range(0, len(data), size):
+        yield data[i:i + size]
+
+AUTHORIZED_GUILDS = load_authorized_guilds()
 
 # Load Skull List
 def load_skull_list():
-    if not os.path.exists("skull_list.json"):
+    try:
+        with open(SKULL_LIST_FILE, "r") as f:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
         return set()
-
-    with open("skull_list.json", "r") as f:
-        try:
-            data = json.load(f)
-            return set(str(item) for item in data if isinstance(item, (str, int)))
-        except json.JSONDecodeError:
-            return set()
 
 def save_skull_list(skull_list):
     with open(SKULL_LIST_FILE, "w") as f:
@@ -35,14 +62,10 @@ def save_skull_list(skull_list):
 
 # Load Authorized Users
 def load_authorized_users():
-    if not os.path.exists(AUTHORIZED_USERS_FILE):
-        return {YOUR_USER_ID}  # Replace with your actual user ID
-
     try:
         with open(AUTHORIZED_USERS_FILE, "r") as f:
-            data = json.load(f)
-            return set(str(user_id) for user_id in data if isinstance(user_id, (str, int)))
-    except json.JSONDecodeError:
+            return set(json.load(f))
+    except (FileNotFoundError, json.JSONDecodeError):
         return {YOUR_USER_ID}
 
 def save_authorized_users(authorized_users):
@@ -57,165 +80,182 @@ def load_config():
     except (FileNotFoundError, json.JSONDecodeError):
         return {"prefix": "!"}
 
-# File paths
-AUTHORIZED_USERS_FILE = "authorized_users.json"
-SKULL_LIST_FILE = "skull_list.json"
-
+config = load_config()
+PREFIX = "!"
 AUTHORIZED_USERS = load_authorized_users()
 SKULL_LIST = load_skull_list()
 
+# Use `commands.Bot`
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix=PREFIX, intents=intents)
+
+# Keep bot alive
+def run():
+    app = Flask(__name__)
+
+    @app.route('/')
+    def home():
+        return "I'm alive!"
+
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+keep_alive()
 start_time = datetime.datetime.utcnow()
 
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user}")
+    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
-def read_json(file):
-    if not os.path.exists(file):
-        with open(file, 'w') as f:
-            json.dump([], f)
-        return []
-
-    try:
-        with open(file, 'r') as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        # Reset to empty list if corrupted
-        with open(file, 'w') as f:
-            json.dump([], f)
-        return []
-
-def write_json(file, data):
-    temp_file = file + ".tmp"
-    with open(temp_file, 'w') as f:
-        json.dump(data, f, indent=4)
-    shutil.move(temp_file, file)
-    print(f"[✔] Wrote data to {file}")   
-
-bot = commands.Bot(command_prefix=['!', '.'], intents=intents)
-    
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Bot is running!"
-
-def start_flask():
-    Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
-
-# Auto-react to messages
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
-        return 
+        return
 
     if message.author.id in SKULL_LIST:
-            await message.add_reaction("☠️")
+        await asyncio.sleep(1)
+        await message.add_reaction("☠️")
 
     if not message.content.startswith(PREFIX):
-        return  # Ignore non-command messages
+        return
 
-    async def on_ready(self):
-        print(f"✅ Logged in as {self.user} ({self.user.id})")
-        await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+    await bot.process_commands(message)
 
-    await bot.process_commands(message)  # Ensure commands are processed
+def is_user_authorized(ctx):
+    if ctx.guild and ctx.guild.id not in AUTHORIZED_GUILDS:
+        return False
 
-# Example command to verify bot is working
-@bot.command()
-async def ping(ctx):
-    await ctx.send("Pong!")
+    if ctx.author.id == YOUR_USER_ID:
+        return True
 
-@bot.command()
-async def skull(ctx, member: discord.Member):
-    if not is_authorized(ctx.author.id):
-        return await ctx.send("You are not authorized to use this command.")
+    if ctx.author.id in AUTHORIZED_USERS:
+        return True
 
-    SKULL_LIST.add((ctx.guild.id, member.id))
-    save_skull_list(SKULL_LIST)
-    await ctx.send(f"{member.mention} has been skull'd.")
+    if ctx.guild:
+        guild_id = str(ctx.guild.id)
+        guild_data = GUILD_PERMISSIONS.get(guild_id, {})
+        authorized_roles = guild_data.get("authorized_roles", [])
+        user_roles = [role.id for role in ctx.author.roles]
+        if any(role_id in authorized_roles for role_id in user_roles):
+            return True
 
-@bot.command()
-async def unskull(ctx, member: discord.Member):
-    if not is_authorized(ctx.author.id):
-        return await ctx.send("You are not authorized to use this command.")
-
-    SKULL_LIST.discard((ctx.guild.id, member.id))
-    save_skull_list(SKULL_LIST)
-    await ctx.send(f"{member.mention} has been unskull'd.")
+    return False
 
 @bot.command()
-async def skulllist(ctx):
-    skulls = [f"<@{uid}>" for gid, uid in SKULL_LIST if gid == ctx.guild.id]
-    if not skulls:
-        await ctx.send("No one is skull'd in this server.")
+async def skull(ctx, *args):
+    if not args:
+        embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    action = args[0].lower()
+    mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
+
+    # Check for missing required mention
+    def require_mention():
+        return discord.Embed(
+            title="Missing Argument",
+            description=f"Please mention a user.\nUsage: ```{PREFIX}skull {action} @user```",
+            color=discord.Color.orange()
+        )
+
+    if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
+        await ctx.send(embed=require_mention())
+        return
+
+    if action.startswith("<@") and not mentioned_user:
+        await ctx.send(embed=require_mention())
+        return
+
+    if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized", "help"]:
+        embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
+        await ctx.send(embed=embed)
+        return
+
+    if action == "list":
+        embed = discord.Embed(title="Skulled Users", color=discord.Color.purple())
+        if SKULL_LIST:
+            for user_id in SKULL_LIST:
+                embed.add_field(name="User", value=f"<@{user_id}>", inline=False)
+        else:
+            embed.description = "No users are being skulled."
+        await ctx.send(embed=embed)
+        return
+
+    if action == "authorized":
+        embed = discord.Embed(title="Authorized Users", color=discord.Color.green())
+        for user_id in AUTHORIZED_USERS:
+            embed.add_field(name="User", value=f"<@{user_id}>", inline=False)
+        await ctx.send(embed=embed)
+        return
+
+    if action == "authorize" and mentioned_user:
+        if mentioned_user.id not in AUTHORIZED_USERS:
+            AUTHORIZED_USERS.add(mentioned_user.id)
+            save_authorized_users(AUTHORIZED_USERS)
+            embed = discord.Embed(title="Authorized", description=f"{mentioned_user.mention} has been **permanently authorized**.", color=discord.Color.green())
+        else:
+            embed = discord.Embed(title="Already Authorized", description=f"{mentioned_user.mention} is already authorized.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    if action == "unauthorize" and mentioned_user:
+        if mentioned_user.id in AUTHORIZED_USERS and mentioned_user.id != YOUR_USER_ID:
+            AUTHORIZED_USERS.remove(mentioned_user.id)
+            save_authorized_users(AUTHORIZED_USERS)
+            embed = discord.Embed(title="Unauthorized", description=f"{mentioned_user.mention} has been **permanently unauthorized**.", color=discord.Color.red())
+        else:
+            embed = discord.Embed(title="Cannot Unauthorize", description=f"{mentioned_user.mention} is not authorized or cannot be unauthorized.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    if action == "stop" and mentioned_user:
+        if mentioned_user.id in SKULL_LIST:
+            SKULL_LIST.remove(mentioned_user.id)
+            save_skull_list(SKULL_LIST)
+            embed = discord.Embed(title="Skull Removed", description=f"{mentioned_user.mention} will **no longer be skulled**.", color=discord.Color.green())
+        else:
+            embed = discord.Embed(title="Not Skulled", description=f"{mentioned_user.mention} is not in the skull list.", color=discord.Color.orange())
+        await ctx.send(embed=embed)
+        return
+
+    if action.startswith("<@") and mentioned_user:
+        SKULL_LIST.add(mentioned_user.id)
+        save_skull_list(SKULL_LIST)
+        embed = discord.Embed(title="Skulled", description=f"{mentioned_user.mention} will be **skulled from now on** ☠️", color=discord.Color.purple())
+        await ctx.send(embed=embed)
+        return
+
+@bot.command()
+async def stats(ctx):
+    now = datetime.datetime.utcnow()
+    uptime = now - start_time
+    uptime_str = str(uptime).split('.')[0]
+
+    latency = round(bot.latency * 1000)
+    guild_count = len(bot.guilds)
+    user_count = len(set(member.id for guild in bot.guilds for member in guild.members))
+
+    embed = discord.Embed(title="Bot Stats", color=discord.Color.teal())
+    embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
+    embed.add_field(name="Uptime", value=uptime_str, inline=True)
+    embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
+    embed.add_field(name="Users", value=f"{user_count}", inline=True)
+    await ctx.send(embed=embed)
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        embed = discord.Embed(title="Incomplete Command", description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`", color=discord.Color.orange())
+        await ctx.send(embed=embed)
     else:
-        await ctx.send("Skull'd users: " + ", ".join(skulls))
+        raise error
 
-@bot.command()
-async def authorize(ctx, user: discord.User):
-    if ctx.author.id not in AUTHORIZED_USERS:
-        return await ctx.send("Only authorized users can authorize others.")
-
-    AUTHORIZED_USERS.add(user.id)
-    save_authorized_users(AUTHORIZED_USERS)
-    await ctx.send(f"{user.mention} has been authorized.")
-
-@bot.command()
-async def unauthorize(ctx, user: discord.User):
-    if ctx.author.id not in AUTHORIZED_USERS:
-        return await ctx.send("Only authorized users can unauthorize others.")
-
-    AUTHORIZED_USERS.discard(user.id)
-    save_authorized_users(AUTHORIZED_USERS)
-    await ctx.send(f"{user.mention} has been unauthorized.")
-
-@bot.command()
-async def authorized(ctx):
-    if not bot.is_authorized(ctx):
-                await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
-                return
-    
-                SKULL_LIST = read_json(SKULL_LIST_FILE)
-                if not SKULL_LIST:
-                    await ctx.send(embed=discord.Embed(description="☠️ No users have been skulled yet!", color=discord.Color.orange()))
-                    return
-        
-                pages = []
-                for i in range(0, len(SKULL_LIST), 10):
-                    chunk = skull_list[i:i + 10]
-                    desc = ""
-                    for entry in chunk:
-                        user = await bot.fetch_user(entry["user_id"])
-                        timestamp = entry["timestamp"]
-                        desc += f"{user.mention} - {timestamp}\n"
-                        embed = discord.Embed(title="💀 Skull List", description=desc, color=discord.Color.purple())
-                        embed.set_footer(text=f"Page {i//10+1} of {(len(SKULL_LIST)-1)//10+1}")
-                        pages.append(embed)
-        
-                current = 0
-                message = await ctx.send(embed=pages[current])
-                await message.add_reaction("⏮️")
-                await message.add_reaction("⏭️")
-        
-                def check(reaction, user):
-                    return user == ctx.author and str(reaction.emoji) in ["⏮️", "⏭️"] and reaction.message.id == message.id
-        
-                while True:
-                    try:
-                        reaction, user = await bot.wait_for("reaction_add", timeout=60.0, check=check)
-                        if str(reaction.emoji) == "⏮️":
-                            current = (current - 1) % len(pages)
-                            await message.edit(embed=pages[current])
-                        elif str(reaction.emoji) == "⏭️":
-                            current = (current + 1) % len(pages)
-                            await message.edit(embed=pages[current])
-                        await message.remove_reaction(reaction, user)
-                    except asyncio.TimeoutError:
-                        break
- 
-        
-
+bot.run(TOKEN)
 
 @bot.command()
 async def stats(ctx):
@@ -324,6 +364,20 @@ async def roleinfo(ctx, *, role: discord.Role = None):
     embed.set_footer(text=f"Created at: {role.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
     await ctx.send(embed=embed)
 
+# Load existing reactions
+if os.path.exists(REACTION_FILE):
+    with open(REACTION_FILE, "r") as f:
+        keyword_reactions = json.load(f)
+else:
+    keyword_reactions = {}
+    
+@bot.command()
+async def addreact(ctx, keyword: str, emoji: str):
+    keyword_reactions[keyword.lower()] = emoji
+    with open(REACTION_FILE, "w") as f:
+        json.dump(keyword_reactions, f, indent=4)
+    await ctx.send(f"Got it! I’ll react with {emoji} when I see **{keyword}**.")
+
 
 @bot.command()
 async def restart(ctx):
@@ -391,8 +445,8 @@ def get_help_pages(user_id):
 
     skull_embed = discord.Embed(title="☠️ Skull Commands", color=discord.Color.blurple())
     skull_embed.add_field(name="!skull <@user>", value="Grant auto-skull privileges to a user.", inline=False)
-    skull_embed.add_field(name="!unskull <@user>", value="Remove auto-skull previleges from a user.", inline=False)
-    skull_embed.add_field(name="!skulllist", value="View all users with auto-skull privileges.", inline=False)
+    skull_embed.add_field(name="!skull stop <@user>", value="Remove auto-skull previleges from a user.", inline=False)
+    skull_embed.add_field(name="!skull list", value="View all users with auto-skull privileges.", inline=False)
     pages.append(skull_embed)
 
     mod_embed = discord.Embed(title="🛠️ Moderation Tools", color=discord.Color.blurple())
@@ -420,8 +474,8 @@ def get_help_pages(user_id):
     # Admin-only page
     if user_id == YOUR_USER_ID:
         admin_embed = discord.Embed(title="🔐 Admin Tools", color=discord.Color.red())
-        admin_embed.add_field(name="!authorize <@user>", value="Make someone worthy enough to use skull commands.", inline=False)
-        admin_embed.add_field(name="!unauthorize <@user>", value="Make the user unworthy to use the skull commands.", inline=False)
+        admin_embed.add_field(name="!skull authorize <@user>", value="Make someone worthy enough to use skull commands.", inline=False)
+        admin_embed.add_field(name="!skull unauthorize <@user>", value="Make the user unworthy to use the skull commands.", inline=False)
         admin_embed.add_field(name="!authorized", value="List all worthy users.", inline=False)
         admin_embed.add_field(name="!restart", value="Restart the bot from root.", inline=False)
         pages.append(admin_embed)
