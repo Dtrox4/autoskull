@@ -23,7 +23,7 @@ start_time = datetime.datetime.utcnow()
 
 intents = discord.Intents.default()
 intents.members = True
-intents.message_content = Tru
+intents.message_content = True
 
 def read_json(file):
     if not os.path.exists(file):
