@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
+YOUR_USER_ID = "1212229549459374222"
 # File paths
 authorized_users_file = "authorized_users.json"
 skull_list_file = "skull_list.json"
@@ -64,13 +65,11 @@ class AutoSkullBot(commands.Bot):
         if message.content.lower() == "skull me":
             await message.add_reaction("☠️")
 
-        if message.author.id in [int(uid) for uid in self.authorized_users] and "skull" in message.content.lower():
-            await message.add_reaction("☠️")
-
         await self.process_commands(message)
 
     def is_authorized(self, ctx):
-        return str(ctx.author.id) in self.authorized_users
+        return str(ctx.author.id) in self.authorized_users or ctx.author.id == YOUR_USER_ID
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -97,7 +96,10 @@ async def skull(ctx, subcommand=None, *args):
     if subcommand is None:
         await ctx.send(embed=discord.Embed(description="Usage: `!skull <@user>` or `!skull <subcommand>`\nType `!help` for commands.", color=discord.Color.orange()))
         return
-
+    
+    if subcommand in ["authorize", "unauthorize", "stop"] and ctx.author.id != YOUR_USER_ID:
+        await ctx.send(embed=discord.Embed(description="❌ Only the bot owner can use this command.", color=discord.Color.red()))
+        return
 
     if subcommand == "authorized":
         authorized_users = read_json(authorized_users_file)
