@@ -194,12 +194,19 @@ async def skull(ctx, *args):
             color=discord.Color.orange()
         )
 
+    def require_mention2():
+        return discord.Embed(
+            title="Missing Argument",
+            description=f"Please mention a user.\nUsage: ```{PREFIX}skull @user```",
+            color=discord.Color.orange()
+        )
+
     if action in ["authorize", "unauthorize", "stop"] and not mentioned_user:
         await ctx.send(embed=require_mention())
         return
 
     if action.startswith("<@") and not mentioned_user:
-        await ctx.send(embed=require_mention())
+        await ctx.send(embed=require_mention2())
         return
 
     if ctx.author.id not in AUTHORIZED_USERS and action not in ["list", "authorized", "help"]:
