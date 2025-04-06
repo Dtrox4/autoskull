@@ -203,7 +203,6 @@ async def skull(ctx, subcommand=None, *args):
             except asyncio.TimeoutError:
                 break
 
-
     elif subcommand == "stop" and args:
         if not bot.is_authorized(ctx):
             await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
@@ -219,22 +218,23 @@ async def skull(ctx, subcommand=None, *args):
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ <@{user_id}> is not being skulled.", color=discord.Color.orange()))
 
-        elif ctx.message.mentions:
-            if not bot.is_authorized(ctx):
-                await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
-                return
+    elif ctx.message.mentions:
+        if not bot.is_authorized(ctx):
+            await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
+            return
 
-            user = ctx.message.mentions[0]
-            skull_list = read_json(skull_list_file)
-            if all(entry["user_id"] != str(user.id) for entry in skull_list):
-                skull_list.append({
-                    "user_id": str(user.id),
-                    "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-                })
-                write_json(skull_list_file, skull_list)
-                await ctx.send(embed=discord.Embed(description=f"☠️ Started skull on {user.mention}.", color=discord.Color.purple()))
-            else:
-                await ctx.send(embed=discord.Embed(description=f"⚠️ {user.mention} is already being skulled.", color=discord.Color.orange()))
+        user = ctx.message.mentions[0]
+        skull_list = read_json(skull_list_file)
+        if all(entry["user_id"] != str(user.id) for entry in skull_list):
+            skull_list.append({
+                "user_id": str(user.id),
+                "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            write_json(skull_list_file, skull_list)
+            await ctx.send(embed=discord.Embed(description=f"☠️ Started skull on {user.mention}.", color=discord.Color.purple()))
+        else:
+            await ctx.send(embed=discord.Embed(description=f"⚠️ {user.mention} is already being skulled.", color=discord.Color.orange()))
+
 
 @bot.command()
 async def stats(ctx):
