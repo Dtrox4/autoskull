@@ -349,7 +349,7 @@ if __name__ == '__main__':
 
     Thread(target=run_flask).start()
 
-    token = os.getenv("DISCORD_TOKEN")
+    token = os.getenv("DISCORD_BOT_TOKEN")
     if token:
         asyncio.run(bot.start(token))
     else:
