@@ -10,7 +10,7 @@ from discord.ext import commands
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
-from load_flask import load_flask
+from load_flask import start_flask
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -18,6 +18,14 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 # File paths
 authorized_users_file = "authorized_users.json"
 skull_list_file = "skull_list.json"
+
+if __name__ == '__main__':
+    start_flask()
+
+    if TOKEN:
+        asyncio.run(bot.start(TOKEN))
+    else:
+        print("❌ DISCORD_TOKEN not found in environment variables.")
 
 def read_json(file):
     if not os.path.exists(file):
