@@ -5,6 +5,8 @@ import os
 import json
 from discord.ui import View, Button
 from discord.ext import commands
+from flask import Flask
+from threading import Thread
 from dotenv import load_dotenv
 
 # Load environment variables
