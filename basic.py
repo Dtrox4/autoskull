@@ -288,21 +288,6 @@ async def roleinfo(ctx, *, role: discord.Role = None):
     embed.set_footer(text=f"Created at: {role.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
     await ctx.send(embed=embed)
 
-# Load existing reactions
-if os.path.exists(REACTION_FILE):
-    with open(REACTION_FILE, "r") as f:
-        keyword_reactions = json.load(f)
-else:
-    keyword_reactions = {}
-    
-@bot.command()
-async def addreact(ctx, keyword: str, emoji: str):
-    keyword_reactions[keyword.lower()] = emoji
-    with open(REACTION_FILE, "w") as f:
-        json.dump(keyword_reactions, f, indent=4)
-    await ctx.send(f"Got it! I’ll react with {emoji} when I see **{keyword}**.")
-
-
 @bot.command()
 async def restart(ctx):
     if str(ctx.author.id) != YOUR_USER_ID:
@@ -352,8 +337,6 @@ async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str =
     confirmation = await ctx.send(embed=embed)
     await asyncio.sleep(3)
     await confirmation.delete()
-
-
 
 @bot.event
 async def on_command_error(ctx, error):
@@ -409,7 +392,6 @@ def get_help_pages(user_id):
     mod_embed.add_field(name="!bc", value="Bulk delete bot command embed messages.", inline=False)
     mod_embed.add_field(name="!bc <limit> {@user}/[keyword] (optional)", value="Bulk delete commands with special arguments.", inline=False)
     mod_embed.add_field(name="!say", value="Echo a message and delete command.", inline=False)
-    skull_embed.add_field(name="!addreact <keyword> <emoji>", value="Add reactions to keywords.", inline=False)
     pages.append(mod_embed)
 
     info_embed = discord.Embed(title="📊 Info Commands", color=discord.Color.blurple())
