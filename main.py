@@ -176,7 +176,7 @@ def is_user_authorized(ctx):
     if ctx.author.id in AUTHORIZED_USERS:
         return True
 
-@bot.command()
+@bot.command(action="skull")
 async def skull(ctx, *args):
     if not args:
         embed = discord.Embed(title="Need Help?", description="Type `!help` to view all commands.", color=discord.Color.orange())
