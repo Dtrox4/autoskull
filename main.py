@@ -47,6 +47,8 @@ def write_json(file, data):
     shutil.move(temp_file, file)
     print(f"[✔] Wrote data to {file}")
 
+bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
+
 class AutoSkullBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -66,8 +68,6 @@ class AutoSkullBot(commands.Bot):
     async def on_ready(self):
         print(f"✅ Logged in as {self.user} ({self.user.id})")
         await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
-
-    bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
 
 
     async def on_message(self, message):
