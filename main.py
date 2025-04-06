@@ -48,8 +48,12 @@ class AutoSkullBot(commands.Bot):
         self.skull_list = read_json(skull_list_file)
 
     async def setup_hook(self):
-        print(f"Logged in as {self.user} ({self.user.id})")
+        print("Setup hook complete. Waiting for connection...")
+
+    async def on_ready(self):
+        print(f"✅ Logged in as {self.user} ({self.user.id})")
         await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+
 
     async def on_message(self, message):
         if message.author == self.user:
