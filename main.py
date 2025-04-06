@@ -3,6 +3,8 @@ import asyncio
 import datetime
 import os
 import json
+import tempfile
+import shutil
 from discord.ui import View, Button
 from discord.ext import commands
 from flask import Flask
@@ -20,12 +22,23 @@ def read_json(file):
     if not os.path.exists(file):
         with open(file, 'w') as f:
             json.dump([], f)
-    with open(file, 'r') as f:
-        return json.load(f)
+        return []
+
+    try:
+        with open(file, 'r') as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        # Reset to empty list if corrupted
+        with open(file, 'w') as f:
+            json.dump([], f)
+        return []
 
 def write_json(file, data):
-    with open(file, 'w') as f:
+    temp_file = file + ".tmp"
+    with open(temp_file, 'w') as f:
         json.dump(data, f, indent=4)
+    shutil.move(temp_file, file)
+
 
 class AutoSkullBot(commands.Bot):
     def __init__(self, intents):
@@ -42,7 +55,7 @@ class AutoSkullBot(commands.Bot):
             return
 
         if message.content.lower() == "skull me":
-            await message.channel.send(f"{message.author.mention} ☠️")
+            await message.add_reaction("☠️")
 
         if message.author.id in [int(uid) for uid in self.authorized_users] and "skull" in message.content.lower():
             await message.add_reaction("☠️")
@@ -67,7 +80,7 @@ async def skull(ctx, subcommand=None, *args):
         return
 
     if subcommand is None:
-        await ctx.send(embed=discord.Embed(description="Usage: `!skull <@user>` or `!skull <subcommand>`\nType `!skull help` for subcommands.", color=discord.Color.orange()))
+        await ctx.send(embed=discord.Embed(description="Usage: `!skull <@user>` or `!skull <subcommand>`\nType `!help` for commands.", color=discord.Color.orange()))
         return
 
 
@@ -86,6 +99,7 @@ async def skull(ctx, subcommand=None, *args):
         embed = discord.Embed(title="🔒 Skull Admin Help", color=discord.Color.dark_red())
         embed.add_field(name="!skull authorize <@user>", value="Add an authorized user.", inline=False)
         embed.add_field(name="!skull unauthorize <@user>", value="Remove an authorized user.", inline=False)
+        embed.add_field(name="!skull authorized", value="Shows the list of authorized users.", inline=False)
         await ctx.send(embed=embed)
 
     elif subcommand == "authorize" and args:
