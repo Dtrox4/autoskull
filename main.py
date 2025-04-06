@@ -104,21 +104,21 @@ class AutoSkullBot(commands.Bot):
         print(f"✅ Logged in as {self.user} ({self.user.id})")
         await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
-# Instantiate the bot
-bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
-
-# Auto-react to messages
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return 
-
-    if not message.content.startswith(PREFIX):
-        return  # Ignore non-command messages
-
-    await bot.process_commands(message)  # Ensure commands are processed
+# Example command to verify bot is working
+@bot.command()
+async def ping(ctx):
+    await ctx.send("Pong!")
     
+app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def start_flask():
+    Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
+
+# Instantiate the bot
 bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
 
 intents = discord.Intents.default()
@@ -146,9 +146,7 @@ async def skull(ctx, *args):
         return
 
     if action.startswith("<@") and mentioned_user:
-        # Handle !skull @user directly
-        if message.author.id in SKULL_LIST:
-            await message.add_reaction("☠️") 
+        # Handle !skull @user directly 
         SKULL_LIST.add(mentioned_user.id)
         save_skull_list(SKULL_LIST)
         await ctx.send(f"Will skull {mentioned_user.mention} from now on ☠️")
@@ -167,19 +165,19 @@ async def skull(ctx, *args):
         await ctx.send(embed=embed)
         return
 
-# Example command to verify bot is working
-@bot.command()
-async def ping(ctx):
-    await ctx.send("Pong!")
-    
-app = Flask(__name__)
+# Auto-react to messages
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return 
 
-@app.route('/')
-def home():
-    return "Bot is running!"
+    if message.author.id in SKULL_LIST:
+            await message.add_reaction("☠️")
 
-def start_flask():
-    Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
+    if not message.content.startswith(PREFIX):
+        return  # Ignore non-command messages
+
+    await bot.process_commands(message)  # Ensure commands are processed
 
 @bot.command()
 async def user(ctx, subcommand=None, *args):
