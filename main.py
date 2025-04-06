@@ -70,15 +70,11 @@ class AutoSkullBot(commands.Bot):
     def is_authorized(self, ctx):
         return str(ctx.author.id) == YOUR_USER_ID or str(ctx.author.id) in self.authorized_users
 
-    
-
-
-
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-bot = AutoSkullBot(command_prefix="!", intents=intents)
+bot = AutoSkullBot(intents=intents)
 
 app = Flask(__name__)
 
