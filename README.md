@@ -21,6 +21,8 @@ A Discord bot for skull-reacting users and managing authorization. Created using
 4. That's it! Your bot should be running.
 
 ## 📁 Project Structure
+ 
+ ├── main.py ├── skull_list.json ├── authorized_users.json ├── requirements.txt ├── render.yaml (optional) └── README.md
 
 ## ✅ To Run Locally
 
