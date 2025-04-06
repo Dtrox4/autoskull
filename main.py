@@ -414,7 +414,7 @@ def get_help_pages(user_id):
     pages = []
 
     skull_embed = discord.Embed(title="☠️ Skull Commands", color=discord.Color.blurple())
-    skull_embed.add_field(name="!skull start <@user>", value="Grant auto-skull privileges to a user.", inline=False)
+    skull_embed.add_field(name="!skull <@user>", value="Grant auto-skull privileges to a user.", inline=False)
     skull_embed.add_field(name="!skull stop <@user>", value="Remove auto-skull previleges from a user.", inline=False)
     skull_embed.add_field(name="!skull list", value="View all users with auto-skull privileges.", inline=False)
     pages.append(skull_embed)
