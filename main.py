@@ -31,14 +31,21 @@ for file in [authorized_users_file, skull_list_file]:
         with open(file, "w") as f:
             json.dump([], f)
 
-# Utility functions for reading/writing JSON files
+# Utility functions
 def read_json(file):
-    with open(file, "r") as f:
+    if not os.path.exists(file):
+        with open(file, 'w') as f:
+            json.dump([], f)
+    with open(file, 'r') as f:
         return json.load(f)
 
 def write_json(file, data):
-    with open(file, "w") as f:
+    with open(file, 'w') as f:
         json.dump(data, f, indent=4)
+
+def is_authorized(ctx):
+    authorized_users = read_json(authorized_users_file)
+    return str(ctx.author.id) in authorized_users
 
 # Embed utility
 def create_embed(title, description=None, color=discord.Color.blue(), fields=None):
@@ -50,25 +57,19 @@ def create_embed(title, description=None, color=discord.Color.blue(), fields=Non
 
 YOUR_USER_ID = 1212229549459374222 # Replace with your actual Discord ID
 
-# Keep bot alive
-def run():
-    app = Flask(__name__)
+# Flask web server for Render keep-alive
+app = Flask(__name__)
 
-    @app.route('/')
-    def home():
-        return "I'm alive!"
-
-    app.run(host='0.0.0.0', port=8080)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-
-keep_alive()
+@app.route('/')
+def home():
+    return "Bot is running!"
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
+
+# Initialize skull list
+SKULL_LIST = read_json(skull_list_file)
 
 @bot.event
 async def on_ready():
@@ -158,11 +159,6 @@ async def unauthorize(ctx, member: discord.Member):
 
     view = ConfirmView(ctx.author, confirm_action, cancel_action)
     await ctx.send(embed=create_embed("Confirm Unauthorization", f"Are you sure you want to remove {member.mention} from the authorized list?"), view=view)
-
-@bot.group()
-async def skull(ctx):
-    if ctx.invoked_subcommand is None:
-        await ctx.send(embed=create_embed("Skull Command", "Use a subcommand: list, start @user, stop @user", discord.Color.orange()))
 
 @skull.command()
 async def start(ctx, member: discord.Member):
@@ -343,8 +339,18 @@ async def help(ctx):
     embed = create_embed("📖 Help Menu", "Click a button below to explore command categories.")
     await ctx.send(embed=embed, view=HelpButton())
 
-if __name__ == "__main__":
-    try:
-        bot.run(TOKEN)
-    except Exception as e:
-        print(f"Failed to start bot: {e}")
+# Run bot and web server
+if __name__ == '__main__':
+    from threading import Thread
+    import asyncio
+
+    def run_flask():
+        app.run(host='0.0.0.0', port=3000)
+
+    Thread(target=run_flask).start()
+
+    token = os.getenv("DISCORD_TOKEN")
+    if token:
+        asyncio.run(bot.start(token))
+    else:
+        print("❌ DISCORD_TOKEN not found in environment variables.")
