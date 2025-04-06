@@ -215,6 +215,15 @@ async def eightball(ctx, *, question):
 
 @bot.command()
 async def userinfo(ctx, member: discord.Member = None):
+    f role is None:
+        embed = discord.Embed(
+            title="Missing Argument",
+            description="Please mention.\nUsage: ```!roleinfo <@user>```",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
+    
     member = member or ctx.author
     roles = [role.mention for role in member.roles if role != ctx.guild.default_role]
     roles_display = ", ".join(roles) if roles else "No roles"
@@ -241,7 +250,7 @@ async def roleinfo(ctx, *, role: discord.Role = None):
         embed = discord.Embed(
             title="Missing Argument",
             description="Please specify a role.\nUsage: ```!roleinfo <role name>```",
-            color=discord.Color.orange()
+            color=discord.Color.red()
         )
         await ctx.send(embed=embed)
         return
