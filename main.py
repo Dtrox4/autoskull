@@ -17,6 +17,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 # File paths
 authorized_users_file = "authorized_users.json"
 skull_list_file = "skull_list.json"
+start_time = datetime.datetime.utcnow()
 
 def read_json(file):
     if not os.path.exists(file):
@@ -180,18 +181,19 @@ async def skull(ctx, subcommand=None, *args):
         user = args[0]
         user_id = user.strip('<@!>')
         skull_list = read_json(skull_list_file)
-        if user_id in skull_list:
-            skull_list.remove(user_id)
-            write_json(skull_list_file, skull_list)
+        new_skull_list = [entry for entry in skull_list if entry["user_id"] != user_id]
+        if len(new_skull_list) != len(skull_list):
+            write_json(skull_list_file, new_skull_list)
             await ctx.send(embed=discord.Embed(description=f"🛑 Stopped skull on <@{user_id}>.", color=discord.Color.red()))
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ <@{user_id}> is not being skulled.", color=discord.Color.orange()))
 
+
     elif discord.utils.get(ctx.message.mentions, id=ctx.message.mentions[0].id) if ctx.message.mentions else None:
         user = ctx.message.mentions[0]
         skull_list = read_json(skull_list_file)
-        if str(user.id) not in skull_list:
-            skull_list.append(str(user.id))
+        if all(entry["user_id"] != str(user.id) for entry in skull_list):
+            skull_list.append({"user_id": str(user.id), "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")})
             write_json(skull_list_file, skull_list)
             await ctx.send(embed=discord.Embed(description=f"☠️ Started skull on {user.mention}.", color=discord.Color.purple()))
         else:
