@@ -91,6 +91,8 @@ def write_json(file, data):
         json.dump(data, f, indent=4)
     shutil.move(temp_file, file)
     print(f"[✔] Wrote data to {file}")   
+
+bot = commands.Bot(command_prefix=['!', '.'], intents=intents)
     
 app = Flask(__name__)
 
