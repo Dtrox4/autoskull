@@ -50,8 +50,8 @@ def load_config():
         return {"prefix": "!"}
 
 # File paths
-authorized_users_file = "authorized_users.json"
-skull_list_file = "skull_list.json"
+AUTHORIZED_USERS_FILE = "authorized_users.json"
+SKULL_LIST_FILE = "skull_list.json"
 
 AUTHORIZED_USERS = load_authorized_users()
 SKULL_LIST = load_skull_list()
@@ -239,7 +239,7 @@ async def user(ctx, subcommand=None, *args):
 
         if user_id not in bot.authorized_users:
             bot.authorized_users.append(user_id)
-            write_json(authorized_users_file, bot.authorized_users)
+            write_json(, bot.authorized_users)
             await ctx.send(embed=discord.Embed(description=f"✅ User <@{user_id}> authorized.", color=discord.Color.green()))
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is already authorized.", color=discord.Color.orange()))
@@ -254,7 +254,7 @@ async def user(ctx, subcommand=None, *args):
         user_id = user.strip('<@!>')
         if user_id in bot.authorized_users:
             bot.authorized_users.remove(user_id)
-            write_json(authorized_users_file, bot.authorized_users)
+            write_json(AUTHORIZED_USERS_FILE, bot.authorized_users)
             await ctx.send(embed=discord.Embed(description=f"❌ User <@{user_id}> unauthorized.", color=discord.Color.red()))
         else:
             await ctx.send(embed=discord.Embed(description=f"⚠️ User <@{user_id}> is not authorized.", color=discord.Color.orange()))
@@ -264,13 +264,13 @@ async def user(ctx, subcommand=None, *args):
             await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
             return
 
-        skull_list = read_json(skull_list_file)
-        if not skull_list:
+        SKULL_LIST = read_json(SKULL_LIST_FILE)
+        if not SKULL_LIST:
             await ctx.send(embed=discord.Embed(description="☠️ No users have been skulled yet!", color=discord.Color.orange()))
             return
 
         pages = []
-        for i in range(0, len(skull_list), 10):
+        for i in range(0, len(SKULL_LIST), 10):
             chunk = skull_list[i:i + 10]
             desc = ""
             for entry in chunk:
@@ -278,7 +278,7 @@ async def user(ctx, subcommand=None, *args):
                 timestamp = entry["timestamp"]
                 desc += f"{user.mention} - {timestamp}\n"
                 embed = discord.Embed(title="💀 Skull List", description=desc, color=discord.Color.purple())
-                embed.set_footer(text=f"Page {i//10+1} of {(len(skull_list)-1)//10+1}")
+                embed.set_footer(text=f"Page {i//10+1} of {(len(SKULL_LIST)-1)//10+1}")
                 pages.append(embed)
 
         current = 0
