@@ -1,12 +1,11 @@
-def load_flask():
-  @app.route('/')
-  def home():
-      return "Bot is running!"
+from flask import Flask
+from threading import Thread
 
-  app = Flask(__name__)
+app = Flask(__name__)
 
-  if __name__ == '__main__':
-      def run_flask():
-          app.run(host='0.0.0.0', port=3000)
+@app.route('/')
+def home():
+    return "Bot is running!"
 
-  Thread(target=run_flask).start()
+def start_flask():
+    Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
