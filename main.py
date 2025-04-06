@@ -92,6 +92,14 @@ def write_json(file, data):
     shutil.move(temp_file, file)
     print(f"[✔] Wrote data to {file}")
 
+# Define your custom bot class first
+class AutoSkullBot(commands.Bot):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+# Instantiate the bot
+bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
+
 # Auto-react to messages
 @bot.event
 async def on_message(message):
