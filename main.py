@@ -115,51 +115,6 @@ class ConfirmView(discord.ui.View):
         await self.on_cancel()
         self.stop()
 
-@bot.group()
-async def skull(ctx):
-    if ctx.invoked_subcommand is None:
-        await ctx.send(embed=create_embed("Skull Command", "Use a subcommand: list, start @user, stop @user", discord.Color.orange()))
-
-@skull.command()
-async def authorize(ctx, member: discord.Member):
-    if ctx.author.id != YOUR_USER_ID:
-        return await ctx.send(embed=create_embed("Unauthorized", "Only the bot owner can authorize users.", discord.Color.red()))
-
-    async def confirm_action():
-        authorized_users = read_json(authorized_users_file)
-        if member.id in authorized_users:
-            await ctx.send(embed=create_embed("Already Authorized", f"{member.display_name} is already authorized."))
-            return
-        authorized_users.append(member.id)
-        write_json(authorized_users_file, authorized_users)
-        await ctx.send(embed=create_embed("✅ Authorized", f"{member.display_name} has been authorized."))
-
-    async def cancel_action():
-        pass
-
-    view = ConfirmView(ctx.author, confirm_action, cancel_action)
-    await ctx.send(embed=create_embed("Confirm Authorization", f"Are you sure you want to authorize {member.mention}?"), view=view)
-
-@skull.command()
-async def unauthorize(ctx, member: discord.Member):
-    if ctx.author.id != YOUR_USER_ID:
-        return await ctx.send(embed=create_embed("Unauthorized", "Only the bot owner can unauthorize users.", discord.Color.red()))
-
-    async def confirm_action():
-        authorized_users = read_json(authorized_users_file)
-        if member.id not in authorized_users:
-            await ctx.send(embed=create_embed("Not Authorized", f"{member.display_name} is not authorized."))
-            return
-        authorized_users.remove(member.id)
-        write_json(authorized_users_file, authorized_users)
-        await ctx.send(embed=create_embed("🗑️ Unauthorize", f"{member.display_name} has been removed from the authorized list."))
-
-    async def cancel_action():
-        pass
-
-    view = ConfirmView(ctx.author, confirm_action, cancel_action)
-    await ctx.send(embed=create_embed("Confirm Unauthorization", f"Are you sure you want to remove {member.mention} from the authorized list?"), view=view)
-
 @bot.command()
 async def skull(ctx, subcommand=None, *args):
     if not is_authorized(ctx):
