@@ -68,7 +68,10 @@ class AutoSkullBot(commands.Bot):
         await self.process_commands(message)
 
     def is_authorized(self, ctx):
-        return str(ctx.author.id) in self.authorized_users or ctx.author.id == YOUR_USER_ID
+        return str(ctx.author.id) == YOUR_USER_ID or str(ctx.author.id) in self.authorized_users
+
+    bot.is_authorized = is_authorized.__get__(bot)
+
 
 
 intents = discord.Intents.default()
@@ -89,17 +92,49 @@ def start_flask():
 
 @bot.command()
 async def skull(ctx, subcommand=None, *args):
-    if not self.is_authorized(ctx):
+    # Base auth: Only allow command if user is authorized or bot owner
+    if not bot.is_authorized(ctx):
         await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
         return
 
+    # Show help if no subcommand
     if subcommand is None:
-        await ctx.send(embed=discord.Embed(description="Usage: `!skull <@user>` or `!skull <subcommand>`\nType `!help` for commands.", color=discord.Color.orange()))
+        await ctx.send(embed=discord.Embed(description="Usage: `!skull <@user>` or `!skull <subcommand>`\nType `!skull help` for more info.", color=discord.Color.orange()))
         return
-    
-    if subcommand in ["authorize", "unauthorize", "authorized", "stop", "<@"] and ctx.author.id != YOUR_USER_ID:
-        await ctx.send(embed=discord.Embed(description="❌ Only authorized users can use this command.", color=discord.Color.red()))
+
+    # Limit certain commands to bot owner only
+    owner_only_subcommands = ["authorize", "unauthorize", "authorized"]
+    if subcommand in owner_only_subcommands and str(ctx.author.id) != YOUR_USER_ID:
+        await ctx.send(embed=discord.Embed(description="❌ Only the bot owner can use this command.", color=discord.Color.red()))
         return
+
+    skull_list = read_json(skull_list_file)
+
+    if subcommand == "stop" and args:
+        user = args[0]
+        user_id = user.strip('<@!>')
+        new_skull_list = [entry for entry in skull_list if entry["user_id"] != user_id]
+        if len(new_skull_list) != len(skull_list):
+            write_json(skull_list_file, new_skull_list)
+            await ctx.send(embed=discord.Embed(description=f"🛑 Stopped skull on <@{user_id}>.", color=discord.Color.red()))
+        else:
+            await ctx.send(embed=discord.Embed(description=f"⚠️ <@{user_id}> is not being skulled.", color=discord.Color.orange()))
+        return
+
+    # Default behavior: !skull @user
+    if ctx.message.mentions:
+        user = ctx.message.mentions[0]
+        if all(entry["user_id"] != str(user.id) for entry in skull_list):
+            skull_list.append({
+                "user_id": str(user.id),
+                "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            write_json(skull_list_file, skull_list)
+            await ctx.send(embed=discord.Embed(description=f"☠️ Started skull on {user.mention}.", color=discord.Color.purple()))
+        else:
+            await ctx.send(embed=discord.Embed(description=f"⚠️ {user.mention} is already being skulled.", color=discord.Color.orange()))
+    else:
+        await ctx.send(embed=discord.Embed(description="❓ Please mention a user to skull or use `!skull stop @user`.", color=discord.Color.orange()))
 
     elif subcommand == "authorized":
         if not bot.is_authorized(ctx):
@@ -202,38 +237,6 @@ async def skull(ctx, subcommand=None, *args):
                 await message.remove_reaction(reaction, user)
             except asyncio.TimeoutError:
                 break
-
-    elif subcommand == "stop" and args:
-        if not bot.is_authorized(ctx):
-            await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
-            return
-
-        user = args[0]
-        user_id = user.strip('<@!>')
-        skull_list = read_json(skull_list_file)
-        new_skull_list = [entry for entry in skull_list if entry["user_id"] != user_id]
-        if len(new_skull_list) != len(skull_list):
-            write_json(skull_list_file, new_skull_list)
-            await ctx.send(embed=discord.Embed(description=f"🛑 Stopped skull on <@{user_id}>.", color=discord.Color.red()))
-        else:
-            await ctx.send(embed=discord.Embed(description=f"⚠️ <@{user_id}> is not being skulled.", color=discord.Color.orange()))
-
-    elif ctx.message.mentions:
-        if not bot.is_authorized(ctx):
-            await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
-            return
-
-        user = ctx.message.mentions[0]
-        skull_list = read_json(skull_list_file)
-        if all(entry["user_id"] != str(user.id) for entry in skull_list):
-            skull_list.append({
-                "user_id": str(user.id),
-                "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-            })
-            write_json(skull_list_file, skull_list)
-            await ctx.send(embed=discord.Embed(description=f"☠️ Started skull on {user.mention}.", color=discord.Color.purple()))
-        else:
-            await ctx.send(embed=discord.Embed(description=f"⚠️ {user.mention} is already being skulled.", color=discord.Color.orange()))
 
 
 @bot.command()
