@@ -52,7 +52,6 @@ def load_config():
 # File paths
 authorized_users_file = "authorized_users.json"
 skull_list_file = "skull_list.json"
-PREFIX = config.get("prefix", "!")
 
 AUTHORIZED_USERS = load_authorized_users()
 SKULL_LIST = load_skull_list()
