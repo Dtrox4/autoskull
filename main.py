@@ -125,19 +125,34 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
+# Auto-react to messages
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return 
+
+    if message.author.id in SKULL_LIST:
+            await message.add_reaction("☠️")
+
+    if not message.content.startswith(PREFIX):
+        return  # Ignore non-command messages
+
+    await bot.process_commands(message)  # Ensure commands are processed
+
 @bot.command()
 async def skull(ctx, *args):
-    if ctx.author.id not in AUTHORIZED_USERS and not YOUR_USER_ID and action not in ["list", "authorized", "help"]:
+
+     action = args[0].lower()
+
+    if ctx.author.id not in AUTHORIZED_USERS and ctx.author.id != YOUR_USER_ID and action not in ["list", "authorized", "help"]:
         embed = discord.Embed(title="Access Denied", description="You are not permitted to use this command.", color=discord.Color.red())
         await ctx.send(embed=embed)
         return
 
     mentioned_user = ctx.message.mentions[0] if ctx.message.mentions else None
-
-    action = args[0].lower()
     
     if action == "stop" and mentioned_user:
-        if mentioned_user.id in SKULL_LIST:
+        if mentioned_user.id in SKULL_LIST and ctx.author.id != authorized_users and ctx.author.id != YOUR_USER_ID:
             SKULL_LIST.remove(mentioned_user.id)
             save_skull_list(SKULL_LIST)
             await ctx.send(f"{mentioned_user.mention} will no longer be skulled.")
@@ -164,20 +179,6 @@ async def skull(ctx, *args):
             embed.description = "No users are being skulled."
         await ctx.send(embed=embed)
         return
-
-# Auto-react to messages
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return 
-
-    if message.author.id in SKULL_LIST:
-            await message.add_reaction("☠️")
-
-    if not message.content.startswith(PREFIX):
-        return  # Ignore non-command messages
-
-    await bot.process_commands(message)  # Ensure commands are processed
 
 @bot.command()
 async def user(ctx, subcommand=None, *args):
