@@ -215,7 +215,7 @@ async def eightball(ctx, *, question):
 
 @bot.command()
 async def userinfo(ctx, member: discord.Member = None):
-    f role is None:
+    if role is None:
         embed = discord.Embed(
             title="Missing Argument",
             description="Please mention.\nUsage: ```!roleinfo <@user>```",
