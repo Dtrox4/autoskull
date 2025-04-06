@@ -47,8 +47,10 @@ class AutoSkullBot(commands.Bot):
         self.authorized_users = read_json(authorized_users_file)
         self.skull_list = read_json(skull_list_file)
 
+    # Inside AutoSkullBot class
     async def setup_hook(self):
-        print("Setup hook complete. Waiting for connection...")
+        print("🔧 setup_hook completed.")
+
 
     async def on_ready(self):
         print(f"✅ Logged in as {self.user} ({self.user.id})")
@@ -75,14 +77,6 @@ intents.message_content = True
 intents.members = True
 
 bot = AutoSkullBot(intents)
-
-if __name__ == '__main__':
-    start_flask()
-
-    if TOKEN:
-        asyncio.run(bot.start(TOKEN))
-    else:
-        print("❌ DISCORD_TOKEN not found in environment variables.")
 
 load_flask()
 
