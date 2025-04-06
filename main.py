@@ -90,31 +90,6 @@ async def on_message(message):
     
     await bot.process_commands(message)
 
-class ConfirmView(discord.ui.View):
-    def __init__(self, author, on_confirm, on_cancel):
-        super().__init__(timeout=30)
-        self.author = author
-        self.on_confirm = on_confirm
-        self.on_cancel = on_cancel
-
-    @discord.ui.button(label="✅ Confirm", style=discord.ButtonStyle.success)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user != self.author:
-            await interaction.response.send_message("You're not allowed to interact with this.", ephemeral=True)
-            return
-        await interaction.response.defer()
-        await self.on_confirm()
-        self.stop()
-
-    @discord.ui.button(label="❌ Cancel", style=discord.ButtonStyle.danger)
-    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        if interaction.user != self.author:
-            await interaction.response.send_message("You're not allowed to interact with this.", ephemeral=True)
-            return
-        await interaction.response.send_message("Action cancelled.", ephemeral=True)
-        await self.on_cancel()
-        self.stop()
-
 @bot.command()
 async def skull(ctx, subcommand=None, *args):
     if not is_authorized(ctx):
