@@ -134,13 +134,21 @@ async def on_message(message):
     if not message.content.startswith(PREFIX):
         return
 
-    # ✅ `!skull @username` to react to others' messages
+    # Skull reactions for authorized users
+    if message.author.id in bot.user_skull_list:
+        await message.add_reaction("💀")
+
     if message.content.startswith("!skull"):
+        if message.author.id not in AUTHORIZED_USERS:
+            embed = discord.Embed(description=f"⛔ | You are not authorized to use this command!", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+            return
+
+        args = message.content.split()
         mentioned_users = message.mentions
         
         if mentioned_users:
-            for user in mentioned_users:
-                bot.user_skull_list.add(user.id)
+            for user in SKULL_LIST:
                     await msg.add_reaction("💀")  # React to their message
                     embed = discord.Embed(description=f"☠️ | {mentioned_user.mention} is now skulled.", color=discord.Color.green())
                     await message.channel.send(f"Skulled {msg.author.mention} 💀")
