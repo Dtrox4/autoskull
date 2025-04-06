@@ -43,10 +43,15 @@ def write_json(file, data):
     print(f"[✔] Wrote data to {file}")
 
 class AutoSkullBot(commands.Bot):
-    def __init__(self, intents):
-        super().__init__(*args, **kwargs)  # Pass all arguments to the parent constructor
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Load authorized users
         self.authorized_users = read_json(authorized_users_file)
-        self.skull_list = read_json(skull_list_file)
+
+    def is_authorized(self, ctx):
+        return str(ctx.author.id) == YOUR_USER_ID or str(ctx.author.id) in self.authorized_users
+
 
     # Inside AutoSkullBot class
     async def setup_hook(self):
@@ -66,9 +71,6 @@ class AutoSkullBot(commands.Bot):
             await message.add_reaction("☠️")
 
         await self.process_commands(message)
-
-    def is_authorized(self, ctx):
-        return str(ctx.author.id) == YOUR_USER_ID or str(ctx.author.id) in self.authorized_users
 
 intents = discord.Intents.default()
 intents.message_content = True
