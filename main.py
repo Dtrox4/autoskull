@@ -15,6 +15,8 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
+bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
+
 YOUR_USER_ID = "1212229549459374222"
 # File paths
 authorized_users_file = "authorized_users.json"
@@ -45,7 +47,7 @@ def write_json(file, data):
 
 class AutoSkullBot(commands.Bot):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(command_prefix,*args, **kwargs)
 
         # Load authorized users
         self.authorized_users = read_json(authorized_users_file)
@@ -76,8 +78,6 @@ class AutoSkullBot(commands.Bot):
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-
-bot = AutoSkullBot(intents=intents)
 
 app = Flask(__name__)
 
