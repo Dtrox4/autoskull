@@ -85,9 +85,12 @@ PREFIX = "!"
 AUTHORIZED_USERS = load_authorized_users()
 SKULL_LIST = load_skull_list()
 
-# Use `commands.Bot`
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix=PREFIX, intents=intents)
+# Set up intents
+intents = discord.Intents.default()
+intents.message_content = True
+
+# Initialize bot
+bot = discord.Client(intents=intents)
 
 # Keep bot alive
 def run():
@@ -106,6 +109,14 @@ def keep_alive():
 keep_alive()
 start_time = datetime.datetime.utcnow()
 
+# Initialize bot
+class autoskull(discord.Client):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.user_skull_list = set()  # Store user IDs to auto-react to their new messages
+
+bot = autoskull(intents=intents)
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -115,14 +126,30 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
-        
-        #skull users in skull list
+
     if message.author.id in SKULL_LIST:
         await asyncio.sleep(1)
         await message.add_reaction("☠️")
 
     if not message.content.startswith(PREFIX):
         return
+
+    # ✅ `!skull @username` to react to others' messages
+    if message.content.startswith("!skull"):
+        mentioned_users = message.mentions
+        
+        if mentioned_users:
+            for user in mentioned_users:
+                bot.user_skull_list.add(user.id)
+                    await msg.add_reaction("💀")  # React to their message
+                    embed = discord.Embed(description=f"☠️ | {mentioned_user.mention} is now skulled.", color=discord.Color.green())
+                    await message.channel.send(f"Skulled {msg.author.mention} 💀")
+                    break
+        else:
+            embed = discord.Embed(description=f"❌ | Please mention a user to skull!", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+    
+    await bot.process_commands(message)
 
         # React to keywords
     for keyword, emoji in keyword_reactions.items():
@@ -132,28 +159,14 @@ async def on_message(message):
             except discord.HTTPException:
                 pass  # Invalid emoji or permission issue
 
-
     await bot.process_commands(message)
 
 def is_user_authorized(ctx):
-    if ctx.guild and ctx.guild.id not in AUTHORIZED_GUILDS:
-        return False
-
     if ctx.author.id == YOUR_USER_ID:
         return True
 
     if ctx.author.id in AUTHORIZED_USERS:
         return True
-
-    if ctx.guild:
-        guild_id = str(ctx.guild.id)
-        guild_data = GUILD_PERMISSIONS.get(guild_id, {})
-        authorized_roles = guild_data.get("authorized_roles", [])
-        user_roles = [role.id for role in ctx.author.roles]
-        if any(role_id in authorized_roles for role_id in user_roles):
-            return True
-
-    return False
 
 @bot.command()
 async def skull(ctx, *args):
