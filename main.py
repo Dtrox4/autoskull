@@ -129,13 +129,6 @@ async def skull(ctx, subcommand=None, *args):
             color=discord.Color.green()
         ))
 
-    elif subcommand == "adminhelp":
-        embed = discord.Embed(title="🔒 Skull admin Help", color=discord.Color.dark_red())
-        embed.add_field(name="!skull authorize <@user>", value="Add an authorized user.", inline=False)
-        embed.add_field(name="!skull unauthorize <@user>", value="Remove an authorized user.", inline=False)
-        embed.add_field(name="!skull authorized", value="Shows the list of authorized users.", inline=False)
-        await ctx.send(embed=embed)
-
     elif subcommand == "authorize" and args:
     if not bot.is_authorized(ctx):
         await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
