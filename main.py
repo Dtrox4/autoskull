@@ -10,14 +10,12 @@ import random
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
+load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+PREFIX = os.getenv("PREFIX", "!")
 
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
-intents.guilds = True
-intents.messages = True
-PREFIX = "!"
+# Use `commands.Bot`
+intents = discord.Intents.all()
 bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
 
 # Ensure files exist
@@ -48,10 +46,6 @@ def create_embed(title, description=None, color=discord.Color.blue(), fields=Non
 
 YOUR_USER_ID = 1212229549459374222 # Replace with your actual Discord ID
 
-# Use `commands.Bot`
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix=PREFIX, intents=intents, help_command=None)
-
 # Keep bot alive
 def run():
     app = Flask(__name__)
@@ -66,7 +60,7 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-run()
+keep_alive()
 
 @bot.event
 async def on_ready():
