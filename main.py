@@ -84,18 +84,20 @@ def write_json(file, data):
     shutil.move(temp_file, file)
     print(f"[✔] Wrote data to {file}")
 
-class AutoSkullBot(commands.Bot):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-       
-        # Load authorized users
-        self.authorized_users = read_json(authorized_users_file)
+# Auto-react to messages
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
 
-    def is_authorized(self, ctx):
-        return str(ctx.author.id) == YOUR_USER_ID or str(ctx.author.id) in self.authorized_users
+    if message.author.id in SKULL_LIST:
+        await message.add_reaction("☠️")  
 
+    if not message.content.startswith(PREFIX):
+        return  # Ignore non-command messages
 
-    # Inside AutoSkullBot class
+    await bot.process_commands(message)  # Ensure commands are processed
+    
     async def setup_hook(self):
         print("🔧 setup_hook completed.")
 
@@ -103,18 +105,6 @@ class AutoSkullBot(commands.Bot):
     async def on_ready(self):
         print(f"✅ Logged in as {self.user} ({self.user.id})")
         await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
-
-    async def on_message(self, message):
-        if message.author == self.user:
-            return
-
-        if message.author.id in bot.user_skull_list:
-            await message.add_reaction("☠️")  # Skull reaction
-
-        if message.content.lower() == "skull me":
-            await message.add_reaction("☠️")
-
-        await self.process_commands(message)
 
 bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
 
