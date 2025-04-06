@@ -104,6 +104,9 @@ class AutoSkullBot(commands.Bot):
         print(f"✅ Logged in as {self.user} ({self.user.id})")
         await self.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
+# Instantiate the bot
+bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
+
 # Example command to verify bot is working
 @bot.command()
 async def ping(ctx):
@@ -117,9 +120,6 @@ def home():
 
 def start_flask():
     Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
-
-# Instantiate the bot
-bot = AutoSkullBot(command_prefix=['!', '.'], intents=intents)
 
 intents = discord.Intents.default()
 intents.message_content = True
