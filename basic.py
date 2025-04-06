@@ -36,7 +36,7 @@ class AutoSkullBot(discord.Client):
         )  # Store user IDs to auto-react to their new messages
 
 
-bot = commands.Bot(command_prefix=['!', '.'], intents=intents)
+bot = commands.Bot(command_prefix=['!'], intents=intents)
 
 # Keep the bot running with Flask
 app = Flask(__name__)
