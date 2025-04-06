@@ -294,7 +294,7 @@ class HelpButton(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label="General", style=discord.ButtonStyle.primary)
+    @discord.ui.button(label="General cmds", style=discord.ButtonStyle.primary)
     async def general(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = create_embed("🧰 General Commands", fields=[
             ("!serverinfo", "Shows server details", True),
@@ -306,7 +306,7 @@ class HelpButton(discord.ui.View):
         ])
         await interaction.response.edit_message(embed=embed, view=self)
 
-    @discord.ui.button(label="Fun", style=discord.ButtonStyle.success)
+    @discord.ui.button(label="Fun cmds", style=discord.ButtonStyle.success)
     async def fun(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = create_embed("🎉 Fun Commands", fields=[
             ("!eightball", "Ask the magic 8ball a question", True),
@@ -314,7 +314,7 @@ class HelpButton(discord.ui.View):
         ])
         await interaction.response.edit_message(embed=embed, view=self)
 
-    @discord.ui.button(label="Skull Basic", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Auto-skull", style=discord.ButtonStyle.danger)
     async def skull_basic(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = create_embed("💀 Skull - Basic", fields=[
             ("!skull list", "View skull'd users list", True),
@@ -322,7 +322,7 @@ class HelpButton(discord.ui.View):
         ])
         await interaction.response.edit_message(embed=embed, view=self)
 
-    @discord.ui.button(label="Skull Admin", style=discord.ButtonStyle.danger)
+    @discord.ui.button(label="Admin cmds", style=discord.ButtonStyle.danger)
     async def skull_admin(self, interaction: discord.Interaction, button: discord.ui.Button):
         embed = create_embed("🔐 Skull - Admin", fields=[
             ("!skull authorize @user", "Authorize a user", True),
