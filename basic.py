@@ -1,6 +1,7 @@
 import discord 
 import asyncio
 import datetime
+import random
 import os
 import sys
 import json
@@ -181,170 +182,175 @@ async def on_message(message):
             else:
                 await message.channel.send("Please mention a user to skull!")
 
-@bot.command()
-async def stats(ctx):
-    now = datetime.datetime.utcnow()
-    uptime = now - start_time
-    uptime_str = str(uptime).split('.')[0]
+class OtherCommands(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        
+class GeneralCommands(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
 
-    latency = round(bot.latency * 1000)
-    guild_count = len(bot.guilds)
-    user_count = len(set(member.id for guild in bot.guilds for member in guild.members))
+    @commands.command()
+    async def stats(self, ctx):
+        now = datetime.datetime.utcnow()
+        uptime = now - start_time
+        uptime_str = str(uptime).split('.')[0]
 
-    embed = discord.Embed(title="Bot Stats", color=discord.Color.teal())
-    embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
-    embed.add_field(name="Uptime", value=uptime_str, inline=True)
-    embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
-    embed.add_field(name="Users", value=f"{user_count}", inline=True)
-    await ctx.send(embed=embed)
-    
-@bot.command()
-async def poll(ctx, *, question):
-    embed = discord.Embed(title="🗳️ New Poll", description=question, color=discord.Color.orange())
-    embed.set_footer(text=f"Started by {ctx.author}", icon_url=ctx.author.display_avatar.url)
-    message = await ctx.send(embed=embed)
-    await message.add_reaction("👍")
-    await message.add_reaction("👎")
+        latency = round(self.bot.latency * 1000)
+        guild_count = len(self.bot.guilds)
+        user_count = len(set(member.id for guild in self.bot.guilds for member in guild.members))
 
-@bot.command()
-async def remind(ctx, time_in_seconds: int, *, reminder: str):
-    await ctx.send(embed=discord.Embed(
-        description=f"⏰ Reminder set for **{time_in_seconds}** seconds.",
-        color=discord.Color.teal()
-    ))
-    await asyncio.sleep(time_in_seconds)
-    await ctx.send(embed=discord.Embed(
-        title="⏰ Reminder!",
-        description=reminder,
-        color=discord.Color.red()
-    ).set_footer(text=f"Reminder for {ctx.author}", icon_url=ctx.author.display_avatar.url))
+        embed = discord.Embed(title="Bot Stats", color=discord.Color.teal())
+        embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
+        embed.add_field(name="Uptime", value=uptime_str, inline=True)
+        embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
+        embed.add_field(name="Users", value=f"{user_count}", inline=True)
+        await ctx.send(embed=embed)
 
-@bot.command()
-async def serverinfo(ctx):
-    guild = ctx.guild
-    embed = discord.Embed(title="📈 Server Stats", color=discord.Color.purple())
-    embed.set_thumbnail(url=guild.icon.url)
-    embed.add_field(name="Server Name", value=guild.name)
-    embed.add_field(name="Members", value=guild.member_count)
-    embed.add_field(name="Created", value=guild.created_at.strftime("%Y-%m-%d"))
-    embed.add_field(name="Owner", value=guild.owner)
-    embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
-    await ctx.send(embed=embed)
+    @commands.command()
+    async def poll(self, ctx, *, question):
+        embed = discord.Embed(title="🗳️ New Poll", description=question, color=discord.Color.orange())
+        embed.set_footer(text=f"Started by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction("👍")
+        await message.add_reaction("👎")
 
-import random
-
-@bot.command()
-async def eightball(ctx, *, question):
-    responses = ["Yes", "No", "Maybe", "Definitely", "Ask again later", "Absolutely not"]
-    response = random.choice(responses)
-    embed = discord.Embed(title="🎱 8Ball", color=discord.Color.random())
-    embed.add_field(name="Question", value=question, inline=False)
-    embed.add_field(name="Answer", value=response, inline=False)
-    embed.set_footer(text=f"Asked by {ctx.author}", icon_url=ctx.author.display_avatar.url)
-    await ctx.send(embed=embed)
-
-@bot.command()
-async def userinfo(ctx, member: discord.Member = None):
-    member = member or ctx.author
-    if member is None:
-        embed = discord.Embed(
-            title="Missing Argument",
-            description="Please specify a role.\nUsage:!roleinfo <role name>",
+    @commands.command()
+    async def remind(self, ctx, time_in_seconds: int, *, reminder: str):
+        await ctx.send(embed=discord.Embed(
+            description=f"⏰ Reminder set for **{time_in_seconds}** seconds.",
+            color=discord.Color.teal()
+        ))
+        await asyncio.sleep(time_in_seconds)
+        await ctx.send(embed=discord.Embed(
+            title="⏰ Reminder!",
+            description=reminder,
             color=discord.Color.red()
-        )
+        ).set_footer(text=f"Reminder for {ctx.author}", icon_url=ctx.author.display_avatar.url))
+
+    @commands.command()
+    async def serverinfo(self, ctx):
+        guild = ctx.guild
+        embed = discord.Embed(title="📈 Server Stats", color=discord.Color.purple())
+        embed.set_thumbnail(url=guild.icon.url)
+        embed.add_field(name="Server Name", value=guild.name)
+        embed.add_field(name="Members", value=guild.member_count)
+        embed.add_field(name="Created", value=guild.created_at.strftime("%Y-%m-%d"))
+        embed.add_field(name="Owner", value=guild.owner)
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
         await ctx.send(embed=embed)
-        return
 
-    embed = discord.Embed(title=f"User Info: {member}", color=discord.Color.blurple())
-    embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
-    embed.add_field(name="Username", value=str(member), inline=True)
-    embed.add_field(name="ID", value=member.id, inline=True)
-    embed.add_field(name="Top Role", value=member.top_role.mention, inline=True)
-    embed.add_field(name="Status", value=str(member.status).title(), inline=True)
-    embed.add_field(name="Account Created", value=member.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
-    embed.add_field(name="Joined Server", value=member.joined_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
+    @commands.command()
+    async def eightball(self, ctx, *, question):
+        responses = ["Yes", "No", "Maybe", "Definitely", "Ask again later", "Absolutely not"]
+        response = random.choice(responses)
+        embed = discord.Embed(title="🎱 8Ball", color=discord.Color.random())
+        embed.add_field(name="Question", value=question, inline=False)
+        embed.add_field(name="Answer", value=response, inline=False)
+        embed.set_footer(text=f"Asked by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+        await ctx.send(embed=embed)
 
-    await ctx.send(embed=embed)
+    @commands.command()
+    async def userinfo(self, ctx, member: discord.Member = None):
+        member = member or ctx.author
 
+        embed = discord.Embed(title=f"User Info: {member}", color=discord.Color.blurple())
+        embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+        embed.add_field(name="Username", value=str(member), inline=True)
+        embed.add_field(name="ID", value=member.id, inline=True)
+        embed.add_field(name="Top Role", value=member.top_role.mention, inline=True)
+        embed.add_field(name="Status", value=str(member.status).title(), inline=True)
+        embed.add_field(name="Account Created", value=member.created_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
+        embed.add_field(name="Joined Server", value=member.joined_at.strftime("%Y-%m-%d %H:%M:%S"), inline=False)
+        await ctx.send(embed=embed)
 
-@bot.command()
-async def roleinfo(ctx, *, role: discord.Role = None):
-    if role is None:
+    @commands.command()
+    async def roleinfo(self, ctx, *, role: discord.Role = None):
+        if role is None:
+            embed = discord.Embed(
+                title="Missing Argument",
+                description="Please specify a role.\nUsage: `!roleinfo <role name>`",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        embed = discord.Embed(title=f"Role Info: {role.name}", color=role.color)
+        embed.add_field(name="ID", value=role.id, inline=True)
+        embed.add_field(name="Color", value=str(role.color), inline=True)
+        embed.add_field(name="Mentionable", value=role.mentionable, inline=True)
+        embed.add_field(name="Hoisted", value=role.hoist, inline=True)
+        embed.add_field(name="Position", value=role.position, inline=True)
+        embed.add_field(name="Member Count", value=len(role.members), inline=True)
+        embed.set_footer(text=f"Created at: {role.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def restart(self, ctx):
+        if str(ctx.author.id) != YOUR_USER_ID:
+            embed = discord.Embed(
+                title="Access Denied",
+                description="Only the bot owner can restart the bot.",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        await ctx.send(embed=discord.Embed(
+            title="♻️ Restarting...",
+            description="The bot is restarting. Please wait.",
+            color=discord.Color.orange()
+        ))
+        os.execv(sys.executable, ['python'] + sys.argv)
+
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def bc(self, ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
+        try:
+            await ctx.message.delete()
+        except discord.NotFound:
+            pass
+
+        def check(msg):
+            if user and msg.author != user:
+                return False
+            if keyword and keyword.lower() not in msg.content.lower():
+                return False
+            return msg.author == self.bot.user if not user else msg.author == user
+
+        deleted = await ctx.channel.purge(limit=limit, check=check)
+
         embed = discord.Embed(
-            title="Missing Argument",
-            description="Please specify a role.\nUsage: ```!roleinfo <role name>```",
-            color=discord.Color.red()
+            title="Messages Cleared 🧹",
+            description=f"Deleted {len(deleted)} message(s).",
+            color=discord.Color.orange()
         )
-        await ctx.send(embed=embed)
-        return
+        confirmation = await ctx.send(embed=embed)
+        await asyncio.sleep(3)
+        await confirmation.delete()
 
-    embed = discord.Embed(title=f"Role Info: {role.name}", color=role.color)
-    embed.add_field(name="ID", value=role.id, inline=True)
-    embed.add_field(name="Color", value=str(role.color), inline=True)
-    embed.add_field(name="Mentionable", value=role.mentionable, inline=True)
-    embed.add_field(name="Hoisted", value=role.hoist, inline=True)
-    embed.add_field(name="Position", value=role.position, inline=True)
-    embed.add_field(name="Member Count", value=len(role.members), inline=True)
-    embed.set_footer(text=f"Created at: {role.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
-    await ctx.send(embed=embed)
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            embed = discord.Embed(
+                title="Incomplete Command",
+                description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
+        else:
+            raise error
 
-@bot.command()
-async def restart(ctx):
-    if str(ctx.author.id) != YOUR_USER_ID:
-        embed = discord.Embed(
-            title="Access Denied",
-            description="Only the bot owner can restart the bot.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-        return
 
-    await ctx.send(embed=discord.Embed(
-        title="♻️ Restarting...",
-        description="The bot is restarting. Please wait.",
-        color=discord.Color.orange()
-    ))
+async def setup(bot):
+    await bot.add_cog(GeneralCommands(bot))
 
-    os.execv(sys.executable, ['python'] + sys.argv)
+async def main():
+    async with bot:
+        await bot.load_extension("general_commands")  # Assuming the file is named general_commands.py
+        await bot.start(os.getenv("DISCORD_TOKEN"))
 
-@bot.command()
-@commands.has_permissions(manage_messages=True)
-async def bc(ctx, limit: int = 100, user: discord.User = None, *, keyword: str = None):
-    """
-    Deletes messages by bot (or user/keyword), including the command message.
-    Usage: !bc [limit] [@user (optional)] [keyword (optional)]
-    """
-    # Delete the command message itself first
-    try:
-        await ctx.message.delete()
-    except discord.NotFound:
-        pass  # It may already be gone
-
-    def check(msg):
-        if user and msg.author != user:
-            return False
-        if keyword and keyword.lower() not in msg.content.lower():
-            return False
-        return msg.author == bot.user if not user else msg.author == user
-
-    deleted = await ctx.channel.purge(limit=limit, check=check)
-
-    embed = discord.Embed(
-        title="Messages Cleared 🧹",
-        description=f"Deleted {len(deleted)} message(s).",
-        color=discord.Color.orange()
-    )
-    confirmation = await ctx.send(embed=embed)
-    await asyncio.sleep(3)
-    await confirmation.delete()
-
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        embed = discord.Embed(title="Incomplete Command", description=f"Usage: `{ctx.command.qualified_name} {ctx.command.signature}`", color=discord.Color.orange())
-        await ctx.send(embed=embed)
-    else:
-        raise error
+asyncio.run(main())
 
 class HelpView(discord.ui.View):
     def __init__(self, pages, author):
