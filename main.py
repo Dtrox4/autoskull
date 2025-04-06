@@ -10,7 +10,6 @@ from discord.ext import commands
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
-from load_flask import start_flask
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -78,7 +77,15 @@ intents.members = True
 
 bot = AutoSkullBot(intents)
 
-load_flask()
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def start_flask():
+    Thread(target=lambda: app.run(host='0.0.0.0', port=3000)).start()
+
 
 @bot.command()
 async def skull(ctx, subcommand=None, *args):
@@ -415,4 +422,17 @@ async def help(ctx):
     view = HelpView(pages, ctx.author)
     await view.send_initial(ctx)
 
-bot.run(TOKEN)  
+if __name__ == "__main__":
+    start_flask()  # Start Flask server
+
+    token = os.getenv("DISCORD_TOKEN")
+    if token:
+        try:
+            asyncio.run(bot.start(token))
+        except Exception as e:
+            import traceback
+            print("❌ Full Exception:")
+            traceback.print_exc()
+    else:
+        print("❌ DISCORD_TOKEN not found in environment variables.")
+
