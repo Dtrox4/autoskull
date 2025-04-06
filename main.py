@@ -132,7 +132,7 @@ async def skull(ctx, subcommand=None, *args):
     elif subcommand == "authorize" and args:
         if not bot.is_authorized(ctx):
             await ctx.send(embed=discord.Embed(description="❌ You are not authorized to use this command.", color=discord.Color.red()))
-        return
+            return
 
     user = args[0]
     user_id = user.strip('<@!>')
