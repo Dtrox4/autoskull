@@ -169,8 +169,7 @@ async def on_message(message):
             return
 
         if len(args) == 2 and args[1] == "help":
-            help_message = (
-                "**Available Commands:**\n"
+            help_message = ("**Available Commands:**\n"
                 "```diff\n"
                 "[ Skull Commands ]\n"
                 !skull @user               - Skull a user.\n"
