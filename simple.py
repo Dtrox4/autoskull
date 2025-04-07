@@ -78,23 +78,23 @@ async def on_message(message):
     command = args[0][1:].lower()
     arguments = args[1:]
 
-    if command == '!stats':
+    if command == 'stats':
         await handle_stats(message)
-    elif command == '!poll':
+    elif command == 'poll':
         await handle_poll(message, arguments)
-    elif command == '!remind':
+    elif command == 'remind':
         await handle_remind(message, arguments)
-    elif command == '!serverinfo':
+    elif command == 'serverinfo':
         await handle_serverinfo(message)
-    elif command == '!userinfo':
+    elif command == 'userinfo':
         await handle_userinfo(message, arguments)
-    elif command == '!roleinfo':
+    elif command == 'roleinfo':
         await handle_roleinfo(message, arguments)
-    elif command == '!eightball':
+    elif command == 'eightball':
         await handle_eightball(message, arguments)
-    elif command == '!restart':
+    elif command == 'restart':
         await handle_restart(message)
-    elif command == '!bc':
+    elif command == 'bc':
         await handle_bc(message, arguments)
 
     if message.author.id in bot.user_skull_list:
