@@ -72,6 +72,13 @@ async def on_message(message):
         print(f"DM from {message.author}: {message.content}")
 
     content = message.content
+    if not content.startswith('!'):
+        return
+
+    args = content.split()
+    command = args[0][1:].lower()
+    arguments = args[1:]
+    
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("☠️")
@@ -208,13 +215,6 @@ async def on_message(message):
                 )
             await message.channel.send(embed=embed)
             return
-
-    if not content.startswith('!'):
-        return
-
-    args = content.split()
-    command = args[0][1:].lower()
-    arguments = args[1:]
 
     if command == 'stats':
         await handle_stats(message, bot, start_time)
