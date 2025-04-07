@@ -78,6 +78,9 @@ async def on_message(message):
             await message.add_reaction("☠️")
         return
 
+    if command == 'restart':
+        await handle_restart(message)
+
     args = content.split()
     command = args[0][1:].lower()
     arguments = args[1:]
@@ -198,7 +201,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
             return
 
-        if len(args) == 3 and args[1].lower() == "unauthorize":
+        if len(args) == 2 and args[1].lower() == "unauthorize":
             if message.mentions:
                 user = message.mentions[0]
             if user.id == message.author.id:
@@ -284,9 +287,6 @@ async def on_message(message):
 
     elif command == 'serverinfo':
         await handle_serverinfo(message)
-
-    elif command == 'restart':
-        await handle_restart(message)
 
     elif command == 'bc':
         await handle_bc(message, arguments)
