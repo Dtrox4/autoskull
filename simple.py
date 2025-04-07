@@ -125,6 +125,8 @@ async def handle_restart(message):
 
 
 async def handle_maintenance(message, bot):
+    global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
+
     if message.author.id != YOUR_USER_ID:
         embed = discord.Embed(
             description="⚠️ You are not authorized to use this command.",
@@ -152,9 +154,9 @@ async def handle_maintenance(message, bot):
         await message.channel.send(embed=embed)
         return
 
-    global MAINTENANCE_MODE, MAINTENANCE_END_TIME
     MAINTENANCE_MODE = True
     MAINTENANCE_END_TIME = datetime.datetime.utcnow() + datetime.timedelta(minutes=duration)
+    MAINTENANCE_CANCELLED = False
 
     embed = discord.Embed(
         title="🛠️ Maintenance Mode Activated",
@@ -164,7 +166,7 @@ async def handle_maintenance(message, bot):
     embed.set_footer(text="Only the bot owner can use commands during this time.")
     await message.channel.send(embed=embed)
 
-    # Wait until maintenance is over or cancelled
+    # Wait until maintenance time is over or cancelled
     for _ in range(duration * 60):
         if MAINTENANCE_CANCELLED:
             return
@@ -173,12 +175,13 @@ async def handle_maintenance(message, bot):
     # Maintenance done, restart the bot
     if not MAINTENANCE_CANCELLED:
         embed = discord.Embed(
-        title="✅ Maintenance Complete",
-        description="Restarting the bot now...",
-        color=discord.Color.green()
-    )
-    await message.channel.send(embed=embed)
-    await bot.close()
+            title="✅ Maintenance Complete",
+            description="Restarting the bot now...",
+            color=discord.Color.green()
+        )
+        await message.channel.send(embed=embed)
+        await bot.close()
+
 async def handle_cancel_maintenance(message):
     if message.author.id != YOUR_USER_ID:
         embed = discord.Embed(
