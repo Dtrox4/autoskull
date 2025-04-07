@@ -198,6 +198,35 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
             return
 
+        if len(args) == 3 and args[1].lower() == "unauthorize":
+    if message.mentions:
+        user = message.mentions[0]
+        if user.id in AUTHORIZED_USERS:
+            if user.id == YOUR_USER_ID:
+                embed = discord.Embed(
+                    description="You can't unauthorize the bot owner.",
+                    color=discord.Color.red()
+                )
+            else:
+                AUTHORIZED_USERS.remove(user.id)
+                embed = discord.Embed(
+                    description=f"{user.mention} has been unauthorized from using the commands.",
+                    color=discord.Color.green()
+                )
+        else:
+            embed = discord.Embed(
+                description=f"{user.mention} is not in the authorized list.",
+                color=discord.Color.red()
+            )
+        await message.channel.send(embed=embed)
+    else:
+        embed = discord.Embed(
+            description="Please mention a valid user to unauthorize.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+    return
+
         if len(args) == 2:
             mentioned_users = message.mentions
             if mentioned_users:
