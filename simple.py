@@ -275,7 +275,7 @@ async def on_message(message):
                    color=discord.Color.red()
                    )
                await message.channel.send(embed=embed)
-            else:
+           else:
                embed = discord.Embed(
                    description="\u26a0\ufe0f Please mention a valid user.\nType `!skull help` to view all valid commands!",
                 color=discord.Color.red()
