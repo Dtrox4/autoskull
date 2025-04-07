@@ -101,7 +101,7 @@ async def on_message(message):
                 )
             else:
                 embed = discord.Embed(
-                    description="No users are authorized.",
+                    description="⚠️ No users are authorized.",
                     color=discord.Color.red()
                 )
             await message.channel.send(embed=embed)
@@ -117,7 +117,7 @@ async def on_message(message):
                 )
             else:
                 embed = discord.Embed(
-                    description="No users are currently being skulled.",
+                    description="⚠️ No users are currently being skulled.",
                     color=discord.Color.red()
                 )
             await message.channel.send(embed=embed)
@@ -158,18 +158,18 @@ async def on_message(message):
                 if user.id not in AUTHORIZED_USERS:
                     AUTHORIZED_USERS.add(user.id)
                     embed = discord.Embed(
-                        description=f"{user.mention} has been authorized to use the commands.",
+                        description=f"✅️ {user.mention} has been authorized to use the commands.",
                         color=discord.Color.green()
                     )
                 else:
                     embed = discord.Embed(
-                        description=f"{user.mention} is already authorized.",
+                        description=f"‼️ {user.mention} is already authorized.",
                         color=discord.Color.red()
                     )
                 await message.channel.send(embed=embed)
             else:
                 embed = discord.Embed(
-                    description="Please mention a valid user to authorize.",
+                    description="⚠️ Please mention a valid user to authorize.",
                     color=discord.Color.red()
                 )
                 await message.channel.send(embed=embed)
@@ -181,18 +181,18 @@ async def on_message(message):
                 if user.id in bot.user_skull_list:
                     bot.user_skull_list.remove(user.id)
                     embed = discord.Embed(
-                        description=f"{user.mention} will no longer be skulled.",
+                        description=f"✅️ {user.mention} will no longer be skulled.",
                         color=discord.Color.green()
                     )
                 else:
                     embed = discord.Embed(
-                        description=f"{user.mention} is not currently being skulled.",
+                        description=f"‼️ {user.mention} is not currently being skulled.",
                         color=discord.Color.red()
                     )
                 await message.channel.send(embed=embed)
             else:
                 embed = discord.Embed(
-                    description="Please mention a valid user to stop skulling.",
+                    description="⚠️ Please mention a valid user to stop skulling.",
                     color=discord.Color.red()
                 )
                 await message.channel.send(embed=embed)
@@ -201,31 +201,30 @@ async def on_message(message):
         if len(args) == 3 and args[1].lower() == "unauthorize":
             if message.mentions:
                 user = message.mentions[0]
-                if user.id in AUTHORIZED_USERS:
-                    if user.id == YOUR_USER_ID:
-                        embed = discord.Embed(
-                            description="You can't unauthorize the bot owner.",
-                            color=discord.Color.red()
-                        )
-                    else:
-                        AUTHORIZED_USERS.remove(user.id)
-                        embed = discord.Embed(
-                            description=f"{user.mention} has been unauthorized from using the commands.",
-                            color=discord.Color.green()
-                        )
-                else:
-                    embed = discord.Embed(
-                        description=f"{user.mention} is not in the authorized list.",
-                        color=discord.Color.red()
-                    )
-                await message.channel.send(embed=embed)
-            else:
+            if user.id == message.author.id:
                 embed = discord.Embed(
-                    description="Please mention a valid user to unauthorize.",
-                    color=discord.Color.red()
-                )
-                await message.channel.send(embed=embed)
-            return
+                description="❌️ You cannot unauthorize yourself.",
+                color=discord.Color.red()
+            )
+        elif user.id in AUTHORIZED_USERS:
+            AUTHORIZED_USERS.remove(user.id)
+            embed = discord.Embed(
+                description=f"✅️ {user.mention} has been unauthorized from using the commands.",
+                color=discord.Color.green()
+            )
+        else:
+            embed = discord.Embed(
+                description=f"‼️ {user.mention} is not in the authorized list.",
+                color=discord.Color.red()
+            )
+        await message.channel.send(embed=embed)
+    else:
+        embed = discord.Embed(
+            description="⚠️ Please mention a valid user to unauthorize.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+    return
 
         if len(args) == 2:
             mentioned_users = message.mentions
@@ -233,12 +232,12 @@ async def on_message(message):
                 for user in mentioned_users:
                     bot.user_skull_list.add(user.id)
                 embed = discord.Embed(
-                    description=f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️",
+                    description=f"✅️ Skulling {', '.join([user.mention for user in mentioned_users])} starting now.",
                     color=discord.Color.red()
                 )
             else:
                 embed = discord.Embed(
-                    description="Please mention a user to skull!",
+                    description="⚠️ Type `!skull help` to view all valid commands!",
                     color=discord.Color.red()
                 )
             await message.channel.send(embed=embed)
