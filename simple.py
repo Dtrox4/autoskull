@@ -73,58 +73,7 @@ async def on_message(message):
 
     content = message.content
 
-    if not content.startswith('!'):
-        return
-
-    args = content.split()
-    command = args[0][1:].lower()
-    arguments = args[1:]
-
-    if command == 'stats':
-        await handle_stats(message, bot, start_time)
-
-    elif command == 'poll':
-        question = " ".join(arguments)
-        await handle_poll(message, question)
-
-    elif command == 'remind':
-        if len(arguments) < 2 or not arguments[0].isdigit():
-            await message.channel.send("Usage: `!remind <seconds> <reminder>`")
-        else:
-            time_in_seconds = int(arguments[0])
-            reminder = " ".join(arguments[1:])
-            await handle_remind(message, time_in_seconds, reminder)
-
-    elif command == 'userinfo':
-        if arguments:
-            member_name = " ".join(arguments)
-            member = discord.utils.find(lambda m: m.name.lower() == member_name.lower(), message.guild.members)
-            await handle_userinfo(message, member)
-        else:
-            await handle_userinfo(message)
-
-    elif command == 'roleinfo':
-        if arguments:
-            role_name = " ".join(arguments)
-            role = discord.utils.get(message.guild.roles, name=role_name)
-            await handle_roleinfo(message, role)
-        else:
-            await handle_roleinfo(message)
-
-    elif command == 'eightball':
-        question = " ".join(arguments)
-        await handle_eightball(message, question)
-
-    elif command == 'serverinfo':
-        await handle_serverinfo(message)
-
-    elif command == 'restart':
-        await handle_restart(message)
-
-    elif command == 'bc':
-        await handle_bc(message, arguments)
-
-    if message.author.id in bot.user_skull_list:
+   if message.author.id in bot.user_skull_list:
         await message.add_reaction("☠️")
 
     if content.startswith("!skull"):
@@ -259,6 +208,57 @@ async def on_message(message):
                 )
             await message.channel.send(embed=embed)
             return
+
+    if not content.startswith('!'):
+        return
+
+    args = content.split()
+    command = args[0][1:].lower()
+    arguments = args[1:]
+
+    if command == 'stats':
+        await handle_stats(message, bot, start_time)
+
+    elif command == 'poll':
+        question = " ".join(arguments)
+        await handle_poll(message, question)
+
+    elif command == 'remind':
+        if len(arguments) < 2 or not arguments[0].isdigit():
+            await message.channel.send("Usage: `!remind <seconds> <reminder>`")
+        else:
+            time_in_seconds = int(arguments[0])
+            reminder = " ".join(arguments[1:])
+            await handle_remind(message, time_in_seconds, reminder)
+
+    elif command == 'userinfo':
+        if arguments:
+            member_name = " ".join(arguments)
+            member = discord.utils.find(lambda m: m.name.lower() == member_name.lower(), message.guild.members)
+            await handle_userinfo(message, member)
+        else:
+            await handle_userinfo(message)
+
+    elif command == 'roleinfo':
+        if arguments:
+            role_name = " ".join(arguments)
+            role = discord.utils.get(message.guild.roles, name=role_name)
+            await handle_roleinfo(message, role)
+        else:
+            await handle_roleinfo(message)
+
+    elif command == 'eightball':
+        question = " ".join(arguments)
+        await handle_eightball(message, question)
+
+    elif command == 'serverinfo':
+        await handle_serverinfo(message)
+
+    elif command == 'restart':
+        await handle_restart(message)
+
+    elif command == 'bc':
+        await handle_bc(message, arguments)
 
 # Run the bot
 bot.run(TOKEN)
