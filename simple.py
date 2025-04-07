@@ -1,4 +1,4 @@
-import discord 
+import discord
 import asyncio
 import os
 import json
@@ -6,7 +6,11 @@ import datetime
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
-from standalone_commands import handle_stats, handle_poll,handle_remind, handle_serverinfo,handle_userinfo,handle_roleinfo,handle_eightball,handle_restart, handle_bc
+from standalone_commands import (
+    handle_stats, handle_poll, handle_remind,
+    handle_serverinfo, handle_userinfo, handle_roleinfo,
+    handle_eightball, handle_restart, handle_bc
+)
 
 start_time = datetime.datetime.utcnow()
 
@@ -18,27 +22,27 @@ if not TOKEN:
     raise ValueError("Bot token is missing. Make sure you set it in the .env file.")
 
 # Replace with your Discord User ID
-YOUR_USER_ID = 1212229549459374222  # Change this to your actual Discord ID
+YOUR_USER_ID = 1212229549459374222
 
-# List of authorized user IDs who can use bot commands
-AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}  # Add more user IDs as needed
+# Authorized users
+AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
 # Set up intents
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
 intents.members = True
-intents.dm_messages = True  # Enable DM message handling
+intents.dm_messages = True
 
 # Initialize bot
 class AutoSkullBot(discord.Client):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.user_skull_list = set()  # Store user IDs to auto-react to their new messages
+        self.user_skull_list = set()
 
-bot = AutoSkullBot(command_prefix=['!'], intents=intents)
+bot = AutoSkullBot(intents=intents)
 
-# Keep the bot running with Flask
+# Keep-alive server using Flask
 app = Flask(__name__)
 
 @app.route('/')
@@ -52,14 +56,13 @@ def keep_alive():
     t = Thread(target=run)
     t.start()
 
-keep_alive()  # Keep the bot alive
+keep_alive()
 
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
-    await bot.change_presence(activity=discord.Game(name="if you're worthy,you shall be skulled"))
+    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
-# Inside on_message
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
@@ -133,8 +136,6 @@ async def on_message(message):
             await message.channel.send(embed=embed)
             return
 
-        args = content.split()
-
         if len(args) == 2 and args[1] == "authorized":
             if AUTHORIZED_USERS:
                 authorized_users = [f'<@{user_id}>' for user_id in AUTHORIZED_USERS]
@@ -143,13 +144,12 @@ async def on_message(message):
                     description="\n".join(authorized_users),
                     color=discord.Color.red()
                 )
-                await message.channel.send(embed=embed)
             else:
                 embed = discord.Embed(
                     description="No users are authorized.",
                     color=discord.Color.red()
                 )
-                await message.channel.send(embed=embed)
+            await message.channel.send(embed=embed)
             return
 
         if len(args) == 2 and args[1] == "list":
@@ -171,37 +171,34 @@ async def on_message(message):
         if len(args) == 2 and args[1] == "help":
             help_message = (
                 "**Available Commands:**\n"
-    "```diff\n"
-    [ Skull Commands ]
-    !skull @user               - Skull a user.
-    !skull stop @user         - Stop skulling a user.
-    !skull list               - Show users being skulled.
-    !skull help               - Show this help message.
-
-    [ User & Server Info ]
-    !userinfo [name]          - Show info about a user.
-    !roleinfo [role name]     - Show info about a role.
-    !serverinfo               - Show server statistics.
-    !stats                   - Show bot uptime and system statistics.
-
-    [ Fun & Utility ]
-    !eightball <question>     - Ask the magic 8-ball a question.
-    !poll <question>          - Create a simple yes/no poll.
-    !remind <sec> <msg>       - Get a reminder after a given time.
-    !bc <filters>             - Bulk delete messages with optional filters.
-
-    [ Admin Only ]
-    !skull authorize @user    - Authorize a user to use skull commands.
-    !skull unauthorize @user  - Remove a user's authorization.
-    !skull authorized         - Show authorized users.
-    !restart                  - Restart the bot (owner only).
-    ```"
+                "```diff\n"
+                "[ Skull Commands ]\n"
+                !skull @user               - Skull a user.\n"
+                !skull stop @user         - Stop skulling a user.\n"
+                !skull list               - Show users being skulled.\n"
+                !skull help               - Show this help message.\n\n"
+                "[ User & Server Info ]\n"
+                !userinfo [name]          - Show info about a user.\n"
+                !roleinfo [role name]     - Show info about a role.\n"
+                !serverinfo               - Show server statistics.\n"
+                !stats                    - Show bot uptime and system statistics.\n\n"
+                "[ Fun & Utility ]\n"
+                !eightball <question>     - Ask the magic 8-ball a question.\n"
+                !poll <question>          - Create a simple yes/no poll.\n"
+                !remind <sec> <msg>       - Get a reminder after a given time.\n"
+                !bc <filters>             - Bulk delete messages with optional filters.\n\n"
+                "[ Admin Only ]\n"
+                !skull authorize @user    - Authorize a user to use skull commands.\n"
+                !skull unauthorize @user  - Remove a user's authorization.\n"
+                !skull authorized         - Show authorized users.\n"
+                !restart                  - Restart the bot (owner only).\n"
+                "```"
             )
             await message.channel.send(help_message)
             return
 
         if len(args) == 3 and args[1].lower() == "authorize":
-            if len(message.mentions) == 1:
+            if message.mentions:
                 user = message.mentions[0]
                 if user.id not in AUTHORIZED_USERS:
                     AUTHORIZED_USERS.add(user.id)
@@ -209,9 +206,12 @@ async def on_message(message):
                         description=f"{user.mention} has been authorized to use the commands.",
                         color=discord.Color.green()
                     )
-                    await message.channel.send(embed=embed)
                 else:
-                    await message.channel.send(f"{user.mention} is already authorized.")
+                    embed = discord.Embed(
+                        description=f"{user.mention} is already authorized.",
+                        color=discord.Color.red()
+                    )
+                await message.channel.send(embed=embed)
             else:
                 embed = discord.Embed(
                     description="Please mention a valid user to authorize.",
@@ -221,7 +221,7 @@ async def on_message(message):
             return
 
         if len(args) == 3 and args[1].lower() == "stop":
-            if len(message.mentions) == 1:
+            if message.mentions:
                 user = message.mentions[0]
                 if user.id in bot.user_skull_list:
                     bot.user_skull_list.remove(user.id)
@@ -229,13 +229,12 @@ async def on_message(message):
                         description=f"{user.mention} will no longer be skulled.",
                         color=discord.Color.green()
                     )
-                    await message.channel.send(embed=embed)
                 else:
                     embed = discord.Embed(
                         description=f"{user.mention} is not currently being skulled.",
                         color=discord.Color.red()
                     )
-                    await message.channel.send(embed=embed)
+                await message.channel.send(embed=embed)
             else:
                 embed = discord.Embed(
                     description="Please mention a valid user to stop skulling.",
@@ -253,14 +252,13 @@ async def on_message(message):
                     description=f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️",
                     color=discord.Color.red()
                 )
-                await message.channel.send(embed=embed)
             else:
                 embed = discord.Embed(
                     description="Please mention a user to skull!",
                     color=discord.Color.red()
                 )
-                await message.channel.send(embed=embed)
-            return  # prevent double command processing
+            await message.channel.send(embed=embed)
+            return
 
 # Run the bot
 bot.run(TOKEN)
