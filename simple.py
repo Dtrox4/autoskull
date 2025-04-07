@@ -31,8 +31,6 @@ AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 MAINTENANCE_MODE = False
 MAINTENANCE_END_TIME = None
 MAINTENANCE_CANCELLED = False
-global MAINTENANCE_CANCELLED
-MAINTENANCE_CANCELLED = False
 
 # Set up intents
 intents = discord.Intents.default()
@@ -183,6 +181,8 @@ async def handle_maintenance(message, bot):
         await bot.close()
 
 async def handle_cancel_maintenance(message):
+    global MAINTENANCE_CANCELLED
+    MAINTENANCE_CANCELLED = False
     if message.author.id != YOUR_USER_ID:
         embed = discord.Embed(
             description="⚠️ You are not authorized to cancel maintenance.",
