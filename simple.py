@@ -60,16 +60,14 @@ def keep_alive():
 keep_alive()
 
 async def handle_say(message):
+    try:
+        await message.delete()
+    except discord.Forbidden:
+        await message.channel.send("⚠️ I don't have permission to delete messages.")
+        return
+
     content = message.content.strip()
     command_prefix = "!say"
-
-    if content == command_prefix:
-        embed = discord.Embed(
-            description="⚠️ You must provide a message to say.\n**Usage:** `!say <message>`",
-            color=discord.Color.orange()
-        )
-        await message.channel.send(embed=embed)
-        return
 
     say_message = content[len(command_prefix):].strip()
     if say_message:
