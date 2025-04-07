@@ -4,7 +4,6 @@ import os
 import json
 import datetime
 import platform
-import psutil
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
