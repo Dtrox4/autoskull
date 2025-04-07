@@ -5,6 +5,11 @@ import json
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
+from standalone_commands import (
+    handle_stats, handle_poll, handle_remind,
+    handle_serverinfo, handle_userinfo, handle_roleinfo,
+    handle_eightball, handle_restart, handle_bc, handle_help
+)
 
 # Load environment variables
 load_dotenv()
@@ -181,6 +186,35 @@ async def on_message(message):
                     color=discord.Color.red()
                 )
                 await message.channel.send(embed=embed)
+
+        if not content.startswith('!'):
+        return
+
+    args = content.split()
+    command = args[0][1:].lower()
+    arguments = args[1:]
+
+    if command == 'stats':
+        await handle_stats(message)
+    elif command == 'poll':
+        await handle_poll(message, arguments)
+    elif command == 'remind':
+        await handle_remind(message, arguments)
+    elif command == 'serverinfo':
+        await handle_serverinfo(message)
+    elif command == 'userinfo':
+        await handle_userinfo(message, arguments)
+    elif command == 'roleinfo':
+        await handle_roleinfo(message, arguments)
+    elif command == 'eightball':
+        await handle_eightball(message, arguments)
+    elif command == 'restart':
+        await handle_restart(message)
+    elif command == 'bc':
+        await handle_bc(message, arguments)
+    elif command == 'help':
+        await handle_help(message)
+
 
 # Run the bot
 bot.run(TOKEN)
