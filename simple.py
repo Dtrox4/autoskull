@@ -110,20 +110,20 @@ async def on_message(message):
 
         # Command to show the list of users being skulled
         if len(args) == 2 and args[1] == "list":
-    if bot.user_skull_list:
-        skull_users = [f'<@{user_id}>' for user_id in bot.user_skull_list]
-        embed = discord.Embed(
-            title="☠️ Skull List",
-            description="\n".join(skull_users),
-            color=discord.Color.green()
-        )
-    else:
-        embed = discord.Embed(
-            description="No users are currently being skulled.",
-            color=discord.Color.red()
-        )
-    await message.channel.send(embed=embed)
-    return
+            if bot.user_skull_list:
+                skull_users = [f'<@{user_id}>' for user_id in bot.user_skull_list]
+                embed = discord.Embed(
+                title="☠️ Skull List",
+                description="\n".join(skull_users),
+                color=discord.Color.green()
+               )
+            else:
+                embed = discord.Embed(
+                description="No users are currently being skulled.",
+                color=discord.Color.red()
+               )
+            await message.channel.send(embed=embed)
+            return
 
         # Command to show the list of available commands
         if len(args) == 2 and args[1] == "help":
