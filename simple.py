@@ -7,6 +7,8 @@ from threading import Thread
 from dotenv import load_dotenv
 from standalone_commands import handle_stats, handle_poll,handle_remind, handle_serverinfo,handle_userinfo,handle_roleinfo,handle_eightball,handle_restart, handle_bc
 
+start_time = datetime.datetime.utcnow()
+
 # Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
