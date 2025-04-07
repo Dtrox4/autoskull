@@ -67,10 +67,9 @@ async def on_message(message):
 
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
-  
-    content = message.content  # Fix: define content here for later usage
 
-    # Handle other commands only if they start with !
+    content = message.content
+
     if not content.startswith('!'):
         return
 
@@ -80,20 +79,45 @@ async def on_message(message):
 
     if command == 'stats':
         await handle_stats(message)
+
     elif command == 'poll':
-        await handle_poll(message, arguments)
+        question = " ".join(arguments)
+        await handle_poll(message, question)
+
     elif command == 'remind':
-        await handle_remind(message, arguments)
+        if len(arguments) < 2 or not arguments[0].isdigit():
+            await message.channel.send("Usage: `!remind <seconds> <reminder>`")
+        else:
+            time_in_seconds = int(arguments[0])
+            reminder = " ".join(arguments[1:])
+            await handle_remind(message, time_in_seconds, reminder)
+
+    elif command == 'userinfo':
+        if arguments:
+            member_name = " ".join(arguments)
+            member = discord.utils.find(lambda m: m.name.lower() == member_name.lower(), message.guild.members)
+            await handle_userinfo(message, member)
+        else:
+            await handle_userinfo(message)
+
+    elif command == 'roleinfo':
+        if arguments:
+            role_name = " ".join(arguments)
+            role = discord.utils.get(message.guild.roles, name=role_name)
+            await handle_roleinfo(message, role)
+        else:
+            await handle_roleinfo(message)
+
+    elif command == 'eightball':
+        question = " ".join(arguments)
+        await handle_eightball(message, question)
+
     elif command == 'serverinfo':
         await handle_serverinfo(message)
-    elif command == 'userinfo':
-        await handle_userinfo(message, arguments)
-    elif command == 'roleinfo':
-        await handle_roleinfo(message, arguments)
-    elif command == 'eightball':
-        await handle_eightball(message, arguments)
+
     elif command == 'restart':
         await handle_restart(message)
+
     elif command == 'bc':
         await handle_bc(message, arguments)
 
