@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from standalone_commands import (
     handle_stats, handle_poll, handle_remind,
     handle_serverinfo, handle_userinfo, handle_roleinfo,
-    handle_eightball, handle_restart, handle_bc, handle_help
+    handle_eightball, handle_restart, handle_bc
 )
 
 # Load environment variables
