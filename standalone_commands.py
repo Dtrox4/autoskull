@@ -6,6 +6,9 @@ import platform
 import asyncio
 from datetime import datetime
 
+# Replace with your Discord User ID
+YOUR_USER_ID = 1212229549459374222
+
 # All the functions go here:
 #handle stats
 async def handle_stats(message, bot, start_time):
