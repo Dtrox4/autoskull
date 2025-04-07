@@ -135,7 +135,7 @@ async def handle_restart(message):
 # handle_bc
 async def handle_bc(message, args):
     if not message.author.guild_permissions.manage_messages:
-        await message.channel.send("You don't have permission to use this command.")
+        await message.channel.send("You don't have the required **permission** : `manage_messages` to use this command.")
         return
 
     if len(args) < 1:
