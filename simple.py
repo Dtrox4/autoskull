@@ -78,7 +78,7 @@ async def on_message(message):
     arguments = args[1:]
 
     if command == 'stats':
-        await handle_stats(message)
+        await handle_stats(message, bot, start_time)
 
     elif command == 'poll':
         question = " ".join(arguments)
