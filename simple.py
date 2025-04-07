@@ -251,20 +251,20 @@ async def on_message(message):
         if len(args) == 2 and not args[1].lower() in ["authorize", "unauthorize", "stop", "list", "help"]:
             mentioned_users = message.mentions
             if mentioned_users:
-        for user in mentioned_users:
-            bot.user_skull_list.add(user.id)
-            embed = discord.Embed(
-                description=f"\u2705\ufe0f Skulling {', '.join([user.mention for user in mentioned_users])} starting now.",
-                color=discord.Color.red()
-            )
-            await message.channel.send(embed=embed)
-        else:
-            embed = discord.Embed(
+                for user in mentioned_users:
+                    bot.user_skull_list.add(user.id)
+                    embed = discord.Embed(
+                        description=f"\u2705\ufe0f Skulling {', '.join([user.mention for user in mentioned_users])} starting now.",
+                        color=discord.Color.red()
+                     )
+                    await message.channel.send(embed=embed)
+            else:
+                embed = discord.Embed(
                 description="\u26a0\ufe0f Please mention a valid user.\nType `!skull help` to view all valid commands!",
                 color=discord.Color.red()
-            )
-            await message.channel.send(embed=embed)
-        return
+                )
+                await message.channel.send(embed=embed)
+            return
     
 
     if message.author.id in bot.user_skull_list:
