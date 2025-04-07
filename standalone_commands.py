@@ -7,7 +7,7 @@ from datetime import datetime
 
 # All the functions go here:
 # handle_stats
-async def handle_stats(message):
+async def handle_stats(message, bot, start_time):  
     now = datetime.datetime.utcnow()
     uptime = now - start_time
     uptime_str = str(uptime).split('.')[0]
