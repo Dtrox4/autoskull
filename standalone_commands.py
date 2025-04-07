@@ -3,7 +3,6 @@ import discord
 import os
 import sys
 import platform
-import psutil
 import asyncio
 from datetime import datetime
 
