@@ -67,6 +67,8 @@ async def on_message(message):
 
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
+  
+    content = message.content  # Fix: define content here for later usage
 
     # Handle other commands only if they start with !
     if not content.startswith('!'):
@@ -97,8 +99,6 @@ async def on_message(message):
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("☠️")
-
-    content = message.content  # Fix: define content here for later usage
 
     if content.startswith("!skull"):
         if message.author.id not in AUTHORIZED_USERS:
