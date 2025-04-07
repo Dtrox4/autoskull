@@ -78,7 +78,7 @@ async def on_message(message):
             await message.add_reaction("\u2620\ufe0f")
         return
 
-    args = content.split()
+    args = message.content.split()
     command = args[0][1:].lower()
     arguments = args[1:]
 
@@ -93,6 +93,23 @@ async def on_message(message):
             )
             await message.channel.send(embed=embed)
             return
+
+        # Handle just !skull (no args)
+        if len(args) == 1:
+            embed = discord.Embed(
+            title="Missing Subcommand or Mention",
+            description=(
+                "**Usage Examples:**\n"
+                "`!skull @user` – Start skulling a user\n"
+                "`!skull authorize @user` – Authorize someone\n"
+                "`!skull stop @user` – Stop skulling\n"
+                "`!skull list` – View current skulls\n"
+                "`!skull help` – View help"
+               ),
+            color=discord.Color.red()
+           )
+        await message.channel.send(embed=embed)
+        return
 
         if len(args) == 2 and args[1] == "authorized":
             if AUTHORIZED_USERS:
@@ -246,6 +263,25 @@ async def on_message(message):
                 )
                 await message.channel.send(embed=embed)
             return
+
+        # Handle skulling directly: !skull @user
+        if len(args) == 2 and not args[1].lower() in ["authorize", "unauthorize", "stop", "list", "help"]:
+           mentioned_users = message.mentions
+           if mentioned_users:
+               for user in mentioned_users:
+                   bot.user_skull_list.add(user.id)
+                   embed = discord.Embed(
+                       description=f"\u2705\ufe0f Skulling {', '.join([user.mention for user in mentioned_users])} starting now.",
+                   color=discord.Color.red()
+                   )
+               await message.channel.send(embed=embed)
+            else:
+               embed = discord.Embed(
+                   description="\u26a0\ufe0f Please mention a valid user.\nType `!skull help` to view all valid commands!",
+                color=discord.Color.red()
+                )
+            await message.channel.send(embed=embed)
+        return
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")
