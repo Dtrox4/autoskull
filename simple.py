@@ -73,15 +73,13 @@ async def on_message(message):
 
     content = message.content
     if not content.startswith('!'):
+        if message.author.id in bot.user_skull_list:
+            await message.add_reaction("☠️")
         return
 
     args = content.split()
     command = args[0][1:].lower()
     arguments = args[1:]
-    
-
-    if message.author.id in bot.user_skull_list:
-        await message.add_reaction("☠️")
 
     if content.startswith("!skull"):
         if message.author.id not in AUTHORIZED_USERS:
@@ -215,6 +213,10 @@ async def on_message(message):
                 )
             await message.channel.send(embed=embed)
             return
+    
+    # final skull reaction (non-command messages)
+    if message.author.id in bot.user_skull_list:
+        await message.add_reaction("☠️")
 
     if command == 'stats':
         await handle_stats(message, bot, start_time)
