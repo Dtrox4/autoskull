@@ -266,9 +266,6 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
             return
 
-         await.botprocess_commands(message)
-    
-
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")
 
