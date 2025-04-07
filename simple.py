@@ -146,7 +146,7 @@ async def on_message(message):
                     embed = discord.Embed(description=f"{user.mention} has been authorized to use the commands.",
                     color=discord.Color.red()
                     )
-                    await message.channel.send(embed=embed)
+                await message.channel.send(embed=embed)
                 else:
                     await message.channel.send(
                         f"{user.mention} is already authorized.")
@@ -154,7 +154,7 @@ async def on_message(message):
                 embed = discord.Embed(description="Please mention a valid user to authorize.",
                     color=discord.Color.red()
                     )
-                await message.channel.send(embed=embed)
+            await message.channel.send(embed=embed)
 
         # Command to stop skulling a user
         if len(args) == 3 and args[1].lower() == "stop":
@@ -165,15 +165,17 @@ async def on_message(message):
                     embed = discord.Embed(description=f"{user.mention} will no longer be skulled.",
                     color=discord.Color.green()
                     )
-                    await message.channel.send(embed=embed)
+                await message.channel.send(embed=embed)
                 else:
                     embed = discord.Embed(description=f"{user.mention} is not currently being skulled.",
                     color=discord.Color.red()
                     )
             await message.channel.send(embed=embed)
             else:
-                    await message.channel.send(
-                    "Please mention a valid user to stop skulling.")
+                    embed = discord.Embed(description="Please mention a valid user to stop skulling.",
+                    color=discord.Color.red()
+                    )
+            await message.channel.send(embed=embed)
 
         # Command to skull a user (add to list of users to skull)
         elif len(args) == 2:
@@ -181,11 +183,15 @@ async def on_message(message):
             if mentioned_users:
                 for user in mentioned_users:
                     bot.user_skull_list.add(user.id)
-                await message.channel.send(
-                    
-                )
+                    embed = discord.Embed(description=f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️"
+                    color=discord.Color.red()
+                    )
+                    await message.channel.send(embed=embed)
             else:
-                await message.channel.send("Please mention a user to skull!")
+                embed = discord.Embed(description=""Please mention a user to skull!",
+                color=discord.Color.red()
+                )
+            await message.channel.send(embed=embed)
 
 # Run the bot
 bot.run(TOKEN)
