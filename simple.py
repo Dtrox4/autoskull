@@ -28,6 +28,10 @@ YOUR_USER_ID = 1212229549459374222
 # Authorized users
 AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
+MAINTENANCE_MODE = False
+MAINTENANCE_END_TIME = None
+MAINTENANCE_CANCELLED = False
+
 # Set up intents
 intents = discord.Intents.default()
 intents.message_content = True
@@ -117,6 +121,95 @@ async def handle_restart(message):
     except asyncio.TimeoutError:
         await message.channel.send("No response. Restart cancelled.")
 
+
+async def handle_maintenance(message, bot):
+    if message.author.id != YOUR_USER_ID:
+        embed = discord.Embed(
+            description="⚠️ You are not authorized to use this command.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    args = message.content.split()
+    if len(args) != 2:
+        embed = discord.Embed(
+            description="⚠️ Usage: `!maintenance <duration_in_minutes>`",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    try:
+        duration = int(args[1])
+    except ValueError:
+        embed = discord.Embed(
+            description="⚠️ Please provide a valid number for duration.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    global MAINTENANCE_MODE, MAINTENANCE_END_TIME
+    MAINTENANCE_MODE = True
+    MAINTENANCE_END_TIME = datetime.datetime.utcnow() + datetime.timedelta(minutes=duration)
+
+    embed = discord.Embed(
+        title="🛠️ Maintenance Mode Activated",
+        description=f"The bot will be under maintenance for {duration} minute(s).",
+        color=discord.Color.orange()
+    )
+    embed.set_footer(text="Only the bot owner can use commands during this time.")
+    await message.channel.send(embed=embed)
+
+    # Wait until maintenance is over or cancelled
+    for _ in range(duration * 60):
+        if MAINTENANCE_CANCELLED:
+            return
+        await asyncio.sleep(1)
+
+    # Maintenance done, restart the bot
+    if not MAINTENANCE_CANCELLED:
+        embed = discord.Embed(
+        title="✅ Maintenance Complete",
+        description="Restarting the bot now...",
+        color=discord.Color.green()
+    )
+    await message.channel.send(embed=embed)
+    await bot.close()
+
+global MAINTENANCE_CANCELLED
+MAINTENANCE_CANCELLED = False
+
+async def handle_cancel_maintenance(message):
+    if message.author.id != YOUR_USER_ID:
+        embed = discord.Embed(
+            description="⚠️ You are not authorized to cancel maintenance.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
+    if not MAINTENANCE_MODE:
+        embed = discord.Embed(
+            description="ℹ️ Maintenance mode is not currently active.",
+            color=discord.Color.blue()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    MAINTENANCE_MODE = False
+    MAINTENANCE_END_TIME = None
+    MAINTENANCE_CANCELLED = True
+
+    embed = discord.Embed(
+        title="❌ Maintenance Cancelled",
+        description="Maintenance mode has been cancelled. All commands are now available.",
+        color=discord.Color.green()
+    )
+    await message.channel.send(embed=embed)
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -134,13 +227,27 @@ async def on_message(message):
         await handle_stats(message, bot, start_time)
         return
 
-
     if message.content.lower().startswith("!restart"):
         await handle_restart(message)
         return
 
     if message.content.startswith("!say"):
         await handle_say(message)
+        return
+
+    if MAINTENANCE_MODE and message.author.id != YOUR_USER_ID:
+        embed = discord.Embed(
+        description="🛠️ The bot is currently under maintenance.\nPlease try again later.",
+        color=discord.Color.orange()
+    )
+    await message.channel.send(embed=embed)
+    return
+
+    if message.content.startswith("!maintenance"):
+        await handle_maintenance(message, bot)
+
+    if message.content.startswith("!cancelmaintenance"):
+        await handle_cancel_maintenance(message)
         return
 
     content = message.content
