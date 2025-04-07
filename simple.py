@@ -60,6 +60,7 @@ async def on_ready():
     print(f"Logged in as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="if you're worthy,you shall be skulled"))
 
+# Inside on_message
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
@@ -71,7 +72,9 @@ async def on_message(message):
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("☠️")
 
-    if message.content.startswith("!skull"):
+    content = message.content  # Fix: define content here for later usage
+
+    if content.startswith("!skull"):
         if message.author.id not in AUTHORIZED_USERS:
             embed = discord.Embed(
                 description="You do not have permission to use this command.",
@@ -80,7 +83,7 @@ async def on_message(message):
             await message.channel.send(embed=embed)
             return
 
-        args = message.content.split()
+        args = content.split()
 
         if len(args) == 2 and args[1] == "authorized":
             if AUTHORIZED_USERS:
@@ -146,6 +149,7 @@ async def on_message(message):
                     color=discord.Color.red()
                 )
                 await message.channel.send(embed=embed)
+            return
 
         if len(args) == 3 and args[1].lower() == "stop":
             if len(message.mentions) == 1:
@@ -169,8 +173,9 @@ async def on_message(message):
                     color=discord.Color.red()
                 )
                 await message.channel.send(embed=embed)
+            return
 
-        elif len(args) == 2:
+        if len(args) == 2:
             mentioned_users = message.mentions
             if mentioned_users:
                 for user in mentioned_users:
@@ -186,8 +191,10 @@ async def on_message(message):
                     color=discord.Color.red()
                 )
                 await message.channel.send(embed=embed)
+            return  # prevent double command processing
 
-        if not content.startswith('!'):
+    # Handle other commands only if they start with !
+    if not content.startswith('!'):
         return
 
     args = content.split()
