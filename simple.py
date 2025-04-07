@@ -31,6 +31,8 @@ AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 MAINTENANCE_MODE = False
 MAINTENANCE_END_TIME = None
 MAINTENANCE_CANCELLED = False
+global MAINTENANCE_CANCELLED
+MAINTENANCE_CANCELLED = False
 
 # Set up intents
 intents = discord.Intents.default()
@@ -177,10 +179,6 @@ async def handle_maintenance(message, bot):
     )
     await message.channel.send(embed=embed)
     await bot.close()
-
-global MAINTENANCE_CANCELLED
-MAINTENANCE_CANCELLED = False
-
 async def handle_cancel_maintenance(message):
     if message.author.id != YOUR_USER_ID:
         embed = discord.Embed(
