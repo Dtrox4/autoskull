@@ -59,6 +59,44 @@ def keep_alive():
 
 keep_alive()
 
+async def handle_stats(message, bot, start_time):
+    now = datetime.datetime.utcnow()
+    uptime = now - start_time
+    uptime_str = str(uptime).split('.')[0]
+
+    latency = round(bot.latency * 1000)
+    guild_count = len(bot.guilds)
+    user_count = len(set(member.id for guild in bot.guilds for member in guild.members))
+
+    embed = discord.Embed(title="🤖 Bot Stats", color=discord.Color.green())
+    embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
+    embed.add_field(name="Uptime", value=uptime_str, inline=True)
+    embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
+    embed.add_field(name="Users", value=f"{user_count}", inline=True)
+
+    embed.set_footer(text=f"Requested by {message.author}", icon_url=message.author.display_avatar.url)
+    await message.channel.send(embed=embed)
+
+async def handle_restart(message):
+    if message.author.id != YOUR_USER_ID:
+        await message.channel.send("You are not authorized to restart the bot.")
+        return
+
+    confirm_message = await message.channel.send("Are you sure you want to restart the bot? Reply with `yes` or `no` within 15 seconds.")
+
+    def check(m):
+        return m.author == message.author and m.channel == message.channel and m.content.lower() in ["yes", "no"]
+
+    try:
+        reply = await message.client.wait_for("message", timeout=15.0, check=check)
+        if reply.content.lower() == "yes":
+            await message.channel.send("Restarting bot...")
+            await message.client.close()
+        else:
+            await message.channel.send("Restart cancelled.")
+    except asyncio.TimeoutError:
+        await message.channel.send("No response. Restart cancelled.")
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -71,6 +109,15 @@ async def on_message(message):
 
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
+
+    if message.content.lower().startswith("!stats"):
+        await handle_stats(message, bot, start_time)
+        return
+
+
+    if message.content.lower().startswith("!restart"):
+        await handle_restart(message)
+        return
 
     content = message.content
     if not content.startswith('!'):
