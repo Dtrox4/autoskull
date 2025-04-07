@@ -178,30 +178,7 @@ async def on_message(message):
                 await message.channel.send(embed=embed)
             return
 
-        if len(args) == 3 and args[1].lower() == "stop":
-            if message.mentions:
-                user = message.mentions[0]
-                if user.id in bot.user_skull_list:
-                    bot.user_skull_list.remove(user.id)
-                    embed = discord.Embed(
-                        description=f"✅️ {user.mention} will no longer be skulled.",
-                        color=discord.Color.green()
-                    )
-                else:
-                    embed = discord.Embed(
-                        description=f"‼️ {user.mention} is not currently being skulled.",
-                        color=discord.Color.red()
-                    )
-                await message.channel.send(embed=embed)
-            else:
-                embed = discord.Embed(
-                    description="⚠️ Please mention a valid user to stop skulling.",
-                    color=discord.Color.red()
-                )
-                await message.channel.send(embed=embed)
-            return
-
-        if len(args) == 2 and args[1].lower() == "unauthorize":
+        if len(args) == 3 and args[1].lower() == "unauthorize":
             if message.mentions:
                 user = message.mentions[0]
             if user.id == message.author.id:
@@ -228,6 +205,29 @@ async def on_message(message):
         )
         await message.channel.send(embed=embed)
     return
+
+        if len(args) == 3 and args[1].lower() == "stop":
+            if message.mentions:
+                user = message.mentions[0]
+                if user.id in bot.user_skull_list:
+                    bot.user_skull_list.remove(user.id)
+                    embed = discord.Embed(
+                        description=f"✅️ {user.mention} will no longer be skulled.",
+                        color=discord.Color.green()
+                    )
+                else:
+                    embed = discord.Embed(
+                        description=f"‼️ {user.mention} is not currently being skulled.",
+                        color=discord.Color.red()
+                    )
+                await message.channel.send(embed=embed)
+            else:
+                embed = discord.Embed(
+                    description="⚠️ Please mention a valid user to stop skulling.",
+                    color=discord.Color.red()
+                )
+                await message.channel.send(embed=embed)
+            return
 
     if len(args) == 2:
         mentioned_users = message.mentions
