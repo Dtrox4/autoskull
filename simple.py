@@ -206,7 +206,7 @@ async def on_message(message):
         await message.channel.send(embed=embed)
     return
 
-       if len(args) == 3 and args[1].lower() == "stop":
+        if len(args) == 3 and args[1].lower() == "stop":
             if message.mentions:
                 user = message.mentions[0]
                 if user.id in bot.user_skull_list:
