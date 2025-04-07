@@ -121,16 +121,25 @@ async def handle_eightball(message, question):
     await message.channel.send(embed=embed)
 
 # handle_restart
-import os
-import sys
-
 async def handle_restart(message):
-    if message.author.id != YOUR_OWNER_ID:
-        await message.channel.send("You don't have permission to restart the bot.")
+    if message.author.id != YOUR_USER_ID:
+        await message.channel.send("You are not authorized to restart the bot.")
         return
 
-    await message.channel.send("Restarting bot...")
-    os.execv(sys.executable, ['python'] + sys.argv)
+    confirm_message = await message.channel.send("Are you sure you want to restart the bot? Reply with `yes` or `no` within 15 seconds.")
+
+    def check(m):
+        return m.author == message.author and m.channel == message.channel and m.content.lower() in ["yes", "no"]
+
+    try:
+        reply = await message.client.wait_for("message", timeout=15.0, check=check)
+        if reply.content.lower() == "yes":
+            await message.channel.send("Restarting bot...")
+            await message.client.close()
+        else:
+            await message.channel.send("Restart cancelled.")
+    except asyncio.TimeoutError:
+        await message.channel.send("No response. Restart cancelled.")
 
 # handle_bc
 async def handle_bc(message, args):
