@@ -2,12 +2,14 @@
 import discord
 import os
 import sys
+import platform
+import psutil
 import asyncio
 from datetime import datetime
 
 # All the functions go here:
-# handle_stats
-async def handle_stats(message, bot, start_time):  
+#handle stats
+async def handle_stats(message, bot, start_time):
     now = datetime.datetime.utcnow()
     uptime = now - start_time
     uptime_str = str(uptime).split('.')[0]
@@ -16,11 +18,21 @@ async def handle_stats(message, bot, start_time):
     guild_count = len(bot.guilds)
     user_count = len(set(member.id for guild in bot.guilds for member in guild.members))
 
-    embed = discord.Embed(title="Bot Stats", color=discord.Color.teal())
+    # Optional system stats
+    cpu = psutil.cpu_percent()
+    memory = psutil.virtual_memory().percent
+    system = platform.system()
+
+    embed = discord.Embed(title="🤖 Bot Stats", color=discord.Color.green())
     embed.add_field(name="Latency", value=f"{latency} ms", inline=True)
     embed.add_field(name="Uptime", value=uptime_str, inline=True)
     embed.add_field(name="Servers", value=f"{guild_count}", inline=True)
     embed.add_field(name="Users", value=f"{user_count}", inline=True)
+    embed.add_field(name="CPU Usage", value=f"{cpu}%", inline=True)
+    embed.add_field(name="RAM Usage", value=f"{memory}%", inline=True)
+    embed.add_field(name="Host OS", value=system, inline=True)
+
+    embed.set_footer(text=f"Requested by {message.author}", icon_url=message.author.display_avatar.url)
     await message.channel.send(embed=embed)
 
 # handle_poll
