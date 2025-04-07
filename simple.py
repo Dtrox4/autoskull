@@ -186,35 +186,32 @@ async def handle_maintenance(message, bot):
         await bot.close()
 
 async def handle_cancel_maintenance(message):
-    global MAINTENANCE_CANCELLED
-    MAINTENANCE_CANCELLED = False
+    global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
 
     if message.author.id != YOUR_USER_ID:
         embed = discord.Embed(
-            description="⚠️ You are not authorized to cancel maintenance.",
+            description="\u274C You are not authorized to cancel maintenance.",
             color=discord.Color.red()
         )
         await message.channel.send(embed=embed)
         return
-    global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
-    if not MAINTENANCE_MODE:
+
+    if MAINTENANCE_MODE:
+        MAINTENANCE_MODE = False
+        MAINTENANCE_END_TIME = None
+        MAINTENANCE_CANCELLED = True
         embed = discord.Embed(
-            description="ℹ️ Maintenance mode is not currently active.",
+            title="\u274C Maintenance Cancelled",
+            description="The bot is no longer in maintenance mode.",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+    else:
+        embed = discord.Embed(
+            description="\u2139 The bot is not currently in maintenance mode.",
             color=discord.Color.blue()
         )
         await message.channel.send(embed=embed)
-        return
-
-    MAINTENANCE_MODE = False
-    MAINTENANCE_END_TIME = None
-    MAINTENANCE_CANCELLED = True
-
-    embed = discord.Embed(
-        title="❌ Maintenance Cancelled",
-        description="Maintenance mode has been cancelled. All commands are now available.",
-        color=discord.Color.green()
-    )
-    await message.channel.send(embed=embed)
 
 @bot.event
 async def on_ready():
