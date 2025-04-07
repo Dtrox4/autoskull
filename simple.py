@@ -280,8 +280,8 @@ async def on_message(message):
                    description="\u26a0\ufe0f Please mention a valid user.\nType `!skull help` to view all valid commands!",
                 color=discord.Color.red()
                 )
-            await message.channel.send(embed=embed)
-        return
+           await message.channel.send(embed=embed)
+           return
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")
