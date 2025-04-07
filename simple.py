@@ -188,9 +188,9 @@ async def on_message(message):
                     )
                     await message.channel.send(embed=embed)
             else:
-                embed = discord.Embed(description=""Please mention a user to skull!",
-                color=discord.Color.red()
-                )
+                    embed = discord.Embed(description=""Please mention a user to skull!",
+                    color=discord.Color.red()
+                    )
             await message.channel.send(embed=embed)
 
 # Run the bot
