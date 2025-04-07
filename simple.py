@@ -8,9 +8,9 @@ from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
 from standalone_commands import (
-    handle_stats, handle_poll, handle_remind,
+    handle_poll, handle_remind,
     handle_serverinfo, handle_userinfo, handle_roleinfo,
-    handle_eightball, handle_restart, handle_bc
+    handle_eightball, handle_bc
 )
 
 start_time = datetime.datetime.utcnow()
@@ -81,9 +81,6 @@ async def on_message(message):
     args = content.split()
     command = args[0][1:].lower()
     arguments = args[1:]
-
-    if command == 'restart':
-        await handle_restart(message)
 
     if content.startswith("!skull"):
         if message.author.id not in AUTHORIZED_USERS:
@@ -249,9 +246,6 @@ async def on_message(message):
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")
-
-    if command == 'stats':
-        await handle_stats(message, bot, start_time)
 
     elif command == 'poll':
         question = " ".join(arguments)
