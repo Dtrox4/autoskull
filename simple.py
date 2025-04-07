@@ -85,8 +85,10 @@ async def on_message(message):
     # Check if message is a command
     if message.content.startswith("!skull"):
         if message.author.id not in AUTHORIZED_USERS:
-            await message.channel.send(
-                "You do not have permission to use this command.")
+            embed = discord.Embed(description="You do not have permission to use this command.",
+                    color=discord.Color.red()
+                    )
+            await message.channel.send(embed=embed)
             return
 
         args = message.content.split()
@@ -97,8 +99,11 @@ async def on_message(message):
                 authorized_users = [
                     f'<@{user_id}>' for user_id in AUTHORIZED_USERS
                 ]
-                await message.channel.send(
-                    f"Authorized users: {', '.join(authorized_users)}")
+                embed = discord.Embed(Title="✅️ Authorized Users",
+                        description="Authorized users: {', '.join(authorized_users)}",
+                        color=discord.Color.red()
+                        )
+            await message.channel.send(embed=embed)
             else:
                 await message.channel.send("No users are authorized.")
             return
@@ -109,8 +114,10 @@ async def on_message(message):
                 skull_users = [
                     f'<@{user_id}>' for user_id in bot.user_skull_list
                 ]
-                await message.channel.send(
-                    f"Users being skulled: {', '.join(skull_users)}")
+                embed = discord.Embed(Title="☠️ Skull List",description="You do not have permission to use this command.",
+                        color=discord.Color.green()
+                        )
+            await message.channel.send(embed=embed)
             else:
                 await message.channel.send(
                     "No users are currently being skulled.")
@@ -120,12 +127,12 @@ async def on_message(message):
         if len(args) == 2 and args[1] == "help":
             help_message = (
                 "**Available Commands:**\n"
-                "`!skull @user` - Skull a user.\n"
-                "`!skull stop @user` - Stop skulling a user.\n"
-                "`!skull list` - Show users being skulled.\n"
-                "`!skull authorized` - Show authorized users.\n"
-                "`!skull authorize @user` - Authorize a user to use commands.\n"
-                "`!skull help` - Show this help message."
+                "```!skull @user - Skull a user.\n"
+                "!skull stop @user - Stop skulling a user.\n"
+                "!skull list - Show users being skulled.\n"
+                "!skull authorized - Show authorized users.\n"
+                "!skull authorize @user - Authorize a user to use commands.\n"
+                "!skull help - Show this help message.```"
             )
             await message.channel.send(help_message)
             return
@@ -136,15 +143,18 @@ async def on_message(message):
                 user = message.mentions[0]
                 if user.id not in AUTHORIZED_USERS:
                     AUTHORIZED_USERS.add(user.id)
-                    await message.channel.send(
-                        f"{user.mention} has been authorized to use the commands."
+                    embed = discord.Embed(description=f"{user.mention} has been authorized to use the commands.",
+                    color=discord.Color.red()
                     )
+                    await message.channel.send(embed=embed)
                 else:
                     await message.channel.send(
                         f"{user.mention} is already authorized.")
             else:
-                await message.channel.send(
-                    "Please mention a valid user to authorize.")
+                embed = discord.Embed(description="Please mention a valid user to authorize.",
+                    color=discord.Color.red()
+                    )
+                await message.channel.send(embed=embed)
 
         # Command to stop skulling a user
         if len(args) == 3 and args[1].lower() == "stop":
@@ -152,13 +162,17 @@ async def on_message(message):
                 user = message.mentions[0]
                 if user.id in bot.user_skull_list:
                     bot.user_skull_list.remove(user.id)
-                    await message.channel.send(
-                        f"{user.mention} will no longer be skulled.")
+                    embed = discord.Embed(description=f"{user.mention} will no longer be skulled.",
+                    color=discord.Color.green()
+                    )
+                    await message.channel.send(embed=embed)
                 else:
-                    await message.channel.send(
-                        f"{user.mention} is not currently being skulled.")
+                    embed = discord.Embed(description=f"{user.mention} is not currently being skulled.",
+                    color=discord.Color.red()
+                    )
+            await message.channel.send(embed=embed)
             else:
-                await message.channel.send(
+                    await message.channel.send(
                     "Please mention a valid user to stop skulling.")
 
         # Command to skull a user (add to list of users to skull)
@@ -168,7 +182,7 @@ async def on_message(message):
                 for user in mentioned_users:
                     bot.user_skull_list.add(user.id)
                 await message.channel.send(
-                    f"Will skull {', '.join([user.mention for user in mentioned_users])} from now on ☠️"
+                    
                 )
             else:
                 await message.channel.send("Please mention a user to skull!")
