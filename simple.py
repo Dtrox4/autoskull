@@ -59,6 +59,28 @@ def keep_alive():
 
 keep_alive()
 
+async def handle_say(message):
+    content = message.content.strip()
+    command_prefix = "!say"
+
+    if content == command_prefix:
+        embed = discord.Embed(
+            description="⚠️ You must provide a message to say.\n**Usage:** `!say <message>`",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    say_message = content[len(command_prefix):].strip()
+    if say_message:
+        await message.channel.send(say_message)
+    else:
+        embed = discord.Embed(
+            description="⚠️ You must provide a message to say.\n**Usage:** `!say <message>`",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+
 async def handle_stats(message, bot, start_time):
     now = datetime.datetime.utcnow()
     uptime = now - start_time
@@ -117,6 +139,10 @@ async def on_message(message):
 
     if message.content.lower().startswith("!restart"):
         await handle_restart(message)
+        return
+
+    if message.content.startswith("!say"):
+        await handle_say(message)
         return
 
     content = message.content
