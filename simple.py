@@ -226,11 +226,11 @@ async def on_message(message):
         await message.channel.send(embed=embed)
     return
 
-        if len(args) == 2:
-            mentioned_users = message.mentions
-            if mentioned_users:
-                for user in mentioned_users:
-                    bot.user_skull_list.add(user.id)
+    if len(args) == 2:
+        mentioned_users = message.mentions
+        if mentioned_users:
+            for user in mentioned_users:
+                bot.user_skull_list.add(user.id)
                 embed = discord.Embed(
                     description=f"✅️ Skulling {', '.join([user.mention for user in mentioned_users])} starting now.",
                     color=discord.Color.red()
