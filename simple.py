@@ -187,7 +187,7 @@ async def handle_maintenance(message, bot):
 
 async def handle_cancel_maintenance(message):
     global MAINTENANCE_CANCELLED
-        MAINTENANCE_CANCELLED = False
+    MAINTENANCE_CANCELLED = False
 
     if message.author.id != YOUR_USER_ID:
         embed = discord.Embed(
