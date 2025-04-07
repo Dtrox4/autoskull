@@ -193,7 +193,7 @@ async def on_message(message):
                 !skull authorized         - Show authorized users.\n"
                 !restart                  - Restart the bot (owner only).\n"
                 "```"
-            )
+                )
             await message.channel.send(help_message)
             return
 
