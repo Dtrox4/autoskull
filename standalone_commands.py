@@ -25,7 +25,20 @@ async def handle_stats(message):
 
 # handle_poll
 async def handle_poll(message, question):
-    embed = discord.Embed(title="🗳️ New Poll", description=question, color=discord.Color.orange())
+    if not question.strip():
+        error_embed = discord.Embed(
+            title="Error",
+            description="Please provide a question for the poll.\n\n**Usage:** `!poll <question>`",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=error_embed)
+        return
+
+    embed = discord.Embed(
+        title="🗳️ New Poll",
+        description=question,
+        color=discord.Color.orange()
+    )
     embed.set_footer(text=f"Started by {message.author}", icon_url=message.author.display_avatar.url)
     msg = await message.channel.send(embed=embed)
     await msg.add_reaction("👍")
