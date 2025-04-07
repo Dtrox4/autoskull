@@ -171,12 +171,31 @@ async def on_message(message):
         if len(args) == 2 and args[1] == "help":
             help_message = (
                 "**Available Commands:**\n"
-                "```!skull @user - Skull a user.\n"
-                "!skull stop @user - Stop skulling a user.\n"
-                "!skull list - Show users being skulled.\n"
-                "!skull authorized - Show authorized users.\n"
-                "!skull authorize @user - Authorize a user to use commands.\n"
-                "!skull help - Show this help message.```"
+    "```diff\n"
+    [ Skull Commands ]
+    !skull @user               - Skull a user.
+    !skull stop @user         - Stop skulling a user.
+    !skull list               - Show users being skulled.
+    !skull help               - Show this help message.
+
+    [ User & Server Info ]
+    !userinfo [name]          - Show info about a user.
+    !roleinfo [role name]     - Show info about a role.
+    !serverinfo               - Show server statistics.
+    !stats                   - Show bot uptime and system statistics.
+
+    [ Fun & Utility ]
+    !eightball <question>     - Ask the magic 8-ball a question.
+    !poll <question>          - Create a simple yes/no poll.
+    !remind <sec> <msg>       - Get a reminder after a given time.
+    !bc <filters>             - Bulk delete messages with optional filters.
+
+    [ Admin Only ]
+    !skull authorize @user    - Authorize a user to use skull commands.
+    !skull unauthorize @user  - Remove a user's authorization.
+    !skull authorized         - Show authorized users.
+    !restart                  - Restart the bot (owner only).
+    ```"
             )
             await message.channel.send(help_message)
             return
