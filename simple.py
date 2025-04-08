@@ -212,17 +212,29 @@ async def handle_cancel_maintenance(message):
 
 async def handle_bc(message, args):
     if not message.author.guild_permissions.manage_messages:
-        await message.channel.send("You don't have the required **permission** : `manage_messages` to use this command.")
+        embed = discord.Embed(
+            description="❌ You don't have the required **permission**: `Manage Messages`.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
         return
 
     if len(args) < 1:
-        await message.channel.send("Usage: `!bc <count> [contains <word>]`")
+        embed = discord.Embed(
+            description="⚠️ Usage: `!bc <count> [contains <word>]`",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
         return
 
     try:
         count = int(args[0])
     except ValueError:
-        await message.channel.send("First argument must be a number.")
+        embed = discord.Embed(
+            description="❌ The first argument must be a number.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
         return
 
     keyword = None
@@ -232,8 +244,12 @@ async def handle_bc(message, args):
     def check(msg):
         return keyword.lower() in msg.content.lower() if keyword else True
 
-    deleted = await message.channel.purge(limit=count+1, check=check)
-    await message.channel.send(f"Deleted {len(deleted)-1} messages.", delete_after=5)
+    deleted = await message.channel.purge(limit=count + 1, check=check)
+    embed = discord.Embed(
+        description=f"✅ Deleted **{len(deleted) - 1}** messages.",
+        color=discord.Color.green()
+    )
+    await message.channel.send(embed=embed, delete_after=5)
 
 @bot.event
 async def on_ready():
@@ -284,6 +300,10 @@ async def on_message(message):
     args = content.split()
     command = args[0][1:].lower()
     arguments = args[1:]
+
+    if command == 'bc':
+        await handle_bc(message, arguments)
+        return
 
     if command == "skull":
         if message.author.id not in AUTHORIZED_USERS:
@@ -460,9 +480,6 @@ async def on_message(message):
 
     elif command == 'serverinfo':
         await handle_serverinfo(message)
-
-    elif command == 'bc':
-        await handle_bc(message, arguments)
 
 # Run the bot
 bot.run(TOKEN)
