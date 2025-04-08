@@ -360,7 +360,7 @@ async def on_message(message):
         "!skull authorize @user    - Authorize a user to use skull commands.\n"
         "!skull unauthorize @user  - Remove a user's authorization.\n"
         "!skull authorized         - Show authorized users.\n"
-        "!restart                  - Restart the bot (owner only).\n"
+        "!restart                  - Restart the bot.    (owner only).\n"
         "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
         "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
         "```"
