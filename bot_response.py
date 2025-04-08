@@ -1,6 +1,7 @@
 # bot_response.py
 import random
 import discord
+import json
 
 GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 
