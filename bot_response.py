@@ -49,6 +49,26 @@ async def handle_conversational(message):
         await message.reply(get_response(random.choice(replies), author_id))
         return True
 
+    # Jokes
+    if "tell me a joke" in content:
+        if author_id in GENTLE_USER_IDS:
+            jokes = [
+                "Why don’t bots play hide and seek? Because good luck hiding in a data center!",
+                "You’re cooler than a CPU with liquid cooling.",
+                "You're so nice, even the bugs don't bite you.",
+            ]
+        else:
+            jokes = [
+                "You're like a semicolon in Python — completely unnecessary.",
+                "You're the reason Git has a revert button.",
+                "You're not dumb, you just have bad luck thinking.",
+                "You're like a failed login attempt… always trying but never making it.",
+                "You're not the problem… unless you open your mouth.",
+                "You're the kind of person Clippy tried to avoid.",
+            ]
+        await message.reply(random.choice(jokes))
+        return True
+
     # About the bot
     if "what can you do" in content:
         replies = [
