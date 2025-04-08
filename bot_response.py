@@ -10,7 +10,7 @@ with open("skull_list.json", "r") as f:
     skull_data = json.load(f)
 
 def is_skulled(user_id):  
-    return str(user_id) in skull_list.get("skulled", [])
+    return str(user_id) in skull_data.get("skulled", [])
     
 
 def get_response(base, user_id):
