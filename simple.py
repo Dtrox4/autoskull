@@ -237,11 +237,11 @@ async def on_message(message):
 
     if MAINTENANCE_MODE and message.author.id != YOUR_USER_ID:
         embed = discord.Embed(
-        description="🛠️ The bot is currently under maintenance.\nPlease try again later.",
-        color=discord.Color.orange()
-    )
-    await message.channel.send(embed=embed)
-    return
+            description="🛠️ The bot is currently under maintenance.\nPlease try again later.",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
 
     if message.content.startswith("!maintenance"):
         await handle_maintenance(message, bot)
