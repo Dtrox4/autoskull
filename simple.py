@@ -425,13 +425,28 @@ async def on_message(message):
             return
 
         # !skull @user
-        if message.mentions:
-            for user in message.mentions:
+        if len(args) == 2:
+            user = None
+            if message.mentions:
+                user = message.mentions[0]
+            else:
+                try:
+                    user_id = int(args[1])
+                    user = await bot.fetch_user(user_id)
+                except (ValueError, discord.NotFound):
+                    pass
+
+            if user:
                 bot.user_skull_list.add(user.id)
-            embed = discord.Embed(
-                description=f"✅️ Skulling {', '.join(user.mention for user in message.mentions)} starting now.",
-                color=discord.Color.red()
-            )
+                embed = discord.Embed(
+                    description=f"✅️ Skulling {user.mention} starting now.",
+                    color=discord.Color.red()
+                )
+            else:
+                embed = discord.Embed(
+                    description="⚠️ Please mention a user or provide a valid user ID.",
+                    color=discord.Color.red()
+                )
             await message.channel.send(embed=embed)
             return
 
