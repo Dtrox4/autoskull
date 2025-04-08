@@ -65,32 +65,6 @@ def keep_alive():
 
 keep_alive()
 
-async def handle_bc(message, args):
-    if not message.author.guild_permissions.manage_messages:
-        await message.channel.send("You don't have the required **permission** : `manage_messages` to use this command.")
-        return
-
-    if len(args) < 1:
-        await message.channel.send("Usage: `!bc <count> [contains <word>]`")
-        return
-
-    try:
-        count = int(args[0])
-    except ValueError:
-        await message.channel.send("First argument must be a number.")
-        return
-
-    keyword = None
-    if len(args) >= 3 and args[1].lower() == "contains":
-        keyword = " ".join(args[2:])
-
-    def check(msg):
-        return keyword.lower() in msg.content.lower() if keyword else True
-
-    deleted = await message.channel.purge(limit=count+1, check=check)
-    await message.channel.send(f"Deleted {len(deleted)-1} messages.", delete_after=5)
-
-
 async def handle_say(message):
     try:
         await message.delete()
@@ -236,6 +210,31 @@ async def handle_cancel_maintenance(message):
         )
         await message.channel.send(embed=embed)
 
+async def handle_bc(message, args):
+    if not message.author.guild_permissions.manage_messages:
+        await message.channel.send("You don't have the required **permission** : `manage_messages` to use this command.")
+        return
+
+    if len(args) < 1:
+        await message.channel.send("Usage: `!bc <count> [contains <word>]`")
+        return
+
+    try:
+        count = int(args[0])
+    except ValueError:
+        await message.channel.send("First argument must be a number.")
+        return
+
+    keyword = None
+    if len(args) >= 3 and args[1].lower() == "contains":
+        keyword = " ".join(args[2:])
+
+    def check(msg):
+        return keyword.lower() in msg.content.lower() if keyword else True
+
+    deleted = await message.channel.purge(limit=count+1, check=check)
+    await message.channel.send(f"Deleted {len(deleted)-1} messages.", delete_after=5)
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -259,10 +258,6 @@ async def on_message(message):
 
     if message.content.startswith("!say"):
         await handle_say(message)
-        return
-
-    if message.content.startswith("!bc"):
-        await handle_bc(message, arguments)
         return
 
     if MAINTENANCE_MODE and message.author.id != YOUR_USER_ID:
@@ -465,6 +460,9 @@ async def on_message(message):
 
     elif command == 'serverinfo':
         await handle_serverinfo(message)
+
+    elif command == 'bc':
+        await handle_bc(message, arguments)
 
 # Run the bot
 bot.run(TOKEN)
