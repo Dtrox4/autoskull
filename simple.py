@@ -7,6 +7,7 @@ import platform
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
+from bot_responses import handle_conversational, get_response
 from standalone_commands import (
     handle_poll, handle_remind,
     handle_serverinfo, handle_userinfo, handle_roleinfo,
@@ -259,6 +260,9 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
+        return
+
+    if await handle_conversational(message):
         return
 
     if isinstance(message.channel, discord.DMChannel):
