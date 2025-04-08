@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from standalone_commands import (
     handle_poll, handle_remind,
     handle_serverinfo, handle_userinfo, handle_roleinfo,
-    handle_eightball, handle_bc
+    handle_eightball
 )
 
 start_time = datetime.datetime.utcnow()
