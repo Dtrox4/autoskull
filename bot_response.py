@@ -6,11 +6,11 @@ GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 
 # Load skull list from JSON
 
-with open("skull_data.json", "r") as f: 
+with open("skull_list.json", "r") as f: 
     skull_data = json.load(f)
 
 def is_skulled(user_id):  
-    return str(user_id) in skull_data.get("skulled", [])
+    return str(user_id) in skull_list.get("skulled", [])
     
 
 def get_response(base, user_id):
