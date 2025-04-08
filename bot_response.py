@@ -17,19 +17,19 @@ def is_skulled(user_id):
     
 def get_response(base, user_id):
     if user_id == OWNER_ID:
-        return f"{base} ...With deepest respect, my Creator."
+        return f"{base} My Creator."
     elif is_skulled(user_id):
         praise = [
-            f"{base} — honestly, you’re amazing.",
-            f"{base} — the server’s lucky to have you.",
-            f"{base} — I’m always impressed by your presence."
+            f"{base}. honestly, you’re amazing.",
+            f"{base}. the server’s lucky to have you.",
+            f"{base}. I’m always impressed by your presence."
         ]
         return random.choice(praise)
     else:
         sarcasm = [
             f"{base}... or so you'd like to believe.",
-            f"{base}. Impressive. For a human.",
-            f"{base} — did you think I’d say more? Think again."
+            f"{base}.Impressive. For a human.",
+            f"{base}... did you think I’d say more? Think again."
         ]
         return random.choice(sarcasm)
 
@@ -76,7 +76,7 @@ async def handle_conversational(message):
             "Let’s just say I can make people disappear. Type `!skull help` to see more.",
             "Think of me as a digital grim reaper… with extra features. Try `!skull help`."
         ]
-        await message.reply(random.choice(replies), author_id)
+        await message.reply(get_response(random.choice(replies), author_id))
         return True
 
     if "who created you" in content or "who's your creator" in content:
@@ -89,7 +89,7 @@ async def handle_conversational(message):
             "You need divine skull approval. Ask someone who's already authorized.",
             "Authorization isn’t given. It’s earned. Or begged for."
         ]
-        await message.reply(random.choice(replies), author_id)
+        await message.reply(get_response(random.choice(replies), author_id))
         return True
 
     # Love/hate
@@ -100,20 +100,20 @@ async def handle_conversational(message):
             "You’re not on my skull list yet. That’s a compliment.",
             "You’re fine. Just don’t push your luck."
         ]
-        await message.reply(random.choice(replies), author_id)
+        await message.reply(get_response(random.choice(replies), author_id))
         return True
 
     # Info
     if "uptime" in content or "how long have you been on" in content:
-        await message.reply("Use `!stats` to check how long I’ve been skulking around.", author_id)
+        await message.reply(get_response("Use `!stats` to check how long I’ve been skulking around.", author_id))
         return True
 
     if "who is authorized" in content or "authorized users" in content:
-        await message.reply("Use `!skull authorized` to view the sacred skull bearers.", author_id)
+        await message.reply(get_response("Use `!skull authorized` to view the sacred skull bearers.", author_id))
         return True
 
     if "help" in content and "!skull" not in content:
-        await message.reply("Try `!skull help` — it has everything you need. Or everything I want you to know.", author_id)
+        await message.reply(get_response("Try `!skull help` — it has everything you need. Or everything I want you to know.", author_id))
         return True
 
     # Easter eggs / playful
