@@ -103,28 +103,3 @@ async def handle_eightball(message, question):
     embed.set_footer(text=f"Asked by {message.author}", icon_url=message.author.display_avatar.url)
     await message.channel.send(embed=embed)
 
-# handle_bc
-async def handle_bc(message, args):
-    if not message.author.guild_permissions.manage_messages:
-        await message.channel.send("You don't have the required **permission** : `manage_messages` to use this command.")
-        return
-
-    if len(args) < 1:
-        await message.channel.send("Usage: `!bc <count> [contains <word>]`")
-        return
-
-    try:
-        count = int(args[0])
-    except ValueError:
-        await message.channel.send("First argument must be a number.")
-        return
-
-    keyword = None
-    if len(args) >= 3 and args[1].lower() == "contains":
-        keyword = " ".join(args[2:])
-
-    def check(msg):
-        return keyword.lower() in msg.content.lower() if keyword else True
-
-    deleted = await message.channel.purge(limit=count+1, check=check)
-    await message.channel.send(f"Deleted {len(deleted)-1} messages.", delete_after=5)
