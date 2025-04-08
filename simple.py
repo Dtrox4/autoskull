@@ -302,6 +302,7 @@ async def on_message(message):
     content = message.content
     if not content.startswith('!'):
         if message.author.id in bot.user_skull_list:
+            await asyncio.sleep(1)
             await message.add_reaction("\u2620\ufe0f")
         return
 
@@ -373,6 +374,7 @@ async def on_message(message):
         "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
         "```"
             )
+            await asyncio.sleep(1)
             await message.channel.send(help_message)
             return
 
