@@ -13,11 +13,18 @@ def is_skulled(user_id):
     return str(user_id) in skull_data.get("skulled", [])
     
 
-def get_response(base, user_id): 
-    if is_skulled(user_id): 
-        return f"{base} — honestly, you’re amazing." 
-    else: 
-        return f"{base}... or so you'd like to believe."
+def get_response(base, user_id):
+    praise_responses = [
+        f"{base} — honestly, you're amazing.",
+        f"{base} — and you're the best I've met.",
+        f"{base} — your presence improves everything.",
+    ]
+    sarcasm_responses = [
+        f"{base}... or so you'd like to believe.",
+        f"{base} — yeah, sure, keep dreaming.",
+        f"{base}? That's funny coming from you.",
+    ]
+    return random.choice(praise_responses if is_skulled(user_id) else sarcasm_responses)
 
 async def handle_conversational(message):
     content = message.content.lower()
