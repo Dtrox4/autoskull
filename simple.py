@@ -77,15 +77,6 @@ def keep_alive():
 
 keep_alive()
 
-def check_cooldown(user_id, command):
-    now = asyncio.get_event_loop().time()
-    if user_id in cooldowns:
-        user_cd = cooldowns[user_id]
-        if command in user_cd and now - user_cd[command] < DEFAULT_COOLDOWN:
-            return False
-    cooldowns.setdefault(user_id, {})[command] = now
-    return True
-
 async def handle_say(message):
     try:
         await message.delete()
@@ -281,17 +272,6 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
-
-    now = time.time()
-    user_id = message.author.id
-
-    last_used = cooldowns.get(user_id, 0)
-    # Cooldown check
-    if now - last_used < COMMAND_COOLDOWN:
-        remaining = round(COMMAND_COOLDOWN - (now - last_used), 1)
-        await message.reply(f"You're going too fast! Try again in {remaining}s.")
-        return
-    cooldowns[user_id] = now
 
     # Remove AFK if they speak
     if afk_handler.is_afk(message.author.id):
