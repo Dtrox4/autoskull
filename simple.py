@@ -6,7 +6,6 @@ import datetime
 import platform
 from collections import defaultdict
 import time
-import afk_handler
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
@@ -268,27 +267,6 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
-
-    # Remove AFK if they speak
-    if afk_handler.is_afk(message.author.id):
-        afk_handler.remove_afk(message.author.id)
-        await message.reply(embed=discord.Embed(
-            description="Welcome back! You’re no longer AFK.",
-            color=discord.Color.green()
-        ))
-
-    # Check if mentioned users are AFK
-    for user in message.mentions:
-        if afk_handler.is_afk(user.id):
-            afk = afk_handler.get_afk_data(user.id)
-            since = discord.utils.format_dt(afk['since'], style='R')
-            await message.reply(embed=discord.Embed(
-                description=f"**{user.display_name}** is AFK — {afk['reason']} ({since})",
-                color=discord.Color.blue()
-            ))
-            return
-
-    await bot.process_commands(message)
 
     if await handle_conversational(message):
         return
