@@ -4,6 +4,8 @@ import os
 import json
 import datetime
 import platform
+from collections import defaultdict
+import time
 import afk_handler
 from flask import Flask
 from threading import Thread
@@ -34,6 +36,7 @@ OWNER_ID = 1212229549459374222
 
 GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 
+cooldowns = defaultdict(lambda: 0)  # Maps user_id to last command time
 cooldowns = {}
 DEFAULT_COOLDOWN = 3  # seconds
 
@@ -279,18 +282,15 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    # Cooldown check example per command:
-    def cooldown_check(cmd):
-        return check_cooldown(author_id, cmd)
+    now = time.time()
+    user_id = message.author.id
 
-    if message.content.startswith("!afk"):
-        reason = message.content[5:].strip() or "AFK"
-        afk_handler.set_afk(message.author.id, reason)
-        await message.reply(embed=discord.Embed(
-            description=f"You are now AFK: **{reason}**",
-            color=discord.Color.orange()
-        ))
+    # Cooldown check
+    if now - cooldowns[user_id] < COMMAND_COOLDOWN:
+        remaining = round(COMMAND_COOLDOWN - (now - cooldowns[user_id]), 1)
+        await message.reply(f"You're going too fast! Try again in {remaining}s.")
         return
+    cooldowns[user_id] = now
 
     # Remove AFK if they speak
     if afk_handler.is_afk(message.author.id):
