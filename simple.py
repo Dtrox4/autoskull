@@ -34,6 +34,9 @@ OWNER_ID = 1212229549459374222
 
 GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 
+cooldowns = {}
+DEFAULT_COOLDOWN = 3  # seconds
+
 global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
 MAINTENANCE_MODE = False
 MAINTENANCE_END_TIME = None
@@ -70,6 +73,15 @@ def keep_alive():
     t.start()
 
 keep_alive()
+
+def check_cooldown(user_id, command):
+    now = asyncio.get_event_loop().time()
+    if user_id in cooldowns:
+        user_cd = cooldowns[user_id]
+        if command in user_cd and now - user_cd[command] < DEFAULT_COOLDOWN:
+            return False
+    cooldowns.setdefault(user_id, {})[command] = now
+    return True
 
 async def handle_say(message):
     try:
@@ -266,6 +278,10 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
+
+    # Cooldown check example per command:
+    def cooldown_check(cmd):
+        return check_cooldown(author_id, cmd)
 
     if message.content.startswith("!afk"):
         reason = message.content[5:].strip() or "AFK"
