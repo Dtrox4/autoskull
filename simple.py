@@ -285,9 +285,10 @@ async def on_message(message):
     now = time.time()
     user_id = message.author.id
 
+    last_used = cooldowns.get(user_id, 0)
     # Cooldown check
-    if now - cooldowns[user_id] < COMMAND_COOLDOWN:
-        remaining = round(COMMAND_COOLDOWN - (now - cooldowns[user_id]), 1)
+    if now - last_used < COMMAND_COOLDOWN:
+        remaining = round(COMMAND_COOLDOWN - (now - last_used), 1)
         await message.reply(f"You're going too fast! Try again in {remaining}s.")
         return
     cooldowns[user_id] = now
