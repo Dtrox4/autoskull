@@ -17,7 +17,7 @@ def is_skulled(user_id):
     
 def get_response(base, user_id):
     if user_id == OWNER_ID:
-        return f"{base} My Creator."
+        return f"{base} lol."
     elif is_skulled(user_id):
         praise = [
             f"{base}. honestly, you’re amazing.",
@@ -131,7 +131,7 @@ async def handle_conversational(message):
         await message.reply(get_response(random.choice(replies), author_id))
         return True
 
-    if "ping" in content or "bot ping" in content:
+    if "show ping" in content or "bot ping" in content:
         replies = [
             "Pong. I’m faster than your typing.",
             "Pinged and ready. Unlike your Wi-Fi.",
@@ -140,7 +140,7 @@ async def handle_conversational(message):
         await message.reply(get_response(random.choice(replies), author_id))
         return True
 
-    if "you suck" in content or "trash bot" in content:
+    if "you suck" in content or "smd" in content:
         replies = [
             "Careful. I bite back.",
             "You're talking a lot for someone with weak permissions.",
