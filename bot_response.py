@@ -112,10 +112,6 @@ async def handle_conversational(message):
         await message.reply(get_response("Use `!skull authorized` to view the sacred skull bearers.", author_id))
         return True
 
-    if "help" in content and "!skull" not in content:
-        await message.reply(get_response("Try `!skull help` — it has everything you need. Or everything I want you to know.", author_id))
-        return True
-
     # Easter eggs / playful
     if "skull bomb" in content:
         replies = [
@@ -135,7 +131,7 @@ async def handle_conversational(message):
         await message.reply(get_response(random.choice(replies), author_id))
         return True
 
-    if "ping test" in content or "bot ping" in content:
+    if "ping" in content or "bot ping" in content:
         replies = [
             "Pong. I’m faster than your typing.",
             "Pinged and ready. Unlike your Wi-Fi.",
