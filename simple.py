@@ -37,7 +37,6 @@ GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 
 # Define channels and optional messages
 WELCOME_CHANNELS = {
-    1359242164621541448: None,  # Just ping in this channel
     1359319883988336924: "welc! rep **/mock** 4 pic, bst for roles!"  # Add a custom message here
 }
 
