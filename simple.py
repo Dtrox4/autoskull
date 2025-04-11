@@ -35,6 +35,12 @@ OWNER_ID = 1212229549459374222
 
 GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 
+# Define channels and optional messages
+WELCOME_CHANNELS = {
+    1359242164621541448: None,  # Just ping in this channel
+    1359319883988336924: "welc! rep **/mock** 4 pic, bst for roles!"  # Add a custom message here
+}
+
 global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
 MAINTENANCE_MODE = False
 MAINTENANCE_END_TIME = None
@@ -71,6 +77,17 @@ def keep_alive():
     t.start()
 
 keep_alive()
+
+@bot.event
+async def on_member_join(member):
+    for channel_id, custom_message in WELCOME_CHANNELS.items():
+        channel = member.guild.get_channel(channel_id)
+        if channel:
+            if custom_message:
+                content = f"{member.mention} {custom_message}"
+            else:
+                content = f"{member.mention}"
+            await channel.send(content, delete_after=5)
 
 async def handle_say(message):
     try:
