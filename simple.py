@@ -12,7 +12,7 @@ from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
-from utils.role_handler import toggle_user_role
+from utils.role_handler import create_role, delete_role, rename_role, set_role_icon, toggle_user_role
 from bot_response import handle_conversational, get_response
 from standalone_commands import (
     handle_poll, handle_remind,
@@ -371,25 +371,74 @@ async def on_message(message):
             channel=message.channel
         )
 
-    if message.content.startswith("!role"):
-        if not any(perm[1] for perm in message.author.guild_permissions if perm[0] in ["manage_roles", "kick_members", "ban_members"]):
-            return await message.channel.send("You don't have permission to use this command.")
+    # Only moderators can use these role commands
+    if not message.author.guild_permissions.manage_roles:
+        await bot.process_commands(message)
+        return
 
-        args = message.content.split()
-        if len(args) < 3 or not message.mentions:
-            return await message.channel.send("Usage: `!role @user Role Name`")
+    args = message.content.split()
+    
+    # Create role: !rolecreate <name> [#hexcolor]
+    if message.content.startswith("!rolecreate"):
+        if len(args) < 2:
+            embed = discord.Embed(
+                title="Usage",
+                description="`!rolecreate <name> [#hexcolor]`",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
 
-        member = message.mentions[0]
-        role_name = message.content.split(None, 2)[2].replace(f"{member.mention}", "").strip()
+        name = args[1]
+        hex_color = args[2] if len(args) > 2 else "#3498db"
+        try:
+            color = discord.Color(int(hex_color.strip("#"), 16))
+        except ValueError:
+            color = discord.Color.blue()
 
-        await toggle_user_role(
-            ctx_author=message.author,
-            bot_member=message.guild.me,
-            guild=message.guild,
-            member=member,
-            role_name=role_name,
-            channel=message.channel
-        )
+        await create_role(message.guild, name, color, f"Created by {message.author}", message.channel)
+
+    # Delete role: !roledelete <@role>
+    elif message.content.startswith("!roledelete"):
+        if not message.role_mentions:
+            embed = discord.Embed(
+                title="Usage",
+                description="`!roledelete @role`",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
+
+        role = message.role_mentions[0]
+        await delete_role(message.guild, role, f"Deleted by {message.author}", message.channel)
+
+    # Rename role: !rolerename <@role> <new_name>
+    elif message.content.startswith("!rolerename"):
+        if len(args) < 3 or not message.role_mentions:
+            embed = discord.Embed(
+                title="Usage",
+                description="`!rolerename @role <new_name>`",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
+
+        role = message.role_mentions[0]
+        new_name = " ".join(args[2:])
+        await rename_role(role, new_name, f"Renamed by {message.author}", message.channel)
+
+    # Set role icon: !roleicon <@role> (must attach image)
+    elif message.content.startswith("!roleicon"):
+        if not message.role_mentions or not message.attachments:
+            embed = discord.Embed(
+                title="Usage",
+                description="`!roleicon @role` with an image attached (PNG, JPG, etc.)",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
+
+        role = message.role_mentions[0]
+        attachment = message.attachments[0]
+        image_bytes = await attachment.read()
+
+        await set_role_icon(role, image_bytes, f"Icon set by {message.author}", message.channel)
 
     if await handle_conversational(message):
         return
