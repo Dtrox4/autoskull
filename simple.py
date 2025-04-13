@@ -581,8 +581,7 @@ async def on_message(message):
     "!restart                  - Restart the bot.    (owner only).\n"
     "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
     "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
-    "```"
-)
+    "```")
             await asyncio.sleep(1)
             await message.channel.send(help_message)
             return
