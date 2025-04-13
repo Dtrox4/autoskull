@@ -58,10 +58,9 @@ intents.members = True
 intents.dm_messages = True
 
 # Initialize bot
-class AutoSkullBot(discord.Client):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.user_skull_list = set()
+class AutoSkullBot(discord.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(command_prefix="!", intents=kwargs.get("intents", discord.Intents.default()))
 
 bot = AutoSkullBot(intents=intents)
 
@@ -371,8 +370,8 @@ async def on_message(message):
             channel=message.channel
         )
   
+    
     args = message.content.split()
-
     # Check for moderation permissions
     has_mod_perms = any([
         message.author.guild_permissions.manage_roles,
@@ -714,6 +713,9 @@ async def on_message(message):
 
     elif command == 'serverinfo':
         await handle_serverinfo(message)
+
+    await bot.process_commands(message)
+
 
 # Run the bot
 bot.run(TOKEN)
