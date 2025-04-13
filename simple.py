@@ -441,7 +441,7 @@ async def on_message(message):
         await set_role_icon(role, image_bytes, f"Set by {message.author}", message.channel)
 
     # !role toggle
-    elif args[0] == "!role":
+    elif args[0] == "!role" and not args[0] == "!roleinfo":
         if len(args) < 3 or not message.mentions:
             return await message.channel.send(embed=discord.Embed(
                 title="Usage: !role",
