@@ -11,6 +11,7 @@ import help_command
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
+from utils.role_handler import toggle_user_role
 from bot_response import handle_conversational, get_response
 from standalone_commands import (
     handle_poll, handle_remind,
@@ -287,6 +288,26 @@ async def on_message(message):
         return
 
     await embed_command.handle_embed_command(message, bot)
+
+    if message.content.startswith("!role"):
+        if not any(perm[1] for perm in message.author.guild_permissions if perm[0] in ["manage_roles", "kick_members", "ban_members"]):
+            return await message.channel.send("You don't have permission to use this command.")
+
+        args = message.content.split()
+        if len(args) < 3 or not message.mentions:
+            return await message.channel.send("Usage: `!role @user Role Name`")
+
+        member = message.mentions[0]
+        role_name = message.content.split(None, 2)[2].replace(f"{member.mention}", "").strip()
+
+        await toggle_user_role(
+            ctx_author=message.author,
+            bot_member=message.guild.me,
+            guild=message.guild,
+            member=member,
+            role_name=role_name,
+            channel=message.channel
+        )
 
     if await handle_conversational(message):
         return
