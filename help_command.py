@@ -7,11 +7,11 @@ command_help = {
         "description": "Creates and sends a custom embed message to the specified channel. You can include fields like title, description, footer, color, and more."
     },
     "authorize": {
-        "syntax": "!authorize <@user>",
+        "syntax": "!skull authorize <@user>",
         "description": "Grants a user authorization to use specific bot features or commands."
     },
     "unauthorize": {
-        "syntax": "!unauthorize <@user>",
+        "syntax": "!skull unauthorize <@user>",
         "description": "Revokes a user's authorization to use certain bot features or commands."
     },
     "skull": {
@@ -27,7 +27,7 @@ command_help = {
         "description": "Shows the uptime and stats of the bot."
     },
     "stop": {
-        "syntax": "!stop",
+        "syntax": "!skull stop",
         "description": "Stops a running task or operation initiated by the bot. Restricted to authorized users."
     },
     "userinfo": {
@@ -48,19 +48,19 @@ command_help = {
     },
     "bc": {
         "syntax": "!bc <message>",
-        "description": "Broadcasts the provided message to all servers the bot is in (requires admin permissions)."
+        "description": "clears the required amount of messages sent in the channel (requires moderator permissions)."
     },
     "maintenance": {
         "syntax": "!maintenance <on/off>",
         "description": "Toggles the bot's maintenance mode. When on, only the owner can use the bot."
     },
     "authorized": {
-        "syntax": "!authorized",
+        "syntax": "!skull authorized",
         "description": "Displays a list of all users who are authorized to use specific bot features or commands."
     },
     "list": {
-        "syntax": "!list",
-        "description": "Shows a list of available commands in the bot."
+        "syntax": "!skull list",
+        "description": "Shows the list of users skulled by worthy."
     },
     "cancelmaintenance": {
         "syntax": "!cancelmaintenance",
@@ -68,7 +68,7 @@ command_help = {
     },
     "restart": {
         "syntax": "!restart",
-        "description": "Restarts the bot. Only available to the owner or authorized users."
+        "description": "Restarts the bot. Only available to the owner."
     }
 }
 
