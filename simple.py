@@ -296,13 +296,7 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            embed = discord.Embed(
-                title="Usage for !ban",
-                description="**Usage:** ```!ban @user Reason```\n\n"
-                            "Bans the mentioned user from the server with an optional reason.",
-                color=discord.Color.blue()
-            )
-            return await message.channel.send(embed=embed)
+            return await message.channel.send("Usage: `!ban @user Reason`")
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
@@ -323,13 +317,7 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            embed = discord.Embed(
-                title="Usage for !mute",
-                description="**Usage:** ```!mute @user Reason```\n\n"
-                            "Mutes the mentioned user in the server with an optional reason.",
-                color=discord.Color.blue()
-            )
-            return await message.channel.send(embed=embed)
+            return await message.channel.send("Usage: `!mute @user Reason`")
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
@@ -350,13 +338,7 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            embed = discord.Embed(
-                title="Usage for !kick",
-                description="**Usage:** ```!kick @user Reason```\n\n"
-                            "Kicks the mentioned user from the server with an optional reason.",
-                color=discord.Color.blue()
-            )
-            return await message.channel.send(embed=embed)
+            return await message.channel.send("Usage: `!kick @user Reason`")
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
@@ -369,15 +351,6 @@ async def on_message(message):
             reason=reason,
             channel=message.channel
         )
-  
-    
-    args = message.content.split()
-    # Check for moderation permissions
-    has_mod_perms = any([
-        message.author.guild_permissions.manage_roles,
-        message.author.guild_permissions.kick_members,
-        message.author.guild_permissions.ban_members
-    ])
 
     if not has_mod_perms:
         await bot.process_commands(message)
