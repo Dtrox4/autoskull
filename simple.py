@@ -389,7 +389,7 @@ async def on_message(message):
         if len(args) < 2:
             return await message.channel.send(embed=discord.Embed(
                 title="Usage: !rolecreate",
-                description="`!rolecreate <name> [#hexcolor]`",
+                description="```!rolecreate <name> [#hexcolor]```",
                 color=discord.Color.blue()
             ))
 
