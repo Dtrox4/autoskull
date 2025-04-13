@@ -370,6 +370,26 @@ async def on_message(message):
             reason=reason,
             channel=message.channel
         )
+  
+    if message.content.startswith("!role"):
+        if not any(perm[1] for perm in message.author.guild_permissions if perm[0] in ["manage_roles", "kick_members", "ban_members"]):
+            return await message.channel.send("You don't have permission to use this command.")
+
+        args = message.content.split()
+        if len(args) < 3 or not message.mentions:
+            return await message.channel.send("Usage: `!role @user Role Name`")
+
+        member = message.mentions[0]
+        role_name = message.content.split(None, 2)[2].replace(f"{member.mention}", "").strip()
+
+        await toggle_user_role(
+            ctx_author=message.author,
+            bot_member=message.guild.me,
+            guild=message.guild,
+            member=member,
+            role_name=role_name,
+            channel=message.channel
+        )
 
     # Only moderators can use these role commands
     if not message.author.guild_permissions.manage_roles:
