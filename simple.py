@@ -7,6 +7,7 @@ import platform
 from collections import defaultdict
 import time
 import embed_command
+import help_command
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
@@ -292,6 +293,10 @@ async def on_message(message):
 
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
+
+    if message.content.startswith("!help"):
+        await help_command.handle_help_command(message)
+        return
 
     if message.content.lower().startswith("!stats"):
         await handle_stats(message, bot, start_time)
