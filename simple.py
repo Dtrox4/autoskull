@@ -58,7 +58,7 @@ intents.members = True
 intents.dm_messages = True
 
 # Initialize bot
-class AutoSkullBot(discord.Bot):
+class AutoSkullBot(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(command_prefix="!", intents=kwargs.get("intents", discord.Intents.default()))
 
