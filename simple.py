@@ -582,7 +582,7 @@ async def on_message(message):
     "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
     "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
     "```"
-            )
+)
             await asyncio.sleep(1)
             await message.channel.send(help_message)
             return
