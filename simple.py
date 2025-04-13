@@ -62,7 +62,7 @@ class AutoSkullBot(discord.Client):
     def __init__(self, *args, **kwargs):
         super().__init__(command_prefix="!", intents=kwargs.get("intents", discord.Intents.default()))
 
-bot = AutoSkullBot(intents=intents)
+bot = AutoSkullBot()
 
 # Keep-alive server using Flask
 app = Flask(__name__)
