@@ -371,13 +371,83 @@ async def on_message(message):
             channel=message.channel
         )
   
-    if message.content.startswith("!role"):
-        if not any(perm[1] for perm in message.author.guild_permissions if perm[0] in ["manage_roles", "kick_members", "ban_members"]):
-            return await message.channel.send("You don't have permission to use this command.")
+    args = message.content.split()
 
-        args = message.content.split()
+    # Check for moderation permissions
+    has_mod_perms = any([
+        message.author.guild_permissions.manage_roles,
+        message.author.guild_permissions.kick_members,
+        message.author.guild_permissions.ban_members
+    ])
+
+    if not has_mod_perms:
+        await bot.process_commands(message)
+        return
+
+    # !rolecreate
+    if message.content.startswith("!rolecreate"):
+        if len(args) < 2:
+            return await message.channel.send(embed=discord.Embed(
+                title="Usage: !rolecreate",
+                description="`!rolecreate <name> [#hexcolor]`",
+                color=discord.Color.blue()
+            ))
+
+        name = args[1]
+        hex_color = args[2] if len(args) > 2 else "#3498db"
+        try:
+            color = discord.Color(int(hex_color.strip("#"), 16))
+        except ValueError:
+            color = discord.Color.blue()
+
+        await create_role(message.guild, name, color, f"Created by {message.author}", message.channel)
+
+    # !roledelete
+    elif message.content.startswith("!roledelete"):
+        if not message.role_mentions:
+            return await message.channel.send(embed=discord.Embed(
+                title="Usage: !roledelete",
+                description="`!roledelete @role`",
+                color=discord.Color.blue()
+            ))
+
+        role = message.role_mentions[0]
+        await delete_role(message.guild, role, f"Deleted by {message.author}", message.channel)
+
+    # !rolerename
+    elif message.content.startswith("!rolerename"):
+        if len(args) < 3 or not message.role_mentions:
+            return await message.channel.send(embed=discord.Embed(
+                title="Usage: !rolerename",
+                description="`!rolerename @role <new_name>`",
+                color=discord.Color.blue()
+            ))
+
+        role = message.role_mentions[0]
+        new_name = " ".join(args[2:])
+        await rename_role(role, new_name, f"Renamed by {message.author}", message.channel)
+
+    # !roleicon
+    elif message.content.startswith("!roleicon"):
+        if not message.role_mentions or not message.attachments:
+            return await message.channel.send(embed=discord.Embed(
+                title="Usage: !roleicon",
+                description="`!roleicon @role` with an image attachment",
+                color=discord.Color.blue()
+            ))
+
+        role = message.role_mentions[0]
+        image_bytes = await message.attachments[0].read()
+        await set_role_icon(role, image_bytes, f"Set by {message.author}", message.channel)
+
+    # !role toggle
+    elif message.content.startswith("!role"):
         if len(args) < 3 or not message.mentions:
-            return await message.channel.send("Usage: `!role @user Role Name`")
+            return await message.channel.send(embed=discord.Embed(
+                title="Usage: !role",
+                description="`!role @user Role Name`",
+                color=discord.Color.blue()
+            ))
 
         member = message.mentions[0]
         role_name = message.content.split(None, 2)[2].replace(f"{member.mention}", "").strip()
@@ -390,75 +460,6 @@ async def on_message(message):
             role_name=role_name,
             channel=message.channel
         )
-
-    # Only moderators can use these role commands
-    if not message.author.guild_permissions.manage_roles:
-        await bot.process_commands(message)
-        return
-
-    args = message.content.split()
-    
-    # Create role: !rolecreate <name> [#hexcolor]
-    if message.content.startswith("!rolecreate"):
-        if len(args) < 2:
-            embed = discord.Embed(
-                title="Usage",
-                description="`!rolecreate <name> [#hexcolor]`",
-                color=discord.Color.blue()
-            )
-            return await message.channel.send(embed=embed)
-
-        name = args[1]
-        hex_color = args[2] if len(args) > 2 else "#3498db"
-        try:
-            color = discord.Color(int(hex_color.strip("#"), 16))
-        except ValueError:
-            color = discord.Color.blue()
-
-        await create_role(message.guild, name, color, f"Created by {message.author}", message.channel)
-
-    # Delete role: !roledelete <@role>
-    elif message.content.startswith("!roledelete"):
-        if not message.role_mentions:
-            embed = discord.Embed(
-                title="Usage",
-                description="`!roledelete @role`",
-                color=discord.Color.blue()
-            )
-            return await message.channel.send(embed=embed)
-
-        role = message.role_mentions[0]
-        await delete_role(message.guild, role, f"Deleted by {message.author}", message.channel)
-
-    # Rename role: !rolerename <@role> <new_name>
-    elif message.content.startswith("!rolerename"):
-        if len(args) < 3 or not message.role_mentions:
-            embed = discord.Embed(
-                title="Usage",
-                description="`!rolerename @role <new_name>`",
-                color=discord.Color.blue()
-            )
-            return await message.channel.send(embed=embed)
-
-        role = message.role_mentions[0]
-        new_name = " ".join(args[2:])
-        await rename_role(role, new_name, f"Renamed by {message.author}", message.channel)
-
-    # Set role icon: !roleicon <@role> (must attach image)
-    elif message.content.startswith("!roleicon"):
-        if not message.role_mentions or not message.attachments:
-            embed = discord.Embed(
-                title="Usage",
-                description="`!roleicon @role` with an image attached (PNG, JPG, etc.)",
-                color=discord.Color.blue()
-            )
-            return await message.channel.send(embed=embed)
-
-        role = message.role_mentions[0]
-        attachment = message.attachments[0]
-        image_bytes = await attachment.read()
-
-        await set_role_icon(role, image_bytes, f"Icon set by {message.author}", message.channel)
 
     if await handle_conversational(message):
         return
