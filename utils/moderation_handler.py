@@ -1,8 +1,8 @@
-# utils/moderation_handler.py
 import discord
 from discord.ext import commands
 
 async def ban_user(ctx_author, bot_member, guild, member, reason, channel):
+    """Bans a member from the server."""
     if member == ctx_author:
         return await channel.send("You cannot ban yourself!")
 
@@ -24,7 +24,31 @@ async def ban_user(ctx_author, bot_member, guild, member, reason, channel):
     except discord.Forbidden:
         await channel.send("I do not have permission to ban this member.")
 
+async def kick_user(ctx_author, bot_member, guild, member, reason, channel):
+    """Kicks a member from the server."""
+    if member == ctx_author:
+        return await channel.send("You cannot kick yourself!")
+
+    if member == guild.owner:
+        return await channel.send("You cannot kick the server owner!")
+
+    if member.top_role >= ctx_author.top_role and ctx_author != guild.owner:
+        return await channel.send("You cannot kick a member with a higher or equal role.")
+
+    try:
+        await member.kick(reason=reason)
+        embed = discord.Embed(
+            title="User Kicked",
+            description=f"Kicked {member.mention} from the server.\nReason: {reason}",
+            color=discord.Color.red()
+        )
+        embed.set_footer(text=f"Action by {ctx_author}", icon_url=ctx_author.avatar.url if ctx_author.avatar else None)
+        await channel.send(embed=embed)
+    except discord.Forbidden:
+        await channel.send("I do not have permission to kick this member.")
+
 async def mute_user(ctx_author, bot_member, guild, member, reason, channel):
+    """Mutes a member in the server."""
     mute_role = discord.utils.get(guild.roles, name="Muted")
 
     if not mute_role:
