@@ -2,15 +2,30 @@ import discord
 from discord.ext import commands
 
 async def ban_user(ctx_author, bot_member, guild, member, reason, channel):
-    """Bans a member from the server."""
+    """Bans a member from the server and sends an embed output."""
     if member == ctx_author:
-        return await channel.send("You cannot ban yourself!")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="You cannot ban yourself!",
+            color=discord.Color.red()
+        )
+        return await channel.send(embed=embed)
 
     if member == guild.owner:
-        return await channel.send("You cannot ban the server owner!")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="You cannot ban the server owner!",
+            color=discord.Color.red()
+        )
+        return await channel.send(embed=embed)
 
     if member.top_role >= ctx_author.top_role and ctx_author != guild.owner:
-        return await channel.send("You cannot ban a member with a higher or equal role.")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="You cannot ban a member with a higher or equal role.",
+            color=discord.Color.red()
+        )
+        return await channel.send(embed=embed)
 
     try:
         await member.ban(reason=reason)
@@ -22,18 +37,38 @@ async def ban_user(ctx_author, bot_member, guild, member, reason, channel):
         embed.set_footer(text=f"Action by {ctx_author}", icon_url=ctx_author.avatar.url if ctx_author.avatar else None)
         await channel.send(embed=embed)
     except discord.Forbidden:
-        await channel.send("I do not have permission to ban this member.")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="I do not have permission to ban this member.",
+            color=discord.Color.red()
+        )
+        await channel.send(embed=embed)
 
 async def kick_user(ctx_author, bot_member, guild, member, reason, channel):
-    """Kicks a member from the server."""
+    """Kicks a member from the server and sends an embed output."""
     if member == ctx_author:
-        return await channel.send("You cannot kick yourself!")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="You cannot kick yourself!",
+            color=discord.Color.red()
+        )
+        return await channel.send(embed=embed)
 
     if member == guild.owner:
-        return await channel.send("You cannot kick the server owner!")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="You cannot kick the server owner!",
+            color=discord.Color.red()
+        )
+        return await channel.send(embed=embed)
 
     if member.top_role >= ctx_author.top_role and ctx_author != guild.owner:
-        return await channel.send("You cannot kick a member with a higher or equal role.")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="You cannot kick a member with a higher or equal role.",
+            color=discord.Color.red()
+        )
+        return await channel.send(embed=embed)
 
     try:
         await member.kick(reason=reason)
@@ -45,20 +80,35 @@ async def kick_user(ctx_author, bot_member, guild, member, reason, channel):
         embed.set_footer(text=f"Action by {ctx_author}", icon_url=ctx_author.avatar.url if ctx_author.avatar else None)
         await channel.send(embed=embed)
     except discord.Forbidden:
-        await channel.send("I do not have permission to kick this member.")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="I do not have permission to kick this member.",
+            color=discord.Color.red()
+        )
+        await channel.send(embed=embed)
 
 async def mute_user(ctx_author, bot_member, guild, member, reason, channel):
-    """Mutes a member in the server."""
+    """Mutes a member in the server and sends an embed output."""
     mute_role = discord.utils.get(guild.roles, name="Muted")
 
     if not mute_role:
         mute_role = await guild.create_role(name="Muted", permissions=discord.Permissions(send_messages=False, speak=False))
 
     if mute_role >= bot_member.top_role:
-        return await channel.send("I cannot assign the mute role, it's higher or equal to my highest role.")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="I cannot assign the mute role, it's higher or equal to my highest role.",
+            color=discord.Color.red()
+        )
+        return await channel.send(embed=embed)
 
     if mute_role >= ctx_author.top_role and ctx_author != guild.owner:
-        return await channel.send("You cannot mute a member with a higher or equal role.")
+        embed = discord.Embed(
+            title="Action Failed",
+            description="You cannot mute a member with a higher or equal role.",
+            color=discord.Color.red()
+        )
+        return await channel.send(embed=embed)
 
     if mute_role in member.roles:
         await member.remove_roles(mute_role)
