@@ -67,7 +67,7 @@ class AutoSkullBot(commands.Bot):
         # Initialize your custom attributes here
         self.user_skull_list = []  # or set() or dict(), depending on how you use it
 
-bot = AutoSkullBot(intents=intents)
+bot = AutoSkullBot()
 
 # Keep-alive server using Flask
 app = Flask(__name__)
