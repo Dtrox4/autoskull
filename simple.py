@@ -58,11 +58,15 @@ intents.members = True
 intents.dm_messages = True
 
 # Initialize bot
-class AutoSkullBot(discord.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(command_prefix="!", intents=kwargs.get("intents", discord.Intents.default()))
+class AutoSkullBot(commands.Bot):
+    def __init__(self):
+        intents = discord.Intents.all()
+        super().__init__(command_prefix="!", intents=intents)
 
-bot = AutoSkullBot()
+        # Initialize your custom attributes here
+        self.user_skull_list = []  # or set() or dict(), depending on how you use it
+
+bot = AutoSkullBot(intents=intents)
 
 # Keep-alive server using Flask
 app = Flask(__name__)
