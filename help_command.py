@@ -35,7 +35,7 @@ command_help = {
         "description": "Displays detailed information about the mentioned user, such as roles, join date, etc."
     },
     "roleinfo": {
-        "syntax": "!roleinfo <@role>",
+        "syntax": "!roleinfo <role name>",
         "description": "Displays detailed information about a specific role."
     },
     "eightball": {
