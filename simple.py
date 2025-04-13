@@ -8,7 +8,7 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
-from utils.moderation_handler import ban_user, mute_user
+from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
@@ -324,6 +324,27 @@ async def on_message(message):
         reason = ' '.join(args[2:])
 
         await mute_user(
+            ctx_author=message.author,
+            bot_member=message.guild.me,
+            guild=message.guild,
+            member=member,
+            reason=reason,
+            channel=message.channel
+        )
+
+    # Kick command
+    if message.content.startswith("!kick"):
+        if not any(perm[1] for perm in message.author.guild_permissions if perm[0] in ["kick_members"]):
+            return await message.channel.send("You don't have permission to kick members.")
+
+        args = message.content.split()
+        if len(args) < 3 or not message.mentions:
+            return await message.channel.send("Usage: `!kick @user Reason`")
+
+        member = message.mentions[0]
+        reason = ' '.join(args[2:])
+
+        await kick_user(
             ctx_author=message.author,
             bot_member=message.guild.me,
             guild=message.guild,
