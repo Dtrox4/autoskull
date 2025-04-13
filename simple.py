@@ -297,7 +297,13 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            return await message.channel.send("Usage: `!ban @user Reason`")
+            embed = discord.Embed(
+                title="Usage for !ban",
+                description="**Usage:** `!ban @user Reason`\n\n"
+                            "Bans the mentioned user from the server with an optional reason.",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
@@ -318,7 +324,13 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            return await message.channel.send("Usage: `!mute @user Reason`")
+            embed = discord.Embed(
+                title="Usage for !mute",
+                description="**Usage:** `!mute @user Reason`\n\n"
+                            "Mutes the mentioned user in the server with an optional reason.",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
@@ -339,7 +351,13 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            return await message.channel.send("Usage: `!kick @user Reason`")
+            embed = discord.Embed(
+                title="Usage for !kick",
+                description="**Usage:** `!kick @user Reason`\n\n"
+                            "Kicks the mentioned user from the server with an optional reason.",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
