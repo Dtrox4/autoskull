@@ -299,7 +299,7 @@ async def on_message(message):
         if len(args) < 3 or not message.mentions:
             embed = discord.Embed(
                 title="Usage for !ban",
-                description="**Usage:** `!ban @user Reason`\n\n"
+                description="**Usage:** ```!ban @user Reason```\n\n"
                             "Bans the mentioned user from the server with an optional reason.",
                 color=discord.Color.blue()
             )
@@ -326,7 +326,7 @@ async def on_message(message):
         if len(args) < 3 or not message.mentions:
             embed = discord.Embed(
                 title="Usage for !mute",
-                description="**Usage:** `!mute @user Reason`\n\n"
+                description="**Usage:** ```!mute @user Reason```\n\n"
                             "Mutes the mentioned user in the server with an optional reason.",
                 color=discord.Color.blue()
             )
@@ -353,7 +353,7 @@ async def on_message(message):
         if len(args) < 3 or not message.mentions:
             embed = discord.Embed(
                 title="Usage for !kick",
-                description="**Usage:** `!kick @user Reason`\n\n"
+                description="**Usage:** ```!kick @user Reason```\n\n"
                             "Kicks the mentioned user from the server with an optional reason.",
                 color=discord.Color.blue()
             )
@@ -407,7 +407,7 @@ async def on_message(message):
         if not message.role_mentions:
             return await message.channel.send(embed=discord.Embed(
                 title="Usage: !roledelete",
-                description="`!roledelete @role`",
+                description="```!roledelete @role```",
                 color=discord.Color.blue()
             ))
 
@@ -419,7 +419,7 @@ async def on_message(message):
         if len(args) < 3 or not message.role_mentions:
             return await message.channel.send(embed=discord.Embed(
                 title="Usage: !rolerename",
-                description="`!rolerename @role <new_name>`",
+                description="```!rolerename @role <new_name>```",
                 color=discord.Color.blue()
             ))
 
@@ -432,7 +432,7 @@ async def on_message(message):
         if not message.role_mentions or not message.attachments:
             return await message.channel.send(embed=discord.Embed(
                 title="Usage: !roleicon",
-                description="`!roleicon @role` with an image attachment",
+                description="```!roleicon @role with an image attachment```",
                 color=discord.Color.blue()
             ))
 
@@ -445,7 +445,7 @@ async def on_message(message):
         if len(args) < 3 or not message.mentions:
             return await message.channel.send(embed=discord.Embed(
                 title="Usage: !role",
-                description="`!role @user Role Name`",
+                description="```!role @user Role Name```",
                 color=discord.Color.blue()
             ))
 
