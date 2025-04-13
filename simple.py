@@ -12,7 +12,6 @@ from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
-from discord.ext import commands
 from utils.role_handler import create_role, delete_role, rename_role, set_role_icon, toggle_user_role
 from bot_response import handle_conversational, get_response
 from standalone_commands import (
@@ -59,15 +58,12 @@ intents.members = True
 intents.dm_messages = True
 
 # Initialize bot
-class AutoSkullBot(commands.Bot):
-    def __init__(self):
-        intents = discord.Intents.all()
-        super().__init__(command_prefix="!", intents=intents)
+class AutoSkullBot(discord.Client):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.user_skull_list = set()
 
-        # Initialize your custom attributes here
-        self.user_skull_list = []  # or set() or dict(), depending on how you use it
-
-bot = AutoSkullBot()
+bot = AutoSkullBot(intents=intents)
 
 # Keep-alive server using Flask
 app = Flask(__name__)
@@ -301,7 +297,13 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            return await message.channel.send("Usage: `!ban @user Reason`")
+            embed = discord.Embed(
+                title="Usage for !ban",
+                description="**Usage:** ```!ban @user Reason```\n\n"
+                            "Bans the mentioned user from the server with an optional reason.",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
@@ -322,7 +324,13 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            return await message.channel.send("Usage: `!mute @user Reason`")
+            embed = discord.Embed(
+                title="Usage for !mute",
+                description="**Usage:** ```!mute @user Reason```\n\n"
+                            "Mutes the mentioned user in the server with an optional reason.",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
@@ -343,7 +351,13 @@ async def on_message(message):
 
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
-            return await message.channel.send("Usage: `!kick @user Reason`")
+            embed = discord.Embed(
+                title="Usage for !kick",
+                description="**Usage:** ```!kick @user Reason```\n\n"
+                            "Kicks the mentioned user from the server with an optional reason.",
+                color=discord.Color.blue()
+            )
+            return await message.channel.send(embed=embed)
 
         member = message.mentions[0]
         reason = ' '.join(args[2:])
@@ -356,6 +370,19 @@ async def on_message(message):
             reason=reason,
             channel=message.channel
         )
+  
+    args = message.content.split()
+
+    # Check for moderation permissions
+    has_mod_perms = any([
+        message.author.guild_permissions.manage_roles,
+        message.author.guild_permissions.kick_members,
+        message.author.guild_permissions.ban_members
+    ])
+
+    if not has_mod_perms:
+        await bot.process_commands(message)
+        return
 
     # !rolecreate
     if message.content.startswith("!rolecreate"):
@@ -520,42 +547,42 @@ async def on_message(message):
         # !skull help
         if len(arguments) == 1 and arguments[0] == "help":
             help_message = (
-                "**Available Commands:**\n"
-                "```diff\n"
-                "[ Skull Commands ]\n"
-                "!skull @user              - Skull a user.\n"
-                "!skull stop @user         - Stop skulling a user.\n"
-                "!skull list               - Show users being skulled.\n"
-                "!skull help               - Show this help message.\n\n"
-                "[ User & Server Info ]\n"
-                "!userinfo [name]          - Show info about a user.\n"
-                "!roleinfo [role name]     - Show info about a role.\n"
-                "!serverinfo               - Show server statistics.\n"
-                "!stats                    - Show bot uptime and system statistics.\n\n"
-                "[ Fun & Utility ]\n"
-                "!eightball <question>     - Ask the magic 8-ball a question.\n"
-                "!poll <question>          - Create a simple yes/no poll.\n"
-                "!remind <sec> <msg>       - Get a reminder after a given time.\n"
-                "!bc <filters>             - Bulk delete messages with optional filters.\n"
-                "!embed <channel> <code>   - Sends an embed to the channel you need.\n\n"
-                "[ Moderation ]\n"
-                "!role @user <role>        - Add or remove a role from a user.\n"
-                "!rolecreate <name> [#hex] - Create a new role with an optional color.\n"
-                "!roledelete @role         - Delete a role.\n"
-                "!rolerename @role <name>  - Rename a role.\n"
-                "!roleicon @role <image>   - Set icon for a role using an attachment.\n"
-                "!ban @user [reason]       - Ban a user from the server.\n"
-                "!kick @user [reason]      - Kick a user from the server.\n"
-                "!mute @user [reason]      - Mute a user with the mute role.\n\n"
-                "[ Admin Only ]\n"
-                "!skull authorize @user    - Authorize a user to use skull commands.\n"
-                "!skull unauthorize @user  - Remove a user's authorization.\n"
-                "!skull authorized         - Show authorized users.\n"
-                "!restart                  - Restart the bot.    (owner only).\n"
-                "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
-                "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
-                "```"
-            )
+    "**Available Commands:**\n"
+    "```diff\n"
+    [ Skull Commands ]\n"
+    "!skull @user              - Skull a user.\n"
+    "!skull stop @user         - Stop skulling a user.\n"
+    "!skull list               - Show users being skulled.\n"
+    "!skull help               - Show this help message.\n\n"
+    [ User & Server Info ]\n"
+    "!userinfo [name]          - Show info about a user.\n"
+    "!roleinfo [role name]     - Show info about a role.\n"
+    "!serverinfo               - Show server statistics.\n"
+    "!stats                    - Show bot uptime and system statistics.\n\n"
+    [ Fun & Utility ]\n"
+    "!eightball <question>     - Ask the magic 8-ball a question.\n"
+    "!poll <question>          - Create a simple yes/no poll.\n"
+    "!remind <sec> <msg>       - Get a reminder after a given time.\n"
+    "!bc <filters>             - Bulk delete messages with optional filters.\n"
+    "!embed <channel> <code>   - Sends an embed to the channel you need.\n\n"
+    [ Moderation ]\n"
+    "!role @user <role>        - Add or remove a role from a user.\n"
+    "!rolecreate <name> [#hex] - Create a new role with an optional color.\n"
+    "!roledelete @role         - Delete a role.\n"
+    "!rolerename @role <name>  - Rename a role.\n"
+    "!roleicon @role <image>   - Set icon for a role using an attachment.\n"
+    "!ban @user [reason]       - Ban a user from the server.\n"
+    "!kick @user [reason]      - Kick a user from the server.\n"
+    "!mute @user [reason]      - Mute a user with the mute role.\n\n"
+    [ Admin Only ]\n"
+    "!skull authorize @user    - Authorize a user to use skull commands.\n"
+    "!skull unauthorize @user  - Remove a user's authorization.\n"
+    "!skull authorized         - Show authorized users.\n"
+    "!restart                  - Restart the bot.    (owner only).\n"
+    "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
+    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
+    "```"
+)
             await asyncio.sleep(1)
             await message.channel.send(help_message)
             return
@@ -687,9 +714,6 @@ async def on_message(message):
 
     elif command == 'serverinfo':
         await handle_serverinfo(message)
-
-
-
 
 # Run the bot
 bot.run(TOKEN)
