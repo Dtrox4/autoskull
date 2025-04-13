@@ -6,6 +6,7 @@ import datetime
 import platform
 from collections import defaultdict
 import time
+import embed_command
 from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
@@ -283,6 +284,8 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
+
+    await embed_command.handle_embed_command(message, bot)
 
     if await handle_conversational(message):
         return
