@@ -289,6 +289,10 @@ async def on_message(message):
 
     await embed_command.handle_embed_command(message, bot)
 
+    if not has_mod_perms:
+        await bot.process_commands(message)
+        return
+
     # Ban command
     if message.content.startswith("!ban"):
         if not any(perm[1] for perm in message.author.guild_permissions if perm[0] in ["ban_members"]):
@@ -351,10 +355,6 @@ async def on_message(message):
             reason=reason,
             channel=message.channel
         )
-
-    if not has_mod_perms:
-        await bot.process_commands(message)
-        return
 
     # !rolecreate
     if message.content.startswith("!rolecreate"):
@@ -687,7 +687,7 @@ async def on_message(message):
     elif command == 'serverinfo':
         await handle_serverinfo(message)
 
-    await bot.process_commands(message)
+
 
 
 # Run the bot
