@@ -7,11 +7,11 @@ command_help = {
         "description": "Creates and sends a custom embed message to the specified channel. You can include fields like title, description, footer, color, and more."
     },
     "authorize": {
-        "syntax": "!skull authorize <@user>",
+        "syntax": "!authorize <@user>",
         "description": "Grants a user authorization to use specific bot features or commands."
     },
     "unauthorize": {
-        "syntax": "!skull unauthorize <@user>",
+        "syntax": "!unauthorize <@user>",
         "description": "Revokes a user's authorization to use certain bot features or commands."
     },
     "skull": {
@@ -27,7 +27,7 @@ command_help = {
         "description": "Shows the uptime and stats of the bot."
     },
     "stop": {
-        "syntax": "!skull stop",
+        "syntax": "!stop",
         "description": "Stops a running task or operation initiated by the bot. Restricted to authorized users."
     },
     "userinfo": {
@@ -48,19 +48,19 @@ command_help = {
     },
     "bc": {
         "syntax": "!bc <message>",
-        "description": "clears the required amount of messages sent in the channel (requires moderator permissions)."
+        "description": "Broadcasts the provided message to all servers the bot is in (requires admin permissions)."
     },
     "maintenance": {
         "syntax": "!maintenance <on/off>",
         "description": "Toggles the bot's maintenance mode. When on, only the owner can use the bot."
     },
     "authorized": {
-        "syntax": "!skull authorized",
+        "syntax": "!authorized",
         "description": "Displays a list of all users who are authorized to use specific bot features or commands."
     },
     "list": {
-        "syntax": "!skull list",
-        "description": "Shows the list of users skulled by worthy."
+        "syntax": "!list",
+        "description": "Shows a list of available commands in the bot."
     },
     "cancelmaintenance": {
         "syntax": "!cancelmaintenance",
@@ -68,7 +68,39 @@ command_help = {
     },
     "restart": {
         "syntax": "!restart",
-        "description": "Restarts the bot. Only available to the owner."
+        "description": "Restarts the bot. Only available to the owner or authorized users."
+    },
+    "role": {
+        "syntax": "!role @user <role name>",
+        "description": "Toggles the specified role on the mentioned user. Adds or removes it based on current state."
+    },
+    "rolecreate": {
+        "syntax": "!rolecreate <name> [#hexcolor]",
+        "description": "Creates a new role with the given name and optional color."
+    },
+    "roledelete": {
+        "syntax": "!roledelete @role",
+        "description": "Deletes the mentioned role from the server."
+    },
+    "rolerename": {
+        "syntax": "!rolerename @role <new name>",
+        "description": "Renames the mentioned role to a new name."
+    },
+    "roleicon": {
+        "syntax": "!roleicon @role <attach image>",
+        "description": "Sets the icon of the mentioned role using an attached image."
+    },
+    "ban": {
+        "syntax": "!ban @user [reason]",
+        "description": "Bans the mentioned user with an optional reason. Requires ban permissions."
+    },
+    "kick": {
+        "syntax": "!kick @user [reason]",
+        "description": "Kicks the mentioned user with an optional reason. Requires kick permissions."
+    },
+    "mute": {
+        "syntax": "!mute @user [reason]",
+        "description": "Mutes the mentioned user by assigning a mute role. Requires manage roles permissions."
     }
 }
 
