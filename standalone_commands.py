@@ -1,6 +1,7 @@
 import discord
 import os
 import sys
+import random
 import platform
 import asyncio
 
@@ -92,8 +93,6 @@ async def handle_roleinfo(message, role: discord.Role = None):
     await message.channel.send(embed=embed)
 
 # handle_eightball
-import random
-
 async def handle_eightball(message, question):
     responses = ["Yes", "No", "Maybe", "Definitely", "Ask again later", "Absolutely not"]
     response = random.choice(responses)
