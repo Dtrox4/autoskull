@@ -8,7 +8,7 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
-from getpass import getpass
+from discord.ext import commands
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
 from threading import Thread
@@ -59,10 +59,12 @@ intents.members = True
 intents.dm_messages = True
 
 # initializing the bot
-class AutoSkullBot(discord.Client):
-    def __init__(self,**kwargs):
-        super().__init__(**kwargs)
+class AutoSkullBot(commands.Bot):
+    def __init__(self, **kwargs):
+        super().__init__(command_prefix="!", **kwargs)
         self.user_skull_list = set()
+
+bot = AutoSkullBot(intents=intents)
 
 bot=AutoSkullBot(intents=intents)
 
