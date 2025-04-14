@@ -75,8 +75,6 @@ class AutoSkullBot(commands.Bot):
 
 bot = AutoSkullBot(intents=intents)
 
-bot=AutoSkullBot(intents=intents)
-
 # Keep-alive server using Flask
 app = Flask(__name__)
 
