@@ -82,7 +82,7 @@ class Autoskull(discord.Client):
         super().__init__(**kwargs)
         self.user_skull_list = set()
 
-Bot=Autoskull(intents=intents)
+bot=Autoskull(intents=intents)
 
 # Keep-alive server using Flask
 app = Flask(__name__)
