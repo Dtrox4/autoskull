@@ -8,8 +8,6 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
-import logging
-from discord.ext import commands
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
 from threading import Thread
@@ -23,7 +21,7 @@ from standalone_commands import (
 )
 
 start_time = datetime.datetime.utcnow()
-logging.basicConfig(level=logging.DEBUG)
+
 # Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -59,18 +57,10 @@ intents.guilds = True
 intents.members = True
 intents.dm_messages = True
 
-# Example of loading skull_data from a JSON file
-with open("skull_data.json", "r") as file:
-    skull_data = json.load(file)
-
-# Ensure skull_data is a dictionary
-if not isinstance(skull_data, dict):
-    raise ValueError("skull_data must be a dictionary")
-
-# initializing the bot
-class AutoSkullBot(commands.Bot):
+# Initialize bot
+class AutoSkullBot(discord.Client):
     def __init__(self, **kwargs):
-        super().__init__(command_prefix="!", **kwargs)
+        super().__init__(**kwargs)
         self.user_skull_list = set()
 
 bot = AutoSkullBot(intents=intents)
@@ -100,7 +90,7 @@ async def on_member_join(member):
                 content = f"{member.mention} {custom_message}"
             else:
                 content = f"{member.mention}"
-            await channel.send(content, delete_after=10)
+            await channel.send(content, delete_after=5)
 
 async def handle_say(message):
     try:
@@ -295,25 +285,6 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    # Get the guild (server) context
-    guild = message.guild
-
-    # Ensure the user is a Member object
-    member = guild.get_member(message.author.id)
-
-    if member is not None:
-        # Now you can access guild_permissions
-        if member.guild_permissions.manage_roles:
-            await message.channel.send("You have the Manage Roles permission!")
-        else:
-            await message.channel.send("You do not have the Manage Roles permission.")
-    else:
-        await message.channel.send("The user is not a member of this guild.")
-
-    # Skip DMs since message.author will be a User, not a Member
-    if message.guild is None:
-        return
-        
     if message.author == bot.user:
         return
 
@@ -469,6 +440,16 @@ async def on_message(message):
         image_bytes = await message.attachments[0].read()
         await set_role_icon(role, image_bytes, f"Set by {message.author}", message.channel)
 
+    # !role toggle
+    elif args[0] == "!role" and not args[0] == "!roleinfo":
+        if len(args) < 3 or not message.mentions:
+            return await message.channel.send(embed=discord.Embed(
+                title="Usage: !role",
+                description="```!role @user Role Name```",
+                color=discord.Color.blue()
+            ))
+    # your role handling code here
+
 
         member = message.mentions[0]
         role_name = message.content.split(None, 2)[2].replace(f"{member.mention}", "").strip()
@@ -518,8 +499,6 @@ async def on_message(message):
     if message.content.startswith("!cancelmaintenance"):
         await handle_cancel_maintenance(message)
         return
-
-    
 
     content = message.content
     if not content.startswith('!'):
