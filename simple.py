@@ -387,7 +387,7 @@ async def on_message(message):
     ])
 
     if not has_mod_perms:
-        await self.process_commands(message)
+        await bot.process_commands(message)
         return
 
     # !rolecreate
@@ -445,16 +445,6 @@ async def on_message(message):
         role = message.role_mentions[0]
         image_bytes = await message.attachments[0].read()
         await set_role_icon(role, image_bytes, f"Set by {message.author}", message.channel)
-
-    # !role toggle
-    elif args[0] == "!role" and not args[0] == "!roleinfo":
-        if len(args) < 3 or not message.mentions:
-            return await message.channel.send(embed=discord.Embed(
-                title="Usage: !role",
-                description="```!role @user Role Name```",
-                color=discord.Color.blue()
-            ))
-    # your role handling code here
 
 
         member = message.mentions[0]
