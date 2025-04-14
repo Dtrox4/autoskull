@@ -59,8 +59,8 @@ intents.members = True
 intents.dm_messages = True
 
 # initializing the bot
-class AutoSkull(discord.Client):
-    def __init__(self, **kwargs):
+class AutoSkull(commands.bot):
+    def __init__(self,**kwargs):
         super().__init__(**kwargs)
         self.user_skull_list = set()
 
