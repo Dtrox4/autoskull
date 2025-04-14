@@ -297,25 +297,35 @@ async def handle_bc(message, args):
     )
     await message.channel.send(embed=embed, delete_after=5)
 
-@bot.event
-async def on_ready():
-    print(f"Logged in as {bot.user}")
-    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
+async def handle_playmusic(self, message):
+    """Handles the playmusic command from a message."""
+    url = message.content[len('!playmusic '):].strip()
+    if not url:
+        # Create an embed for missing URL error
+        embed = discord.Embed(
+            title="Error",
+            description="You must provide a YouTube URL.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
         return
 
-    await embed_command.handle_embed_command(message, bot)
+    if not message.author.voice:
+        # Create an embed for missing voice channel
+        embed = discord.Embed(
+            title="Error",
+            description="You need to join a voice channel first.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
 
-    # Handle playmusic command
-    if message.content.startswith('!playmusic'):
-        await self.handle_playmusic(message)
+    # Trigger playmusic
+    await self.playmusic(message, url)
 
-    # Handle stopmusic command
-    elif message.content.startswith('!stopmusic'):
-        await self.handle_stopmusic(message)
+async def handle_stopmusic(self, message):
+    """Handles the stopmusic command from a message."""
+    await self.stopmusic(message)
 
 async def playmusic(self, ctx, url: str):
     """Plays music from a given YouTube URL."""
@@ -359,35 +369,25 @@ async def stopmusic(self, ctx):
         )
         await ctx.send(embed=embed)
 
-async def handle_playmusic(self, message):
-    """Handles the playmusic command from a message."""
-    url = message.content[len('!playmusic '):].strip()
-    if not url:
-        # Create an embed for missing URL error
-        embed = discord.Embed(
-            title="Error",
-            description="You must provide a YouTube URL.",
-            color=discord.Color.red()
-        )
-        await message.channel.send(embed=embed)
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user}")
+    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
         return
 
-    if not message.author.voice:
-        # Create an embed for missing voice channel
-        embed = discord.Embed(
-            title="Error",
-            description="You need to join a voice channel first.",
-            color=discord.Color.red()
-        )
-        await message.channel.send(embed=embed)
-        return
+    await embed_command.handle_embed_command(message, bot)
 
-    # Trigger playmusic
-    await self.playmusic(message, url)
+    # Handle playmusic command
+    if message.content.startswith('!playmusic'):
+        await self.handle_playmusic(message)
 
-async def handle_stopmusic(self, message):
-    """Handles the stopmusic command from a message."""
-    await self.stopmusic(message)
+    # Handle stopmusic command
+    elif message.content.startswith('!stopmusic'):
+        await self.handle_stopmusic(message)
 
     # Ban command
     if message.content.startswith("!ban"):
