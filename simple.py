@@ -8,6 +8,7 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
+import logging
 from discord.ext import commands
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
@@ -22,7 +23,7 @@ from standalone_commands import (
 )
 
 start_time = datetime.datetime.utcnow()
-
+logging.basicConfig(level=logging.DEBUG)
 # Load environment variables
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -57,6 +58,14 @@ intents.message_content = True
 intents.guilds = True
 intents.members = True
 intents.dm_messages = True
+
+# Example of loading skull_data from a JSON file
+with open("skull_data.json", "r") as file:
+    skull_data = json.load(file)
+
+# Ensure skull_data is a dictionary
+if not isinstance(skull_data, dict):
+    raise ValueError("skull_data must be a dictionary")
 
 # initializing the bot
 class AutoSkullBot(commands.Bot):
@@ -288,6 +297,20 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    # Get the guild (server) context
+    guild = message.guild
+
+    # Ensure the user is a Member object
+    member = guild.get_member(message.author.id)
+
+    if member is not None:
+        # Now you can access guild_permissions
+        if member.guild_permissions.manage_roles:
+            await message.channel.send("You have the Manage Roles permission!")
+        else:
+            await message.channel.send("You do not have the Manage Roles permission.")
+    else:
+        await message.channel.send("The user is not a member of this guild.")
 
     # Skip DMs since message.author will be a User, not a Member
     if message.guild is None:
