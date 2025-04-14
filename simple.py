@@ -95,17 +95,17 @@ class Autoskull(discord.Client):
             await self.handle_stopmusic(message)
             
     async def handle_playmusic(self, message):
-    """Handles the playmusic command from a message."""
-    url = message.content[len('!playmusic '):].strip()
-    if not url:
-        # Create an embed for missing URL error
-        embed = discord.Embed(
-            title="Error",
-            description="You must provide a YouTube URL.",
-            color=discord.Color.red()
-        )
-        await message.channel.send(embed=embed)
-        return
+        """Handles the playmusic command from a message."""
+        url = message.content[len('!playmusic '):].strip()
+        if not url:
+            # Create an embed for missing URL error
+            embed = discord.Embed(
+                title="Error",
+                description="You must provide a YouTube URL.",
+                color=discord.Color.red()
+            )
+            await message.channel.send(embed=embed)
+            return
 
     if not message.author.voice:
         # Create an embed for missing voice channel
