@@ -9,6 +9,7 @@ import time
 import embed_command
 import help_command
 import yt_dlp as ytdl
+import vc_handler
 from getpass import getpass
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
