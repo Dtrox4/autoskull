@@ -8,8 +8,6 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
-import yt_dlp as ytdl
-import vc_handler
 from getpass import getpass
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
@@ -66,49 +64,6 @@ class Autoskull(discord.Client):
         super().__init__(**kwargs)
         self.user_skull_list = set()
 
-    async def on_message(self, message):
-        if message.author == self.user:
-            return
-
-        if message.content.startswith("!joinvc"):
-            from vc_handler import join_vc
-            await join_vc(self, message)
-
-        elif message.content.startswith("!leavevc"):
-            from vc_handler import leave_vc
-            await leave_vc(self, message)
-
-    async def join_vc(self, message):
-        if message.author.voice:
-            vc_channel = message.author.voice.channel
-            await vc_channel.connect()
-            await message.channel.send(embed=discord.Embed(
-                title="🔊 Joined Voice Channel", 
-                description=f"Connected to `{vc_channel.name}`", 
-                color=0x00ffcc
-            ))
-        else:
-            await message.channel.send(embed=discord.Embed(
-                title="❌ Error", 
-                description="You're not connected to a voice channel.", 
-                color=0xff0000
-            ))
-
-    async def leave_vc(self, message):
-        if message.guild.voice_client:
-            await message.guild.voice_client.disconnect()
-            await message.channel.send(embed=discord.Embed(
-                title="👋 Left Voice Channel", 
-                description="Disconnected successfully.", 
-                color=0x00ffcc
-            ))
-        else:
-            await message.channel.send(embed=discord.Embed(
-                title="❌ Error", 
-                description="I'm not connected to any voice channel.", 
-                color=0xff0000
-            ))
-
 bot=Autoskull(intents=intents)
 
 # Keep-alive server using Flask
@@ -136,7 +91,7 @@ async def on_member_join(member):
                 content = f"{member.mention} {custom_message}"
             else:
                 content = f"{member.mention}"
-            await channel.send(content, delete_after=5)
+            await channel.send(content, delete_after=10)
 
 async def handle_say(message):
     try:
@@ -330,17 +285,7 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
 @bot.event
-async def on_message(self,message):
-    if message.author == self.user:
-        return
-
-    if message.content.startswith("!joinvc"):
-        from vc_handler import join_vc
-        await join_vc(self, message)
-
-    elif message.content.startswith("!leavevc"):
-        from vc_handler import leave_vc
-        await leave_vc(self, message)
+async def on_message(message):
         
     if message.author == bot.user:
         return
