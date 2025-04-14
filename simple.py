@@ -8,7 +8,6 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
-import v_env
 from getpass import getpass
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
