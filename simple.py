@@ -107,18 +107,18 @@ class Autoskull(discord.Client):
             await message.channel.send(embed=embed)
             return
 
-    if not message.author.voice:
-        # Create an embed for missing voice channel
-        embed = discord.Embed(
-            title="Error",
-            description="You need to join a voice channel first.",
-            color=discord.Color.red()
-        )
-        await message.channel.send(embed=embed)
-        return
+        if not message.author.voice:
+            # Create an embed for missing voice channel
+            embed = discord.Embed(
+                title="Error",
+                description="You need to join a voice channel first.",
+                color=discord.Color.red()
+            )
+            await message.channel.send(embed=embed)
+            return
 
-    # Trigger playmusic
-    await self.playmusic(message, url)
+        # Trigger playmusic
+        await self.playmusic(message, url)
 
     async def handle_stopmusic(self, message):
         """Handles the stopmusic command from a message."""
