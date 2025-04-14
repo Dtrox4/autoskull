@@ -101,14 +101,6 @@ command_help = {
     "mute": {
         "syntax": "!mute @user [reason]",
         "description": "Mutes the mentioned user by assigning a mute role. Requires manage roles permissions."
-    },
-    "joinvc": {
-        "syntax": "!joinvc",
-        "description": "Joins the voice channel of the user. You must be in a voice channel to use this command."
-    },
-    "leavevc": {
-        "syntax": "!leavevc",
-        "description": "Disconnects the bot from the voice channel the user is in."
     }
 }
 
