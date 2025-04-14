@@ -387,7 +387,7 @@ async def on_message(message):
     ])
 
     if not has_mod_perms:
-        await bot.process_commands(message)
+        await self.process_commands(message)
         return
 
     # !rolecreate
