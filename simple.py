@@ -286,6 +286,10 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+
+    # Skip DMs since message.author will be a User, not a Member
+    if message.guild is None:
+        return
         
     if message.author == bot.user:
         return
