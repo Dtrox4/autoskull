@@ -102,13 +102,13 @@ command_help = {
         "syntax": "!mute @user [reason]",
         "description": "Mutes the mentioned user by assigning a mute role. Requires manage roles permissions."
     },
-    "playmusic": {
-        "syntax": "!playmusic <YouTube_URL>",
-        "description": "Joins the voice channel of the user and plays audio from the provided YouTube URL. You must be in a voice channel to use this command."
+    "joinvc": {
+        "syntax": "!joinvc",
+        "description": "Joins the voice channel of the user. You must be in a voice channel to use this command."
     },
-    "stopmusic": {
-        "syntax": "!stopmusic",
-        "description": "Stops the current music and disconnects the bot from the voice channel."
+    "leavevc": {
+        "syntax": "!leavevc",
+        "description": "Disconnects the bot from the voice channel the user is in."
     }
 }
 
