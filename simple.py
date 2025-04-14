@@ -77,10 +77,94 @@ ytdl_options = {
 }
 
 # Initialize bot
-class AutoSkullBot(discord.Client):
+class Autoskull(discord.Client):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.user_skull_list = set()
+
+    async def on_message(self, message):
+        if message.author == self.user:
+            return
+
+         # Handle playmusic command
+        if message.content.startswith('!playmusic'):
+            await self.handle_playmusic(message)
+    
+        # Handle stopmusic command
+        elif message.content.startswith('!stopmusic'):
+            await self.handle_stopmusic(message)
+            
+    async def handle_playmusic(self, message):
+    """Handles the playmusic command from a message."""
+    url = message.content[len('!playmusic '):].strip()
+    if not url:
+        # Create an embed for missing URL error
+        embed = discord.Embed(
+            title="Error",
+            description="You must provide a YouTube URL.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    if not message.author.voice:
+        # Create an embed for missing voice channel
+        embed = discord.Embed(
+            title="Error",
+            description="You need to join a voice channel first.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    # Trigger playmusic
+    await self.playmusic(message, url)
+
+    async def handle_stopmusic(self, message):
+        """Handles the stopmusic command from a message."""
+        await self.stopmusic(message)
+    
+    async def playmusic(self, ctx, url: str):
+        """Plays music from a given YouTube URL."""
+        channel = ctx.author.voice.channel
+        voice_client = await channel.connect()
+    
+        # Download the audio
+        with ytdl.YoutubeDL(ytdl_options) as ydl:
+            info = ydl.extract_info(url, download=False)
+            url2 = info['formats'][0]['url']
+            voice_client.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
+    
+        # Create an embed for the play music message
+        embed = discord.Embed(
+            title="Now Playing",
+            description=f"**{info['title']}**",
+            color=discord.Color.green()
+        )
+        embed.set_thumbnail(url=info['thumbnail'])
+        await ctx.send(embed=embed)
+    
+    async def stopmusic(self, ctx):
+        """Stops the music and disconnects the bot from the voice channel."""
+        voice_client = ctx.voice_client
+        if voice_client:
+            await voice_client.disconnect()
+    
+            # Create an embed for the stop music message
+            embed = discord.Embed(
+                title="Music Stopped",
+                description="The music has been stopped and the bot has disconnected from the voice channel.",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+        else:
+            # Create an embed for the case where the bot isn't in a voice channel
+            embed = discord.Embed(
+                title="Error",
+                description="I'm not in a voice channel!",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
 
 bot = AutoSkullBot(intents=intents)
 
