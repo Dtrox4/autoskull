@@ -298,73 +298,73 @@ async def handle_bc(message, args):
     await message.channel.send(embed=embed, delete_after=5)
 
 async def handle_playmusic(self, message):
-        """Handles the playmusic command from a message."""
-        url = message.content[len('!playmusic '):].strip()
-        if not url:
-            embed = discord.Embed(
-                title="Error",
-                description="You must provide a YouTube URL.",
-                color=discord.Color.red()
-            )
-            await message.channel.send(embed=embed)
-            return
-
-        if not message.author.voice:
-            embed = discord.Embed(
-                title="Error",
-                description="You need to join a voice channel first.",
-                color=discord.Color.red()
-            )
-            await message.channel.send(embed=embed)
-            return
-
-        await self.playmusic(message, url)
-
-    async def handle_stopmusic(self, message):
-        """Handles the stopmusic command from a message."""
-        await self.stopmusic(message)
-
-    async def playmusic(self, message, url: str):
-        """Plays music from a given YouTube URL."""
-        channel = message.author.voice.channel
-        voice_client = discord.utils.get(self.voice_clients, guild=message.guild)
-
-        if voice_client is None:
-            voice_client = await channel.connect()
-        elif voice_client.channel != channel:
-            await voice_client.move_to(channel)
-
-        with ytdl.YoutubeDL(ytdl_options) as ydl:
-            info = ydl.extract_info(url, download=False)
-            url2 = info['url']
-
-        voice_client.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
-
+    """Handles the playmusic command from a message."""
+    url = message.content[len('!playmusic '):].strip()
+    if not url:
         embed = discord.Embed(
-            title="Now Playing",
-            description=f"**{info['title']}**",
-            color=discord.Color.green()
+            title="Error",
+            description="You must provide a YouTube URL.",
+            color=discord.Color.red()
         )
-        embed.set_thumbnail(url=info.get('thumbnail'))
         await message.channel.send(embed=embed)
+        return
 
-    async def stopmusic(self, message):
-        """Stops the music and disconnects the bot from the voice channel."""
-        voice_client = discord.utils.get(self.voice_clients, guild=message.guild)
-        if voice_client and voice_client.is_connected():
-            await voice_client.disconnect()
-            embed = discord.Embed(
-                title="Music Stopped",
-                description="The music has been stopped and the bot has disconnected.",
-                color=discord.Color.red()
-            )
-        else:
-            embed = discord.Embed(
-                title="Error",
-                description="I'm not in a voice channel!",
-                color=discord.Color.orange()
-            )
+    if not message.author.voice:
+        embed = discord.Embed(
+            title="Error",
+            description="You need to join a voice channel first.",
+            color=discord.Color.red()
+        )
         await message.channel.send(embed=embed)
+        return
+
+    await self.playmusic(message, url)
+
+async def handle_stopmusic(self, message):
+    """Handles the stopmusic command from a message."""
+    await self.stopmusic(message)
+
+async def playmusic(self, message, url: str):
+    """Plays music from a given YouTube URL."""
+    channel = message.author.voice.channel
+    voice_client = discord.utils.get(self.voice_clients, guild=message.guild)
+
+    if voice_client is None:
+        voice_client = await channel.connect()
+    elif voice_client.channel != channel:
+        await voice_client.move_to(channel)
+
+    with ytdl.YoutubeDL(ytdl_options) as ydl:
+        info = ydl.extract_info(url, download=False)
+        url2 = info['url']
+
+    voice_client.play(discord.FFmpegPCMAudio(url2, **ffmpeg_options))
+
+    embed = discord.Embed(
+        title="Now Playing",
+        description=f"**{info['title']}**",
+        color=discord.Color.green()
+    )
+    embed.set_thumbnail(url=info.get('thumbnail'))
+    await message.channel.send(embed=embed)
+
+async def stopmusic(self, message):
+    """Stops the music and disconnects the bot from the voice channel."""
+    voice_client = discord.utils.get(self.voice_clients, guild=message.guild)
+    if voice_client and voice_client.is_connected():
+        await voice_client.disconnect()
+        embed = discord.Embed(
+            title="Music Stopped",
+            description="The music has been stopped and the bot has disconnected.",
+            color=discord.Color.red()
+        )
+    else:
+        embed = discord.Embed(
+            title="Error",
+            description="I'm not in a voice channel!",
+            color=discord.Color.orange()
+        )
+    await message.channel.send(embed=embed)
 
 @bot.event
 async def on_ready():
