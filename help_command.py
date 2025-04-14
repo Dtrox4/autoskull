@@ -28,7 +28,7 @@ command_help = {
     },
     "stop": {
         "syntax": "!stop",
-        "description": "Stops a running task or operation initiated by the bot. Restricted to authorized users."
+        "description": "Stops skulling a user. Restricted to authorized users."
     },
     "userinfo": {
         "syntax": "!userinfo <@user>",
@@ -48,7 +48,7 @@ command_help = {
     },
     "bc": {
         "syntax": "!bc <message>",
-        "description": "Broadcasts the provided message to all servers the bot is in (requires admin permissions)."
+        "description": "clears x messages sent in that channel (requires manage_message permission)."
     },
     "maintenance": {
         "syntax": "!maintenance <on/off>",
@@ -101,6 +101,14 @@ command_help = {
     "mute": {
         "syntax": "!mute @user [reason]",
         "description": "Mutes the mentioned user by assigning a mute role. Requires manage roles permissions."
+    },
+    "playmusic": {
+        "syntax": "!playmusic <YouTube_URL>",
+        "description": "Joins the voice channel of the user and plays audio from the provided YouTube URL. You must be in a voice channel to use this command."
+    },
+    "stopmusic": {
+        "syntax": "!stopmusic",
+        "description": "Stops the current music and disconnects the bot from the voice channel."
     }
 }
 
