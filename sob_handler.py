@@ -1,36 +1,32 @@
+# sob_handler.py
 import json
-import os
+from datetime import datetime
 
-DATA_FILE = "sob_data.json"
+try:
+    with open("sob_data.json", "r") as f:
+        sob_data = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    sob_data = {"sobbed": []}
 
-if not os.path.exists(DATA_FILE):
-    with open(DATA_FILE, "w") as f:
-        json.dump({"sob": []}, f)
-
-def load_data():
-    with open(DATA_FILE, "r") as f:
-        return json.load(f)
-
-def save_data(data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=2)
+def save_data():
+    with open("sob_data.json", "w") as f:
+        json.dump(sob_data, f, indent=4)
 
 def add_sob(user_id):
-    data = load_data()
-    if str(user_id) not in data["sob"]:
-        data["sob"].append(str(user_id))
-        save_data(data)
+    uid = str(user_id)
+    if uid not in sob_data["sobbed"]:
+        sob_data["sobbed"].append(uid)
+        save_data()
         return True
     return False
 
 def remove_sob(user_id):
-    data = load_data()
-    if str(user_id) in data["sob"]:
-        data["sob"].remove(str(user_id))
-        save_data(data)
+    uid = str(user_id)
+    if uid in sob_data["sobbed"]:
+        sob_data["sobbed"].remove(uid)
+        save_data()
         return True
     return False
 
 def is_sob(user_id):
-    data = load_data()
-    return str(user_id) in data["sob"]
+    return str(user_id) in sob_data["sobbed"]
