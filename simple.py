@@ -57,12 +57,12 @@ intents.members = True
 intents.dm_messages = True
 
 # Initialize bot
-class AutoSkullBot(discord.Client):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+class AutoSkullBot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.user_skull_list = set()
 
-bot = AutoSkullBot(intents=intents)
+bot = AutoSkullBot(command_prefix="!",intents=intents)
 
 # Keep-alive server using Flask
 app = Flask(__name__)
@@ -440,7 +440,7 @@ async def on_message(message):
         await set_role_icon(role, image_bytes, f"Set by {message.author}", message.channel)
 
     # !role toggle
-    elif args[0] == "!role":
+    elif len(args) > 0 and args[0] == "!role":
         if len(args) < 3 or not message.mentions:
             return await message.channel.send(embed=discord.Embed(
                 title="Usage: !role",
