@@ -546,10 +546,14 @@ async def on_message(message):
             await message.channel.send(embed=embed)
             return
 
+        if len(arguments) == 1 and arguments[0] == "help":
+            await message.channel.send("Use `!skull help 1` or `!skull help 2` to view command help pages.")
+            return
+
+
         # !skull help
         if len(arguments) == 2 and arguments[0] == "help":
             page = arguments[1]
-        
             if page == "1":
                 help_page_1 = (
                     "**Available Commands (Page 1/2):**\n"
@@ -604,11 +608,6 @@ async def on_message(message):
                 )
                 await message.channel.send(help_page_2)
                 return
-        
-        if len(arguments) == 1 and arguments[0] == "help":
-            await message.channel.send("Use `!skull help 1` or `!skull help 2` to view command help pages.")
-            return
-
 
         # !skull authorize @user
         if len(arguments) == 2 and arguments[0] == "authorize" and message.mentions:
