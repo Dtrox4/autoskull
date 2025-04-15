@@ -292,6 +292,7 @@ async def on_message(message):
     # React to sobbing users
     if message.author.id in bot.user_sob_list:
         try:
+            await asyncio.sleep(1)
             await message.add_reaction("😢")
         except discord.Forbidden:
             pass  # Bot doesn't have permission to react
@@ -508,14 +509,6 @@ async def on_message(message):
     if message.content.startswith("!cancelmaintenance"):
         await handle_cancel_maintenance(message)
         return
-
-    # Sob reaction trigger
-    if sob_handler.is_sob(message.author.id):
-        try:
-            await asyncio.sleep(1)
-            await message.add_reaction("😭")
-        except discord.Forbidden:
-            pass
 
     content = message.content
     if not content.startswith('!'):
