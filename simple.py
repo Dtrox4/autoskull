@@ -81,8 +81,6 @@ def keep_alive():
 
 keep_alive()
 
-bot.user_sob_list = set()
-
 @bot.event
 async def on_member_join(member):
     for channel_id, custom_message in WELCOME_CHANNELS.items():
@@ -279,6 +277,7 @@ async def handle_bc(message, args):
         color=discord.Color.green()
     )
     await message.channel.send(embed=embed, delete_after=5)
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -288,16 +287,6 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
-
-    # React to sobbing users
-    if message.author.id in bot.user_sob_list:
-        try:
-            await asyncio.sleep(1)
-            await message.add_reaction("😢")
-        except discord.Forbidden:
-            pass  # Bot doesn't have permission to react
-        except discord.HTTPException:
-            pass
 
     await embed_command.handle_embed_command(message, bot)
 
@@ -391,6 +380,10 @@ async def on_message(message):
         message.author.guild_permissions.ban_members
     ])
 
+    if not has_mod_perms:
+        await bot.process_commands(message)
+        return
+
     # !rolecreate
     if message.content.startswith("!rolecreate"):
         if len(args) < 2:
@@ -455,6 +448,7 @@ async def on_message(message):
                 description="```!role @user Role Name```",
                 color=discord.Color.blue()
             ))
+    # your role handling code here
 
 
         member = message.mentions[0]
@@ -517,68 +511,6 @@ async def on_message(message):
     command = args[0][1:].lower()
     arguments = args[1:]
 
-    # ---- !sob command logic ----
-    if command == "sob":
-        if message.author.id not in AUTHORIZED_USERS:
-            embed = discord.Embed(
-                description="🚫 You do not have permission to use this command.",
-                color=discord.Color.red()
-            )
-            await message.channel.send(embed=embed)
-            return
-
-        # !sob stop @user
-        if len(arguments) == 2 and arguments[0] == "stop" and message.mentions:
-            user = message.mentions[0]
-            if user.id in bot.user_sob_list:
-                bot.user_sob_list.remove(user.id)
-                embed = discord.Embed(
-                    description=f"✅️ {user.mention} will no longer be sobbing.",
-                    color=discord.Color.green()
-                )
-            else:
-                embed = discord.Embed(
-                    description=f"‼️ {user.mention} is not currently sobbing.",
-                    color=discord.Color.red()
-                )
-            await message.channel.send(embed=embed)
-            return
-
-        # !sob @user or !sob <user_id>
-        if len(arguments) == 1:
-            user = None
-            if message.mentions:
-                user = message.mentions[0]
-            else:
-                try:
-                    user_id = int(arguments[0])
-                    user = await bot.fetch_user(user_id)
-                except (ValueError, discord.NotFound):
-                    pass
-
-            if user:
-                bot.user_sob_list.add(user.id)
-                embed = discord.Embed(
-                    description=f"😢 {user.mention} is now sobbing.",
-                    color=discord.Color.blue()
-                )
-            else:
-                embed = discord.Embed(
-                    description="⚠️ Please mention a user or provide a valid user ID.",
-                    color=discord.Color.red()
-                )
-            await message.channel.send(embed=embed)
-            return
-
-        # Invalid syntax fallback
-        embed = discord.Embed(
-            description="❌ Incorrect usage. Try `!sob @user` or `!sob stop @user`.",
-            color=discord.Color.orange()
-        )
-        await message.channel.send(embed=embed)
-        return
-
-
     if command == 'bc':
         await handle_bc(message, arguments)
         return
@@ -586,8 +518,7 @@ async def on_message(message):
     if command == "skull":
         if message.author.id not in AUTHORIZED_USERS:
             embed = discord.Embed(
-                title="Access Denied 🚫",
-                description="You do not have permission to use the `!skull` command.",
+                description="You do not have permission to use this command.",
                 color=discord.Color.red()
             )
             await message.channel.send(embed=embed)
@@ -617,52 +548,46 @@ async def on_message(message):
 
         # !skull help
         if len(arguments) == 1 and arguments[0] == "help":
-            help_message = (
-                "**Available Commands:**\n"
-                "```diff\n"
-                "[ Skull Commands ]\n"
-                "!skull @user              - Skull a user.\n"
-                "!skull stop @user         - Stop skulling a user.\n"
-                "!skull list               - Show users being skulled.\n"
-                "!skull help               - Show this help message.\n\n"
-                "[ Sob Commands ]\n"
-                "!sob @user                - Enable sob effect for a user.\n"
-                "!sob stop @user           - Disable sob effect for a user.\n"
-                "!sob list                 - List users with sob effect.\n\n"
-                "[ User & Server Info ]\n"
-                "!userinfo [name]          - Show info about a user.\n"
-                "!roleinfo [role name]     - Show info about a role.\n"
-                "!serverinfo               - Show server statistics.\n"
-                "!stats                    - Show bot uptime and system statistics.\n\n"
-                "[ Fun & Utility ]\n"
-                "!eightball <question>     - Ask the magic 8-ball a question.\n"
-                "!poll <question>          - Create a simple yes/no poll.\n"
-                "!remind <sec> <msg>       - Get a reminder after a given time.\n"
-                "!bc <filters>             - Bulk delete messages with optional filters.\n"
-                "!embed <channel> <code>   - Sends an embed to the channel you need.\n\n"
-                "[ Moderation ]\n"
-                "!role @user <role>        - Add or remove a role from a user.\n"
-                "!rolecreate <name> [#hex] - Create a new role with an optional color.\n"
-                "!roledelete @role         - Delete a role.\n"
-                "!rolerename @role <name>  - Rename a role.\n"
-                "!roleicon @role <image>   - Set icon for a role using an attachment.\n"
-                "!ban @user [reason]       - Ban a user from the server.\n"
-                "!kick @user [reason]      - Kick a user from the server.\n"
-                "!mute @user [reason]      - Mute a user with the mute role.\n\n"
-                "[ Admin Only ]\n"
-                "!skull authorize @user    - Authorize a user to use skull commands.\n"
-                "!skull unauthorize @user  - Remove a user's authorization.\n"
-                "!skull authorized         - Show authorized users.\n"
-                "!restart                  - Restart the bot.    (owner only).\n"
-                "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
-                "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
-                "```"
-            )
-        
-            await asyncio.sleep(1)
-            await message.channel.send(help_message)
-            return
-
+                help_message = (
+                    "**Available Commands:**\n"
+                    "```diff\n"
+                    "[ Skull Commands ]\n"
+                    "!skull @user              - Skull a user.\n"
+                    "!skull stop @user         - Stop skulling a user.\n"
+                    "!skull list               - Show users being skulled.\n"
+                    "!skull help               - Show this help message.\n\n"
+                    "[ User & Server Info ]\n"
+                    "!userinfo [name]          - Show info about a user.\n"
+                    "!roleinfo [role name]     - Show info about a role.\n"
+                    "!serverinfo               - Show server statistics.\n"
+                    "!stats                    - Show bot uptime and system statistics.\n\n"
+                    "[ Fun & Utility ]\n"
+                    "!eightball <question>     - Ask the magic 8-ball a question.\n"
+                    "!poll <question>          - Create a simple yes/no poll.\n"
+                    "!remind <sec> <msg>       - Get a reminder after a given time.\n"
+                    "!bc <filters>             - Bulk delete messages with optional filters.\n"
+                    "!embed <channel> <code>   - Sends an embed to the channel you need.\n\n"
+                    "[ Moderation ]\n"
+                    "!role @user <role>        - Add or remove a role from a user.\n"
+                    "!rolecreate <name> [#hex] - Create a new role with an optional color.\n"
+                    "!roledelete @role         - Delete a role.\n"
+                    "!rolerename @role <name>  - Rename a role.\n"
+                    "!roleicon @role <image>   - Set icon for a role using an attachment.\n"
+                    "!ban @user [reason]       - Ban a user from the server.\n"
+                    "!kick @user [reason]      - Kick a user from the server.\n"
+                    "!mute @user [reason]      - Mute a user with the mute role.\n\n"
+                    "[ Admin Only ]\n"
+                    "!skull authorize @user    - Authorize a user to use skull commands.\n"
+                    "!skull unauthorize @user  - Remove a user's authorization.\n"
+                    "!skull authorized         - Show authorized users.\n"
+                    "!restart                  - Restart the bot.    (owner only).\n"
+                    "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
+                    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
+                    "```"
+                )
+                await asyncio.sleep(1)
+                await message.channel.send(help_message)
+                return
 
 
         # !skull authorize @user
