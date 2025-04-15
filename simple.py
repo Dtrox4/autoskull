@@ -8,6 +8,7 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
+import sob_handler
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
 from threading import Thread
@@ -679,6 +680,48 @@ async def on_message(message):
         )
         await message.channel.send(embed=embed)
         return
+
+    def is_authorized(user_id):
+        return user_id == OWNER_ID or user_id in authorized_users
+
+    # Sob command
+    if message.content.startswith("!sob "):
+        if not is_authorized(message.author.id):
+            await message.reply("You are not authorized to use this command.")
+            return
+
+        if message.mentions:
+            user = message.mentions[0]
+            if sob_handler.add_sob(user.id):
+                await message.reply(f"Added sob effect to {user.mention}.")
+            else:
+                await message.reply(f"{user.mention} is already sobbed.")
+        else:
+            await message.reply("Usage: `!sob @user`")
+        return
+
+    # Sob stop
+    if message.content.startswith("!sob stop"):
+        if not is_authorized(message.author.id):
+            await message.reply("You are not authorized to use this command.")
+            return
+
+        if message.mentions:
+            user = message.mentions[0]
+            if sob_handler.remove_sob(user.id):
+                await message.reply(f"Removed sob effect from {user.mention}.")
+            else:
+                await message.reply(f"{user.mention} was not sobbed.")
+        else:
+            await message.reply("Usage: `!sob stop @user`")
+        return
+
+    # Sob reaction trigger
+    if sob_handler.is_sob(message.author.id):
+        try:
+            await message.add_reaction("😭")
+        except discord.Forbidden:
+            pass
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")
