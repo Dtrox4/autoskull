@@ -681,39 +681,66 @@ async def on_message(message):
         await message.channel.send(embed=embed)
         return
 
-    def is_authorized(user_id):
-        return user_id == OWNER_ID or user_id in authorized_users
-
     # Sob command
     if message.content.startswith("!sob "):
-        if not is_authorized(message.author.id):
-            await message.reply("You are not authorized to use this command.")
+        if message.author.id != OWNER_ID and message.author.id not in authorized_users:
+            embed = discord.Embed(
+                description="❌ You are not authorized to use this command.",
+                color=discord.Color.red()
+            )
+            await message.reply(embed=embed)
             return
 
         if message.mentions:
             user = message.mentions[0]
             if sob_handler.add_sob(user.id):
-                await message.reply(f"Added sob effect to {user.mention}.")
+                embed = discord.Embed(
+                    description=f"😭 **Sob effect enabled for** {user.mention}.",
+                    color=discord.Color.blue()
+                )
             else:
-                await message.reply(f"{user.mention} is already sobbed.")
+                embed = discord.Embed(
+                    description=f"⚠️ {user.mention} is already sobbed.",
+                    color=discord.Color.gold()
+                )
         else:
-            await message.reply("Usage: `!sob @user`")
+            embed = discord.Embed(
+                title="!sob command",
+                description="Usage: ```!sob @user```",
+                color=discord.Color.orange()
+            )
+        await message.reply(embed=embed)
         return
 
     # Sob stop
     if message.content.startswith("!sob stop"):
-        if not is_authorized(message.author.id):
-            await message.reply("You are not authorized to use this command.")
+        if message.author.id != OWNER_ID and message.author.id not in authorized_users:
+            embed = discord.Embed(
+                description="❌ You are not authorized to use this command.",
+                color=discord.Color.red()
+            )
+            await message.reply(embed=embed)
             return
 
         if message.mentions:
             user = message.mentions[0]
             if sob_handler.remove_sob(user.id):
-                await message.reply(f"Removed sob effect from {user.mention}.")
+                embed = discord.Embed(
+                    description=f"✅ **Sob effect removed from** {user.mention}.",
+                    color=discord.Color.green()
+                )
             else:
-                await message.reply(f"{user.mention} was not sobbed.")
+                embed = discord.Embed(
+                    description=f"⚠️ {user.mention} was not sobbed.",
+                    color=discord.Color.orange()
+                )
         else:
-            await message.reply("Usage: `!sob stop @user`")
+            embed = discord.Embed(
+                title="!sob stop command",
+                description="Usage: ```!sob stop @user```",
+                color=discord.Color.orange()
+            )
+        await message.reply(embed=embed)
         return
 
     # Sob reaction trigger
@@ -722,6 +749,8 @@ async def on_message(message):
             await message.add_reaction("😭")
         except discord.Forbidden:
             pass
+
+    await bot.process_commands(message)
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")
