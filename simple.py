@@ -57,13 +57,7 @@ intents.guilds = True
 intents.members = True
 intents.dm_messages = True
 
-# Initialize bot
-class AutoSkullBot(commands.Bot):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_skull_list = set()
-
-bot = AutoSkullBot(command_prefix="!",intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Optional: restrict to just you
 def is_owner():
@@ -125,6 +119,14 @@ async def statusclear(ctx):
         color=discord.Color.orange()
     )
     await ctx.send(embed=embed)
+
+# Initialize bot
+class AutoSkullBot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_skull_list = set()
+
+bot = AutoSkullBot(command_prefix="!",intents=intents)
 
 # Keep-alive server using Flask
 app = Flask(__name__)
