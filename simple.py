@@ -57,9 +57,18 @@ intents.guilds = True
 intents.members = True
 intents.dm_messages = True
 
+# Initialize bot
+class AutoSkullBot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_skull_list = set()
+
+bot = AutoSkullBot(command_prefix="!",intents=intents)
+
 class StatusCog(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+
+bot = StatusCog(command_prefix="!",intents=intents)
 
     @commands.command(name="setstatus")
     @commands.is_owner()
@@ -68,7 +77,7 @@ class StatusCog(commands.Cog):
             "playing": discord.Game(name=message),
             "watching": discord.Activity(type=discord.ActivityType.watching, name=message),
             "listening": discord.Activity(type=discord.ActivityType.listening, name=message),
-            "streaming": discord.Streaming(name=message, url="https://twitch.tv/yourchannel")
+            "streaming": discord.Streaming(name=message, url="https://twitch.tv/ninja")
         }
 
         if status_type not in type_map:
@@ -82,14 +91,6 @@ class StatusCog(commands.Cog):
             description=f"Status set to **{status_type}**: {message}",
             color=discord.Color.green()
         ))
-
-# Initialize bot
-class AutoSkullBot(commands.Bot):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_skull_list = set()
-
-bot = AutoSkullBot(command_prefix="!",intents=intents)
 
 # Keep-alive server using Flask
 app = Flask(__name__)
