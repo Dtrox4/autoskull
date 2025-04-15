@@ -57,68 +57,6 @@ intents.guilds = True
 intents.members = True
 intents.dm_messages = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-# Optional: restrict to just you
-def is_owner():
-    def predicate(ctx):
-        return ctx.author.id == 1212229549459374222  # Replace with your actual Discord ID
-    return commands.check(predicate)
-
-@bot.command(name="setstatus")
-@is_owner()  # optional: only you can run it
-async def setstatus(ctx, status_type: str, activity_type: str, *, message: str):
-    status_type = status_type.lower()
-    activity_type = activity_type.lower()
-
-    # Set status (online, idle, dnd, invisible)
-    discord_status = {
-        "online": discord.Status.online,
-        "idle": discord.Status.idle,
-        "dnd": discord.Status.dnd,
-        "invisible": discord.Status.invisible
-    }.get(status_type)
-
-    # Set activity (playing, watching, listening, etc.)
-    activity = None
-    if activity_type == "playing":
-        activity = discord.Game(name=message)
-    elif activity_type == "watching":
-        activity = discord.Activity(type=discord.ActivityType.watching, name=message)
-    elif activity_type == "listening":
-        activity = discord.Activity(type=discord.ActivityType.listening, name=message)
-    elif activity_type == "competing":
-        activity = discord.Activity(type=discord.ActivityType.competing, name=message)
-    elif activity_type == "streaming":
-        activity = discord.Streaming(name=message, url="https://twitch.tv/yourchannel")
-
-    if discord_status and activity:
-        await bot.change_presence(activity=activity, status=discord_status)
-        embed = discord.Embed(
-            title="✅ Status Updated",
-            description=f"**Status:** {status_type.title()}\n**Activity:** {activity_type.title()} {message}",
-            color=discord.Color.green()
-        )
-        await ctx.send(embed=embed)
-    else:
-        embed = discord.Embed(
-            title="❌ Invalid Input",
-            description="Valid status types: `online`, `idle`, `dnd`, `invisible`\n"
-                        "Valid activity types: `playing`, `watching`, `listening`, `streaming`, `competing`",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-
-@bot.command(name="statusclear")
-@is_owner()  # optional
-async def statusclear(ctx):
-    await bot.change_presence(activity=None, status=discord.Status.online)
-    embed = discord.Embed(
-        title="✅ Status Cleared",
-        description="Bot's custom status has been cleared.",
-        color=discord.Color.orange()
-    )
-    await ctx.send(embed=embed)
 
 # Initialize bot
 class AutoSkullBot(commands.Bot):
@@ -345,6 +283,46 @@ async def handle_bc(message, args):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+
+@bot.command()
+async def setstatus(ctx, activity_type: str, *, message: str):
+    if not ctx.author.id == YOUR_USER_ID:  # Optional: Check if the command is issued by the bot owner.
+        return await ctx.send("You are not authorized to set the bot's status.")
+
+    # Validate activity_type input
+    valid_activity_types = ['playing', 'watching', 'listening', 'streaming']
+    if activity_type.lower() not in valid_activity_types:
+        return await ctx.send("Invalid activity type! Valid types are: playing, watching, listening, streaming.")
+
+    # Set the bot's activity based on the given activity type
+    activity = None
+    if activity_type.lower() == 'playing':
+        activity = discord.Game(name=message)
+    elif activity_type.lower() == 'watching':
+        activity = discord.Activity(type=discord.ActivityType.watching, name=message)
+    elif activity_type.lower() == 'listening':
+        activity = discord.Activity(type=discord.ActivityType.listening, name=message)
+    elif activity_type.lower() == 'streaming':
+        activity = discord.Activity(type=discord.ActivityType.streaming, name=message, url="https://www.twitch.tv/your_channel")
+
+    await bot.change_presence(activity=activity)
+    sent_message = await ctx.send(f"Bot status has been set to '{activity_type.capitalize()}' with message: {message}")
+    
+    # Delete the message after 5 seconds
+    await asyncio.sleep(5)
+    await sent_message.delete()
+
+@bot.command()
+async def statusclear(ctx):
+    if not ctx.author.id == YOUR_USER_ID:  # Optional: Check if the command is issued by the bot owner.
+        return await ctx.send("You are not authorized to clear the bot's status.")
+
+    await bot.change_presence(activity=None)
+    sent_message = await ctx.send("Bot status has been cleared.")
+    
+    # Delete the message after 5 seconds
+    await asyncio.sleep(5)
+    await sent_message.delete()
 
 @bot.event
 async def on_message(message):
