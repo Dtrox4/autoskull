@@ -391,10 +391,6 @@ async def on_message(message):
         message.author.guild_permissions.ban_members
     ])
 
-    if not has_mod_perms:
-        await bot.process_commands(message)
-        return
-
     # !rolecreate
     if message.content.startswith("!rolecreate"):
         if len(args) < 2:
