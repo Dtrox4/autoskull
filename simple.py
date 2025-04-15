@@ -364,6 +364,17 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
+    sob_file = "sob_data.json"
+    sob_data = load_json(sob_file)
+
+    if str(message.author.id) in sob_data:
+        embed = discord.Embed(
+            title="😭 Sob Mode",
+            description=f"{message.author.mention} is sobbing! 😭",
+            color=discord.Color.blue()
+        )
+        await message.channel.send(embed=embed)
+
     await embed_command.handle_embed_command(message, bot)
 
     # Ban command
