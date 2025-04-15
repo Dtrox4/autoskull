@@ -101,8 +101,21 @@ command_help = {
     "mute": {
         "syntax": "!mute @user [reason]",
         "description": "Mutes the mentioned user by assigning a mute role. Requires manage roles permissions."
+    },
+    "sob": {
+        "syntax": "!sob @user",
+        "description": "Adds a sob effect to the mentioned user. Only authorized users or the owner can use this command."
+    },
+    "sob stop": {
+        "syntax": "!sob stop @user",
+        "description": "Removes the sob effect from the mentioned user. Only authorized users or the owner can use this command."
+    },
+    "sob list": {
+        "syntax": "!sob list",
+        "description": "Displays a list of all users currently sobbed."
     }
 }
+
 
 async def handle_help_command(message):
     content = message.content.strip()
