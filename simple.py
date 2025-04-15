@@ -64,7 +64,8 @@ class AutoSkullBot(commands.Bot):
         super().__init__(*args, **kwargs)
         self.user_skull_list = set()
 
-bot = AutoSkullBot(command_prefix="!",intents=intents)
+bot = AutoSkullBotbot(command_prefix="!", intents=intents, help_command=None)
+
 
 # Keep-alive server using Flask
 app = Flask(__name__)
