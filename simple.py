@@ -283,7 +283,6 @@ async def handle_bc(message, args):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
-
 @bot.command()
 async def setstatus(ctx, activity_type: str, *, message: str):
     if not ctx.author.id == YOUR_USER_ID:  # Optional: Check if the command is issued by the bot owner.
@@ -328,7 +327,9 @@ async def statusclear(ctx):
 async def on_message(message):
     if message.author == bot.user:
         return
-
+        
+    await bot.process_commands(message)
+    
     await embed_command.handle_embed_command(message, bot)
 
     # Ban command
