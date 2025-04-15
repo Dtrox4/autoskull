@@ -617,12 +617,12 @@ async def on_message(message):
         await handle_say(message)
         return
 
-    if message.content.startswith("!poll"):
+    if message.content.lower().startswith("!poll"):
         question = " ".join(arguments)
         await handle_poll(message, question)
         return
         
-    if message.content.startswith("!remind"):
+    if message.content.lower().startswith("!remind"):
         if len(arguments) < 2 or not arguments[0].isdigit():
             await message.channel.send("Usage: `!remind <seconds> <reminder>`")
         else:
@@ -631,7 +631,7 @@ async def on_message(message):
             await handle_remind(message, time_in_seconds, reminder)
             return
             
-    if message.content.startswith("!userinfo"):
+    if message.content.lower().startswith("!userinfo"):
         if arguments:
             member_name = " ".join(arguments)
             member = discord.utils.find(lambda m: m.name.lower() == member_name.lower(), message.guild.members)
@@ -640,12 +640,12 @@ async def on_message(message):
             await handle_userinfo(message)
             return
 
-    if message.content.startswith("!eightball"):
+    if message.content.lower().startswith("!eightball"):
         question = " ".join(arguments)
         await handle_eightball(message, question)
         return
 
-    if message.content.startswith("!serverinfo"):
+    if message.content.lower().startswith("!serverinfo"):
         await handle_serverinfo(message)
         return
     
