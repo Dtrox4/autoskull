@@ -8,7 +8,6 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
-import sob_handler
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
 from threading import Thread
@@ -44,6 +43,8 @@ GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 WELCOME_CHANNELS = {
     1359319883988336924: "welc! rep **/mock** 4 pic, bst for roles!"  # Add a custom message here
 }
+
+bot.user_sob_list = set()
 
 global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
 MAINTENANCE_MODE = False
@@ -278,82 +279,6 @@ async def handle_bc(message, args):
         color=discord.Color.green()
     )
     await message.channel.send(embed=embed, delete_after=5)
-
-@sob.command()
-async def sob(ctx, *args):
-    sob_file = "sob_data.json"
-    sob_data = load_json(sob_file)
-
-    if not args:
-        embed = discord.Embed(
-            title="❌ Usage Error",
-            description="Usage: `!sob <@user>` or `!sob stop <@user>` or `!sob list`",
-            color=discord.Color.red()
-        )
-        return await ctx.send(embed=embed)
-
-    if args[0].lower() == "stop":
-        if len(args) < 2 or not ctx.message.mentions:
-            embed = discord.Embed(
-                title="❌ Usage Error",
-                description="Usage: `!sob stop <@user>`",
-                color=discord.Color.red()
-            )
-            return await ctx.send(embed=embed)
-
-        target = ctx.message.mentions[0]
-        if str(target.id) in sob_data:
-            del sob_data[str(target.id)]
-            save_json(sob_file, sob_data)
-            embed = discord.Embed(
-                title="✅ Sob Effect Removed",
-                description=f"Removed sob effect for {target.mention}.",
-                color=discord.Color.green()
-            )
-            await ctx.send(embed=embed)
-        else:
-            embed = discord.Embed(
-                title="ℹ️ No Sob Effect",
-                description=f"{target.mention} doesn't have the sob effect.",
-                color=discord.Color.blue()
-            )
-            await ctx.send(embed=embed)
-        return
-
-    elif args[0].lower() == "list":
-        if not sob_data:
-            embed = discord.Embed(
-                title="😭 Sob List",
-                description="No users currently have the sob effect.",
-                color=discord.Color.blue()
-            )
-            return await ctx.send(embed=embed)
-
-        embed = discord.Embed(title="😭 Sob List", color=discord.Color.blue())
-        for uid in sob_data:
-            user = ctx.guild.get_member(int(uid))
-            embed.add_field(name=user.display_name if user else f"User ID: {uid}", value=f"<@{uid}>", inline=False)
-        return await ctx.send(embed=embed)
-
-    # Default case: !sob @user
-    if ctx.message.mentions:
-        target = ctx.message.mentions[0]
-        sob_data[str(target.id)] = True
-        save_json(sob_file, sob_data)
-        embed = discord.Embed(
-            title="😭 Sob Mode Activated",
-            description=f"{target.mention} is now in sob mode.",
-            color=discord.Color.blue()
-        )
-        await ctx.send(embed=embed)
-    else:
-        embed = discord.Embed(
-            title="❌ Mention Error",
-            description="Please mention a user. Usage: `!sob @user`",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -364,16 +289,14 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    sob_file = "sob_data.json"
-    sob_data = load_json(sob_file)
-
-    if str(message.author.id) in sob_data:
-        embed = discord.Embed(
-            title="😭 Sob Mode",
-            description=f"{message.author.mention} is sobbing! 😭",
-            color=discord.Color.blue()
-        )
-        await message.channel.send(embed=embed)
+    # React to sobbing users
+    if message.author.id in bot.user_sob_list:
+        try:
+            await message.add_reaction("😢")
+        except discord.Forbidden:
+            pass  # Bot doesn't have permission to react
+        except discord.HTTPException:
+            pass
 
     await embed_command.handle_embed_command(message, bot)
 
@@ -605,6 +528,68 @@ async def on_message(message):
     command = args[0][1:].lower()
     arguments = args[1:]
 
+    # ---- !sob command logic ----
+    if command == "sob":
+        if message.author.id not in AUTHORIZED_USERS:
+            embed = discord.Embed(
+                description="🚫 You do not have permission to use this command.",
+                color=discord.Color.red()
+            )
+            await message.channel.send(embed=embed)
+            return
+
+        # !sob stop @user
+        if len(arguments) == 2 and arguments[0] == "stop" and message.mentions:
+            user = message.mentions[0]
+            if user.id in bot.user_sob_list:
+                bot.user_sob_list.remove(user.id)
+                embed = discord.Embed(
+                    description=f"✅️ {user.mention} will no longer be sobbing.",
+                    color=discord.Color.green()
+                )
+            else:
+                embed = discord.Embed(
+                    description=f"‼️ {user.mention} is not currently sobbing.",
+                    color=discord.Color.red()
+                )
+            await message.channel.send(embed=embed)
+            return
+
+        # !sob @user or !sob <user_id>
+        if len(arguments) == 1:
+            user = None
+            if message.mentions:
+                user = message.mentions[0]
+            else:
+                try:
+                    user_id = int(arguments[0])
+                    user = await bot.fetch_user(user_id)
+                except (ValueError, discord.NotFound):
+                    pass
+
+            if user:
+                bot.user_sob_list.add(user.id)
+                embed = discord.Embed(
+                    description=f"😢 {user.mention} is now sobbing.",
+                    color=discord.Color.blue()
+                )
+            else:
+                embed = discord.Embed(
+                    description="⚠️ Please mention a user or provide a valid user ID.",
+                    color=discord.Color.red()
+                )
+            await message.channel.send(embed=embed)
+            return
+
+        # Invalid syntax fallback
+        embed = discord.Embed(
+            description="❌ Incorrect usage. Try `!sob @user` or `!sob stop @user`.",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+
     if command == 'bc':
         await handle_bc(message, arguments)
         return
@@ -612,7 +597,8 @@ async def on_message(message):
     if command == "skull":
         if message.author.id not in AUTHORIZED_USERS:
             embed = discord.Embed(
-                description="You do not have permission to use this command.",
+                title="Access Denied 🚫",
+                description="You do not have permission to use the `!skull` command.",
                 color=discord.Color.red()
             )
             await message.channel.send(embed=embed)
