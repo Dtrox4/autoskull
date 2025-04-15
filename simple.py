@@ -16,10 +16,6 @@ from threading import Thread
 from dotenv import load_dotenv
 from utils.role_handler import create_role, delete_role, rename_role, set_role_icon, toggle_user_role
 from bot_response import handle_conversational, get_response
-from standalone_commands import (
-    handle_poll, handle_remind,
-    handle_serverinfo, handle_userinfo, handle_eightball
-)
 
 start_time = datetime.datetime.utcnow()
 
