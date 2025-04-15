@@ -67,8 +67,7 @@ bot = AutoSkullBot(command_prefix="!",intents=intents)
 
 class StatusCog(commands.Cog):
     def __init__(self, bot):
-
-bot = StatusCog(command_prefix="!",intents=intents)
+        self.bot = bot
 
     @commands.command(name="setstatus")
     @commands.is_owner()
@@ -91,6 +90,10 @@ bot = StatusCog(command_prefix="!",intents=intents)
             description=f"Status set to **{status_type}**: {message}",
             color=discord.Color.green()
         ))
+
+# Setup function for loading the cog
+def setup(bot):
+    bot.add_cog(StatusCog(bot))
 
 # Keep-alive server using Flask
 app = Flask(__name__)
