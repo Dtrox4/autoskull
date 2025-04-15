@@ -283,33 +283,54 @@ async def handle_bc(message, args):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
-@bot.command()
-async def setstatus(ctx, activity_type: str, *, message: str):
-    if not ctx.author.id == YOUR_USER_ID:  # Optional: Check if the command is issued by the bot owner.
-        return await ctx.send("You are not authorized to set the bot's status.")
-
-    # Validate activity_type input
-    valid_activity_types = ['playing', 'watching', 'listening', 'streaming']
-    if activity_type.lower() not in valid_activity_types:
-        return await ctx.send("Invalid activity type! Valid types are: playing, watching, listening, streaming.")
-
-    # Set the bot's activity based on the given activity type
-    activity = None
-    if activity_type.lower() == 'playing':
-        activity = discord.Game(name=message)
-    elif activity_type.lower() == 'watching':
-        activity = discord.Activity(type=discord.ActivityType.watching, name=message)
-    elif activity_type.lower() == 'listening':
-        activity = discord.Activity(type=discord.ActivityType.listening, name=message)
-    elif activity_type.lower() == 'streaming':
-        activity = discord.Activity(type=discord.ActivityType.streaming, name=message, url="https://www.twitch.tv/your_channel")
-
-    await bot.change_presence(activity=activity)
-    sent_message = await ctx.send(f"Bot status has been set to '{activity_type.capitalize()}' with message: {message}")
     
-    # Delete the message after 5 seconds
+@bot.command()
+async def setstatus(ctx, activity_type: str, *, args: str):
+    if ctx.author.id != YOUR_USER_ID:
+        return await ctx.send("You are not authorized to change the bot's status.")
+
+    # Default presence status
+    status = discord.Status.online
+
+    # Check for status flags
+    flags = {
+        '--dnd': discord.Status.dnd,
+        '--idle': discord.Status.idle,
+        '--invisible': discord.Status.invisible
+    }
+
+    for flag, flag_status in flags.items():
+        if flag in args:
+            status = flag_status
+            args = args.replace(flag, '').strip()
+            break  # only one status flag at a time
+
+    # Set activity
+    activity = None
+    activity_type_lower = activity_type.lower()
+
+    if activity_type_lower == 'playing':
+        activity = discord.Game(name=args)
+    elif activity_type_lower == 'watching':
+        activity = discord.Activity(type=discord.ActivityType.watching, name=args)
+    elif activity_type_lower == 'listening':
+        activity = discord.Activity(type=discord.ActivityType.listening, name=args)
+    elif activity_type_lower == 'streaming':
+        activity = discord.Activity(type=discord.ActivityType.streaming, name=args, url="https://twitch.tv/your_channel")
+    else:
+        return await ctx.send("Invalid activity type! Choose from: playing, watching, listening, streaming.")
+
+    # Change bot presence
+    await bot.change_presence(status=status, activity=activity)
+
+    embed = discord.Embed(
+        title="✅ Status Updated",
+        description=f"**Type:** {activity_type.capitalize()}\n**Message:** {args}\n**Presence:** {status.name.capitalize()}",
+        color=discord.Color.green()
+    )
+    sent = await ctx.send(embed=embed)
     await asyncio.sleep(5)
-    await sent_message.delete()
+    await sent.delete()
 
 @bot.command()
 async def statusclear(ctx):
@@ -642,17 +663,13 @@ async def on_message(message):
                     "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
                     "!cancelmaintenance        - Cancel maintenance mode (owner only).\n\n"
                     "[ Bot Status ]\n"
-                    "!setstatus playing <msg>   - Set bot status to Playing.\n"
-                    "!setstatus watching <msg>  - Set bot status to Watching.\n"
-                    "!setstatus listening <msg> - Set bot status to Listening.\n"
-                    "!setstatus streaming <msg> - Set bot status to Streaming.\n"
-                    "!statusclear               - Clear bot status.\n\n"
+                    "!setstatus <activity_type> <message> [--dnd | --idle | --invisible] - Set bot status & presence.\n"
                     "[ Arguments for !setstatus ]\n"
                     "status_type  : online | idle | dnd | invisible\n"
                     "activity_type: playing | watching | listening | streaming\n"
                     "message     : Custom message for the status.\n"
                     "Example:\n"
-                    "`!setstatus playing My awesome game!`  - Sets the bot to Playing 'My awesome game!'\n"
+                    "`!setstatus playing Skulling the worthy --dnd`  - Sets the bot to Playing 'Skulling the worthy'\n"
                     "```"
                 )
                 await message.channel.send(help_page_2)
