@@ -2,6 +2,8 @@
 import json
 from datetime import datetime
 
+sob_users = set()
+
 try:
     with open("sob_data.json", "r") as f:
         sob_data = json.load(f)
