@@ -44,8 +44,6 @@ WELCOME_CHANNELS = {
     1359319883988336924: "welc! rep **/mock** 4 pic, bst for roles!"  # Add a custom message here
 }
 
-bot.user_sob_list = set()
-
 global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
 MAINTENANCE_MODE = False
 MAINTENANCE_END_TIME = None
@@ -82,6 +80,8 @@ def keep_alive():
     t.start()
 
 keep_alive()
+
+bot.user_sob_list = set()
 
 @bot.event
 async def on_member_join(member):
