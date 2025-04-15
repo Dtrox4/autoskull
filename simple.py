@@ -710,5 +710,33 @@ async def on_message(message):
     elif command == 'serverinfo':
         await handle_serverinfo(message)
 
+class StatusCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(name="setstatus")
+    @commands.is_owner()
+    async def set_status(self, ctx, status_type: str.lower, *, message: str):
+        type_map = {
+            "playing": discord.Game(name=message),
+            "watching": discord.Activity(type=discord.ActivityType.watching, name=message),
+            "listening": discord.Activity(type=discord.ActivityType.listening, name=message),
+            "streaming": discord.Streaming(name=message, url="https://twitch.tv/yourchannel")
+        }
+
+        if status_type not in type_map:
+            return await ctx.send(embed=discord.Embed(
+                description="Invalid type! Use one of: `playing`, `watching`, `listening`, `streaming`.",
+                color=discord.Color.red()
+            ))
+
+        await self.bot.change_presence(activity=type_map[status_type])
+        await ctx.send(embed=discord.Embed(
+            description=f"Status set to **{status_type}**: {message}",
+            color=discord.Color.green()
+        ))
+
+bot.add_cog(StatusCog(bot))
+
 # Run the bot
 bot.run(TOKEN)
