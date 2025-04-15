@@ -36,4 +36,9 @@ pip install -r requirements.txt
 echo DISCORD_TOKEN=your_token > .env
 python main.py
 
+## NEED A WORKING VERSION?
+
+ADD THIS TO YOUR SERVER! ITS FREE
+https://discord.com/oauth2/authorize?client_id=1359483119186612435
+
 
