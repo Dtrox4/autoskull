@@ -547,67 +547,67 @@ async def on_message(message):
             return
 
         # !skull help
-if len(arguments) == 2 and arguments[0] == "help":
-    page = arguments[1]
-    
-    if page == "1":
-        help_page_1 = (
-            "**Available Commands (Page 1/2):**\n"
-            "```diff\n"
-            [ Skull Commands ]\n"
-            "!skull @user              - Skull a user.\n"
-            "!skull stop @user         - Stop skulling a user.\n"
-            "!skull list               - Show users being skulled.\n"
-            "!skull help <page>        - Show this help message.\n\n"
-            [ User & Server Info ]\n"
-            "!userinfo [name]          - Show info about a user.\n"
-            "!roleinfo [role name]     - Show info about a role.\n"
-            "!serverinfo               - Show server statistics.\n"
-            "!stats                    - Show bot uptime and system statistics.\n\n"
-            [ Fun & Utility ]\n"
-            "!eightball <question>     - Ask the magic 8-ball a question.\n"
-            "!poll <question>          - Create a simple yes/no poll.\n"
-            "!remind <sec> <msg>       - Get a reminder after a given time.\n"
-            "!bc <filters>             - Bulk delete messages with optional filters.\n"
-            "!embed <channel> <code>   - Sends an embed to the channel you need.\n"
-            "```"
-        )
-        await message.channel.send(help_page_1)
-        return
-
-    elif page == "2":
-        help_page_2 = (
-            "**Available Commands (Page 2/2):**\n"
-            "```diff\n"
-            [ Moderation ]\n"
-            "!role @user <role>        - Add or remove a role from a user.\n"
-            "!rolecreate <name> [#hex] - Create a new role with an optional color.\n"
-            "!roledelete @role         - Delete a role.\n"
-            "!rolerename @role <name>  - Rename a role.\n"
-            "!roleicon @role <image>   - Set icon for a role using an attachment.\n"
-            "!ban @user [reason]       - Ban a user from the server.\n"
-            "!kick @user [reason]      - Kick a user from the server.\n"
-            "!mute @user [reason]      - Mute a user with the mute role.\n\n"
-            [ Admin Only ]\n"
-            "!skull authorize @user    - Authorize a user to use skull commands.\n"
-            "!skull unauthorize @user  - Remove a user's authorization.\n"
-            "!skull authorized         - Show authorized users.\n"
-            "!restart                  - Restart the bot.    (owner only).\n"
-            "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
-            "!cancelmaintenance        - Cancel maintenance mode (owner only).\n\n"
-            [ Bot Status ]\n"
-            "!setstatus playing <msg>   - Set bot status to Playing.\n"
-            "!setstatus watching <msg>  - Set bot status to Watching.\n"
-            "!setstatus listening <msg> - Set bot status to Listening.\n"
-            "!setstatus streaming <msg> - Set bot status to Streaming.\n"
-            "```"
-        )
-        await message.channel.send(help_page_2)
-        return
-
+        if len(arguments) == 2 and arguments[0] == "help":
+            page = arguments[1]
+            
+            if page == "1":
+                help_page_1 = (
+                    "**Available Commands (Page 1/2):**\n"
+                    "```diff\n"
+                    [ Skull Commands ]\n"
+                    "!skull @user              - Skull a user.\n"
+                    "!skull stop @user         - Stop skulling a user.\n"
+                    "!skull list               - Show users being skulled.\n"
+                    "!skull help <page>        - Show this help message.\n\n"
+                    [ User & Server Info ]\n"
+                    "!userinfo [name]          - Show info about a user.\n"
+                    "!roleinfo [role name]     - Show info about a role.\n"
+                    "!serverinfo               - Show server statistics.\n"
+                    "!stats                    - Show bot uptime and system statistics.\n\n"
+                    [ Fun & Utility ]\n"
+                    "!eightball <question>     - Ask the magic 8-ball a question.\n"
+                    "!poll <question>          - Create a simple yes/no poll.\n"
+                    "!remind <sec> <msg>       - Get a reminder after a given time.\n"
+                    "!bc <filters>             - Bulk delete messages with optional filters.\n"
+                    "!embed <channel> <code>   - Sends an embed to the channel you need.\n"
+                    "```"
+                )
+                await message.channel.send(help_page_1)
+                return
+        
+            elif page == "2":
+                help_page_2 = (
+                    "**Available Commands (Page 2/2):**\n"
+                    "```diff\n"
+                    [ Moderation ]\n"
+                    "!role @user <role>        - Add or remove a role from a user.\n"
+                    "!rolecreate <name> [#hex] - Create a new role with an optional color.\n"
+                    "!roledelete @role         - Delete a role.\n"
+                    "!rolerename @role <name>  - Rename a role.\n"
+                    "!roleicon @role <image>   - Set icon for a role using an attachment.\n"
+                    "!ban @user [reason]       - Ban a user from the server.\n"
+                    "!kick @user [reason]      - Kick a user from the server.\n"
+                    "!mute @user [reason]      - Mute a user with the mute role.\n\n"
+                    [ Admin Only ]\n"
+                    "!skull authorize @user    - Authorize a user to use skull commands.\n"
+                    "!skull unauthorize @user  - Remove a user's authorization.\n"
+                    "!skull authorized         - Show authorized users.\n"
+                    "!restart                  - Restart the bot.    (owner only).\n"
+                    "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
+                    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n\n"
+                    [ Bot Status ]\n"
+                    "!setstatus playing <msg>   - Set bot status to Playing.\n"
+                    "!setstatus watching <msg>  - Set bot status to Watching.\n"
+                    "!setstatus listening <msg> - Set bot status to Listening.\n"
+                    "!setstatus streaming <msg> - Set bot status to Streaming.\n"
+                    "```"
+                )
+                await message.channel.send(help_page_2)
+                return
+        
         if len(arguments) == 1 and arguments[0] == "help":
-    await message.channel.send("Use `!skull help 1` or `!skull help 2` to view command help pages.")
-    return
+            await message.channel.send("Use `!skull help 1` or `!skull help 2` to view command help pages.")
+            return
 
 
         # !skull authorize @user
