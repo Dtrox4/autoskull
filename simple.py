@@ -16,8 +16,7 @@ from utils.role_handler import create_role, delete_role, rename_role, set_role_i
 from bot_response import handle_conversational, get_response
 from standalone_commands import (
     handle_poll, handle_remind,
-    handle_serverinfo, handle_userinfo, handle_roleinfo,
-    handle_eightball
+    handle_serverinfo, handle_userinfo, handle_eightball
 )
 
 start_time = datetime.datetime.utcnow()
@@ -441,7 +440,7 @@ async def on_message(message):
         await set_role_icon(role, image_bytes, f"Set by {message.author}", message.channel)
 
     # !role toggle
-    elif args[0] == "!role" and not args[0] == "!roleinfo":
+    elif args[0] == "!role":
         if len(args) < 3 or not message.mentions:
             return await message.channel.send(embed=discord.Embed(
                 title="Usage: !role",
@@ -702,14 +701,6 @@ async def on_message(message):
             await handle_userinfo(message, member)
         else:
             await handle_userinfo(message)
-
-    elif command == 'roleinfo':
-        if arguments:
-            role_name = " ".join(arguments)
-            role = discord.utils.get(message.guild.roles, name=role_name)
-            await handle_roleinfo(message, role)
-        else:
-            await handle_roleinfo(message)
 
     elif command == 'eightball':
         question = " ".join(arguments)
