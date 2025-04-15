@@ -65,41 +65,66 @@ class AutoSkullBot(commands.Bot):
 
 bot = AutoSkullBot(command_prefix="!",intents=intents)
 
-class StatusCog(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+# Optional: restrict to just you
+def is_owner():
+    def predicate(ctx):
+        return ctx.author.id == 1212229549459374222  # Replace with your actual Discord ID
+    return commands.check(predicate)
 
-    def is_me():
-        def predicate(ctx):
-            return ctx.author.id == 1212229549459374222
-        return commands.check(predicate)
+@bot.command(name="setstatus")
+@is_owner()  # optional: only you can run it
+async def setstatus(ctx, status_type: str, activity_type: str, *, message: str):
+    status_type = status_type.lower()
+    activity_type = activity_type.lower()
 
+    # Set status (online, idle, dnd, invisible)
+    discord_status = {
+        "online": discord.Status.online,
+        "idle": discord.Status.idle,
+        "dnd": discord.Status.dnd,
+        "invisible": discord.Status.invisible
+    }.get(status_type)
 
-    @commands.command(name="setstatus")
-    @commands.check(is_me)
-    async def set_status(self, ctx, status_type: str.lower, *, message: str):
-        type_map = {
-            "playing": discord.Game(name=message),
-            "watching": discord.Activity(type=discord.ActivityType.watching, name=message),
-            "listening": discord.Activity(type=discord.ActivityType.listening, name=message),
-            "streaming": discord.Streaming(name=message, url="https://twitch.tv/ninja")
-        }
+    # Set activity (playing, watching, listening, etc.)
+    activity = None
+    if activity_type == "playing":
+        activity = discord.Game(name=message)
+    elif activity_type == "watching":
+        activity = discord.Activity(type=discord.ActivityType.watching, name=message)
+    elif activity_type == "listening":
+        activity = discord.Activity(type=discord.ActivityType.listening, name=message)
+    elif activity_type == "competing":
+        activity = discord.Activity(type=discord.ActivityType.competing, name=message)
+    elif activity_type == "streaming":
+        activity = discord.Streaming(name=message, url="https://twitch.tv/yourchannel")
 
-        if status_type not in type_map:
-            return await ctx.send(embed=discord.Embed(
-                description="Invalid type! Use one of: `playing`, `watching`, `listening`, `streaming`.",
-                color=discord.Color.red()
-            ))
-
-        await self.bot.change_presence(activity=type_map[status_type])
-        await ctx.send(embed=discord.Embed(
-            description=f"Status set to **{status_type}**: {message}",
+    if discord_status and activity:
+        await bot.change_presence(activity=activity, status=discord_status)
+        embed = discord.Embed(
+            title="✅ Status Updated",
+            description=f"**Status:** {status_type.title()}\n**Activity:** {activity_type.title()} {message}",
             color=discord.Color.green()
-        ))
+        )
+        await ctx.send(embed=embed)
+    else:
+        embed = discord.Embed(
+            title="❌ Invalid Input",
+            description="Valid status types: `online`, `idle`, `dnd`, `invisible`\n"
+                        "Valid activity types: `playing`, `watching`, `listening`, `streaming`, `competing`",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
 
-# Setup function for loading the cog
-def setup(bot):
-    bot.add_cog(StatusCog(bot))
+@bot.command(name="statusclear")
+@is_owner()  # optional
+async def statusclear(ctx):
+    await bot.change_presence(activity=None, status=discord.Status.online)
+    embed = discord.Embed(
+        title="✅ Status Cleared",
+        description="Bot's custom status has been cleared.",
+        color=discord.Color.orange()
+    )
+    await ctx.send(embed=embed)
 
 # Keep-alive server using Flask
 app = Flask(__name__)
@@ -640,6 +665,13 @@ async def on_message(message):
                     "!setstatus watching <msg>  - Set bot status to Watching.\n"
                     "!setstatus listening <msg> - Set bot status to Listening.\n"
                     "!setstatus streaming <msg> - Set bot status to Streaming.\n"
+                    "!statusclear               - Clear bot status.\n\n"
+                    "[ Arguments for !setstatus ]\n"
+                    "status_type  : online | idle | dnd | invisible\n"
+                    "activity_type: playing | watching | listening | streaming\n"
+                    "message     : Custom message for the status.\n"
+                    "Example:\n"
+                    "`!setstatus playing My awesome game!`  - Sets the bot to Playing 'My awesome game!'\n"
                     "```"
                 )
                 await message.channel.send(help_page_2)
