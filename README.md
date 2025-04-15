@@ -35,6 +35,7 @@ A Discord bot for skull-reacting users and managing authorization. Created using
 pip install -r requirements.txt
 echo DISCORD_TOKEN=your_token > .env
 python main.py
+```
 
 ## NEED A WORKING VERSION?
 
