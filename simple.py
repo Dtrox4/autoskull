@@ -76,7 +76,7 @@ class StatusCog(commands.Cog):
 
 
     @commands.command(name="setstatus")
-    @commands.is_me()
+    @commands.check(is_me)
     async def set_status(self, ctx, status_type: str.lower, *, message: str):
         type_map = {
             "playing": discord.Game(name=message),
