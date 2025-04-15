@@ -71,27 +71,6 @@ async def handle_userinfo(message, member: discord.Member = None):
 
     await message.channel.send(embed=embed)
 
-# handle_roleinfo
-async def handle_roleinfo(message, role: discord.Role = None):
-    if role is None:
-        embed = discord.Embed(
-            title="Missing Argument",
-            description="Please specify a role.\nUsage: `!roleinfo <role name>`",
-            color=discord.Color.red()
-        )
-        await message.channel.send(embed=embed)
-        return
-
-    embed = discord.Embed(title=f"Role Info: {role.name}", color=role.color)
-    embed.add_field(name="ID", value=role.id, inline=True)
-    embed.add_field(name="Color", value=str(role.color), inline=True)
-    embed.add_field(name="Mentionable", value=role.mentionable, inline=True)
-    embed.add_field(name="Hoisted", value=role.hoist, inline=True)
-    embed.add_field(name="Position", value=role.position, inline=True)
-    embed.add_field(name="Member Count", value=len(role.members), inline=True)
-    embed.set_footer(text=f"Created at: {role.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
-    await message.channel.send(embed=embed)
-
 # handle_eightball
 async def handle_eightball(message, question):
     responses = ["Yes", "No", "Maybe", "Definitely", "Ask again later", "Absolutely not"]
