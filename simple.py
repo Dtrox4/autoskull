@@ -69,8 +69,14 @@ class StatusCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    def is_me():
+        def predicate(ctx):
+            return ctx.author.id == 1212229549459374222
+        return commands.check(predicate)
+
+
     @commands.command(name="setstatus")
-    @commands.is_owner()
+    @commands.is_me()
     async def set_status(self, ctx, status_type: str.lower, *, message: str):
         type_map = {
             "playing": discord.Game(name=message),
