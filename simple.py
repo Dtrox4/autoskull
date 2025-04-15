@@ -311,7 +311,6 @@ async def handle_bc(message, args):
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
-    await bot.add_cog(StatusCog(bot))
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
 
 @bot.event
