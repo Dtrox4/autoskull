@@ -550,6 +550,7 @@ async def on_message(message):
 
     if message.content.startswith("!help"):
         await help_command.handle_help_command(message)
+        await ctx.message.delete()
         return
 
     if message.content.lower().startswith("!stats"):
@@ -575,9 +576,11 @@ async def on_message(message):
 
     if message.content.startswith("!maintenance"):
         await handle_maintenance(message, bot)
+        await ctx.message.delete()
 
     if message.content.startswith("!cancelmaintenance"):
         await handle_cancel_maintenance(message)
+        await ctx.message.delete()
         return
 
     content = message.content
@@ -697,7 +700,7 @@ async def on_message(message):
                 await message.channel.send(help_page_2)
                 return
 
-            elif page == "3":
+          '''elif page == "3":
                 help_page_3 = (
                     "**Available Commands (Page 3/3):**\n"
                     "```diff\n"
@@ -714,7 +717,7 @@ async def on_message(message):
                     "```"
                 )
                 await message.channel.send(help_page_3)
-                return
+                return'''
             
 
         # !skull authorize @user
