@@ -27,7 +27,6 @@ def load_backup():
 
 # Main event handler setup
 def setup_event_handlers(bot):
-
     @bot.event
     async def on_guild_channel_delete(channel):
         if not config.get("antinuke_enabled"):
@@ -106,27 +105,35 @@ async def restore_role(guild, role):
     # Position etc can be added
 
 # Optional: Task to regularly backup roles/channels
-def setup_backups(bot):
-    @tasks.loop(minutes=10)
-    async def backup_loop():
-        for guild in bot.guilds:
-            backup = {"roles": {}, "channels": {}}
+async def backup_loop():
+    for guild in bot.guilds:
+        backup = {"roles": {}, "channels": {}}
 
-            for role in guild.roles:
-                if role.is_default():
-                    continue
-                backup["roles"][str(role.id)] = {
-                    "name": role.name,
-                    "permissions": role.permissions.value,
-                    "color": role.color.value,
-                }
+        for role in guild.roles:
+            if role.is_default():
+                continue
+            backup["roles"][str(role.id)] = {
+                "name": role.name,
+                "permissions": role.permissions.value,
+                "color": role.color.value,
+            }
 
-            for channel in guild.text_channels:
-                backup["channels"][str(channel.id)] = {
-                    "name": channel.name,
-                    "position": channel.position
-                }
+        for channel in guild.text_channels:
+            backup["channels"][str(channel.id)] = {
+                "name": channel.name,
+                "position": channel.position
+            }
 
-            save_backup(backup)
+        save_backup(backup)
 
+# Start the backup task only when the bot is ready
+@bot.event
+async def on_ready():
+    print(f'{bot.user} has connected to Discord!')
     backup_loop.start()
+
+# Add your bot setup
+bot = commands.Bot(command_prefix="!")
+
+# Register the event handlers and start the bot
+setup_event_handlers(bot)
