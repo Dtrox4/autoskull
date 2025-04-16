@@ -7,6 +7,9 @@ import asyncio
 CONFIG_FILE = "antinuke_config.json"
 BACKUP_FILE = "antinuke_backup.json"
 
+# Define the bot instance first
+bot = commands.Bot(command_prefix="!")
+
 # Load the config
 if os.path.exists(CONFIG_FILE):
     with open(CONFIG_FILE, 'r') as f:
@@ -132,8 +135,8 @@ async def on_ready():
     print(f'{bot.user} has connected to Discord!')
     backup_loop.start()
 
-# Add your bot setup
-bot = commands.Bot(command_prefix="!")
-
 # Register the event handlers and start the bot
 setup_event_handlers(bot)
+
+# Run the bot with your token
+bot.run('BOT_TOKEN')
