@@ -7,8 +7,12 @@ import asyncio
 CONFIG_FILE = "antinuke_config.json"
 BACKUP_FILE = "antinuke_backup.json"
 
-# Define the bot instance first
-bot = commands.Bot(command_prefix="!")
+# Define intents
+intents = discord.Intents.default()  # Default intents that cover most use cases
+intents.members = True  # Enable member-related events like on_member_ban, on_member_remove
+
+# Define the bot instance with intents
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Load the config
 if os.path.exists(CONFIG_FILE):
@@ -139,4 +143,4 @@ async def on_ready():
 setup_event_handlers(bot)
 
 # Run the bot with your token
-bot.run('BOT_TOKEN')
+bot.run('YOUR_BOT_TOKEN')
