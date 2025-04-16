@@ -9,7 +9,7 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
-from antinuke_handler import setup_event_handlers, setup_backups
+from antinuke_event_handler import setup_event_handlers, setup_backups
 from ext_cmds import (
     handle_poll,
     handle_eightball,
