@@ -95,6 +95,10 @@ def keep_alive():
 
 keep_alive()
 
+# Setup AntiNuke
+setup_event_handlers(bot)
+setup_backups(bot)
+
 @bot.event
 async def on_member_join(member):
     for channel_id, custom_message in WELCOME_CHANNELS.items():
@@ -361,10 +365,6 @@ async def statusclear(ctx):
 
 @bot.event
 async def on_message(message):
-
-    # Setup AntiNuke
-    setup_event_handlers(bot)
-    setup_backups(bot)
     
     # Ignore DMs to prevent 'User' attribute errors
     if message.guild is None:
