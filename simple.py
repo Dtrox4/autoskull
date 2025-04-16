@@ -89,7 +89,7 @@ async def on_member_join(member):
                 content = f"{member.mention} {custom_message}"
             else:
                 content = f"{member.mention}"
-            await channel.send(content, delete_after=5)
+            await channel.send(content, delete_after=30)
 
 async def handle_say(message):
     try:
@@ -345,11 +345,14 @@ async def statusclear(ctx):
 
 @bot.event
 async def on_message(message):
+    # Ignore DMs to prevent 'User' attribute errors
+    if message.guild is None:
+        return
+
     if message.author == bot.user:
         return
-        
+
     await bot.process_commands(message)
-    
     await embed_command.handle_embed_command(message, bot)
 
     # Ban command
