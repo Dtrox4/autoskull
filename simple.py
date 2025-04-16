@@ -9,6 +9,14 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
+from ext_cmds import (
+    handle_poll,
+    handle_eightball,
+    handle_serverinfo,
+    handle_userinfo,
+    handle_remind,
+    handle_roleinfo
+)
 from discord.ext import commands
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
@@ -769,7 +777,25 @@ async def on_message(message):
         return
 
     if message.author.id in bot.user_skull_list:
-        await message.add_reaction("\u2620\ufe0f")                 
+        await message.add_reaction("\u2620\ufe0f")
+
+    if message.content.startswith("!poll"):
+        await handle_poll(message)
+
+    elif message.content.startswith("!eightball"):
+        await handle_eightball(message)
+
+    elif message.content.startswith("!serverinfo"):
+        await handle_serverinfo(message)
+
+    elif message.content.startswith("!userinfo"):
+        await handle_userinfo(message)
+
+    elif message.content.startswith("!remind"):
+        await handle_remind(message)
+
+    elif message.content.startswith("!roleinfo"):
+        await handle_roleinfo(message)        
 
 # Run the bot
 bot.run(TOKEN)
