@@ -17,6 +17,13 @@ from ext_cmds import (
     handle_remind,
     handle_roleinfo
 )
+from antinuke_commands import (
+    toggle_antinuke,
+    whitelist_user,
+    unwhitelist_user,
+    list_whitelisted,
+    show_antinuke_status
+)
 from discord.ext import commands
 from utils.moderation_handler import ban_user, mute_user, kick_user
 from flask import Flask
@@ -362,6 +369,18 @@ async def on_message(message):
 
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
+
+    # Example of handling antinuke commands
+    if message.content.startswith("!antinuke"):
+        await toggle_antinuke(message)
+    elif message.content.startswith("!whitelist"):
+        await whitelist_user(message)
+    elif message.content.startswith("!unwhitelist"):
+        await unwhitelist_user(message)
+    elif message.content.startswith("!whitelisted"):
+        await list_whitelisted(message)
+    elif message.content.startswith("!anstatus"):
+        await show_antinuke_status(message)
 
     # Ban command
     if message.content.startswith("!ban"):
