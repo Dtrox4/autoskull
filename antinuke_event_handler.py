@@ -143,4 +143,4 @@ async def on_ready():
 setup_event_handlers(bot)
 
 # Run the bot with your token
-bot.run('YOUR_BOT_TOKEN')
+bot.run('DISCORD_TOKEN')
