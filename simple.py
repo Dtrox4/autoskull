@@ -705,6 +705,8 @@ async def on_message(message):
                 await message.channel.send(help_page_2)
                 return
 
+      
+
         # !skull authorize @user
         if len(arguments) == 2 and arguments[0] == "authorize" and message.mentions:
             user = message.mentions[0]
