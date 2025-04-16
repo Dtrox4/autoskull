@@ -445,13 +445,7 @@ async def on_message(message):
 
         # Create the new channel and send the message
         new_channel = await message.guild.create_text_channel(new_channel_name)
-        embed = discord.Embed(
-            title="✅ Merge Complete",
-            description="This is the new channel you asked for!",
-            color=discord.Color.green()
-        )
-        embed.add_field(name="Message", value=final_msg, inline=False)
-        await new_channel.send(embed=embed)
+        await new_channel.send(value=final_msg)
 
     # Ban command
     if message.content.startswith("!ban"):
