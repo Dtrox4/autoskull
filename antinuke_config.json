@@ -1,13 +1,11 @@
 {
-  "whitelist": [],               // List of user IDs who are allowed to make changes (bypass antinuke)
-  "log_channel": null,           // Channel ID where logs should be sent (if set)
-  "restored_roles": {},          // Automatically populated: member_id -> list of role_ids
-  "config": {
-    "anti_ban": true,            // Enable/disable ban protection
-    "anti_kick": true,           // Enable/disable kick protection
-    "anti_role_delete": true,    // Enable/disable role delete protection
-    "anti_role_create": true,    // Enable/disable role create protection
-    "anti_channel_delete": true, // Enable/disable channel delete protection
-    "anti_channel_create": true  // Enable/disable channel create protection
-  }
+  "enabled_events": {
+    "ban": true,
+    "kick": true,
+    "role_delete": true,
+    "channel_delete": true,
+    "webhook_create": true
+  },
+  "whitelisted_users": [],
+  "log_channel": null
 }
