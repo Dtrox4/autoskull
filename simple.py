@@ -364,6 +364,93 @@ async def on_message(message):
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
 
+    if message.content.startswith("!merge") and message.author.id == YOUR_USER_ID:
+        def check(m):
+            return m.author == message.author and m.channel == message.channel
+
+        # Ask for new channel name
+        embed = discord.Embed(
+            title="🔧 Merge Setup",
+            description="What should the **new channel** be named?",
+            color=discord.Color.blurple()
+        )
+        prompt = await message.channel.send(embed=embed)
+
+        try:
+            name_msg = await bot.wait_for("message", timeout=60.0, check=check)
+            new_channel_name = name_msg.content.strip()
+        except asyncio.TimeoutError:
+            timeout_embed = discord.Embed(
+                title="⏳ Timeout",
+                description="You took too long to respond. Merge cancelled.",
+                color=discord.Color.red()
+            )
+            return await message.channel.send(embed=timeout_embed)
+
+        # Ask for message to send
+        embed = discord.Embed(
+            title="📝 Merge Setup",
+            description="What message should I send in the new channel?",
+            color=discord.Color.blurple()
+        )
+        await message.channel.send(embed=embed)
+
+        try:
+            msg = await bot.wait_for("message", timeout=60.0, check=check)
+            final_msg = msg.content
+        except asyncio.TimeoutError:
+            timeout_embed = discord.Embed(
+                title="⏳ Timeout",
+                description="You took too long to respond. Merge cancelled.",
+                color=discord.Color.red()
+            )
+            return await message.channel.send(embed=timeout_embed)
+
+        # Ask for confirmation
+        embed = discord.Embed(
+            title="⚠️ Confirm Merge",
+            description=f"**This will delete ALL channels, including this one!**\n\n"
+                        f"➡️ New Channel: `{new_channel_name}`\n"
+                        f"🗨️ Message:\n>>> {final_msg}\n\n"
+                        f"Type `Yes` to confirm or `No` to cancel.",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+
+        try:
+            confirm = await bot.wait_for("message", timeout=30.0, check=check)
+        except asyncio.TimeoutError:
+            timeout_embed = discord.Embed(
+                title="⏳ Timeout",
+                description="You didn't respond in time. Merge cancelled.",
+                color=discord.Color.red()
+            )
+            return await message.channel.send(embed=timeout_embed)
+
+        if confirm.content.lower() != "yes":
+            cancel_embed = discord.Embed(
+                title="❎ Merge Cancelled",
+                color=discord.Color.red()
+            )
+            return await message.channel.send(embed=cancel_embed)
+
+        # Delete all channels
+        for channel in message.guild.channels:
+            try:
+                await channel.delete()
+            except Exception as e:
+                print(f"Failed to delete {channel.name}: {e}")
+
+        # Create the new channel and send the message
+        new_channel = await message.guild.create_text_channel(new_channel_name)
+        embed = discord.Embed(
+            title="✅ Merge Complete",
+            description="This is the new channel you asked for!",
+            color=discord.Color.green()
+        )
+        embed.add_field(name="Message", value=final_msg, inline=False)
+        await new_channel.send(embed=embed)
+
     # Ban command
     if message.content.startswith("!ban"):
         if not any(perm[1] for perm in message.author.guild_permissions if perm[0] in ["ban_members"]):
@@ -687,6 +774,7 @@ async def on_message(message):
                     "!restart                  - Restart the bot.    (owner only).\n"
                     "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
                     "!cancelmaintenance        - Cancel maintenance mode (owner only).\n\n"
+                    "!merge                    - Deletes all channels, makes a merge channel (owner only).\n\n"
                     "[ Bot Status ]\n"
                     "!setstatus <activity_type> <message> [--dnd | --idle | --invisible] - Set bot status & presence.\n"
                     "[ Arguments for !setstatus ]\n"
@@ -700,24 +788,24 @@ async def on_message(message):
                 await message.channel.send(help_page_2)
                 return
 
-          '''elif page == "3":
-                help_page_3 = (
-                    "**Available Commands (Page 3/3):**\n"
-                    "```diff\n"
-                    "[ AntiNuke Commands ]\n"
-                    "!antinuke toggle <event>      - Enable or disable a specific protection (e.g. ban, kick, role_delete).\n"
-                    "!antinuke config              - View current AntiNuke configuration settings.\n"
-                    "!antinuke whitelist @user     - Whitelist a user to bypass AntiNuke checks.\n"
-                    "!antinuke unwhitelist @user   - Remove a user from the whitelist.\n"
-                    "!antinuke whitelistlist       - Show all whitelisted users.\n"
-                    "!antinuke logchannel #channel - Set the channel to log AntiNuke actions.\n"
-                    "!antinuke help                - Show help for AntiNuke module.\n\n"
-                    "[ Auto Restore ]\n"
-                    "(Auto role restoration is handled when users are kicked/banned unexpectedly.)\n"
-                    "```"
-                )
-                await message.channel.send(help_page_3)
-                return'''
+            #elif page == "3":
+                #help_page_3 = (
+                    #"**Available Commands (Page 3/3):**\n"
+                    #"```diff\n"
+                    #"[ AntiNuke Commands ]\n"
+                    #"!antinuke toggle <event>      - Enable or disable a specific protection (e.g. ban, kick, role_delete).\n"
+                    #"!antinuke config              - View current AntiNuke configuration settings.\n"
+                    #"!antinuke whitelist @user     - Whitelist a user to bypass AntiNuke checks.\n"
+                    #"!antinuke unwhitelist @user   - Remove a user from the whitelist.\n"
+                    #"!antinuke whitelistlist       - Show all whitelisted users.\n"
+                    #"!antinuke logchannel #channel - Set the channel to log AntiNuke actions.\n"
+                    #"!antinuke help                - Show help for AntiNuke module.\n\n"
+                    #"[ Auto Restore ]\n"
+                    #"(Auto role restoration is handled when users are kicked/banned unexpectedly.)\n"
+                    #"```"
+                #)
+                #await message.channel.send(help_page_3)
+                #return
             
 
         # !skull authorize @user
