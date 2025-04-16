@@ -705,7 +705,25 @@ async def on_message(message):
                 await message.channel.send(help_page_2)
                 return
 
-      
+            elif page == "3":
+                help_page_3 = (
+                    "**Available Commands (Page 3/3):**\n"
+                    "```diff\n"
+                    "[ AntiNuke Commands ]\n"
+                    "!antinuke toggle <event>      - Enable or disable a specific protection (e.g. ban, kick, role_delete).\n"
+                    "!antinuke config              - View current AntiNuke configuration settings.\n"
+                    "!antinuke whitelist @user     - Whitelist a user to bypass AntiNuke checks.\n"
+                    "!antinuke unwhitelist @user   - Remove a user from the whitelist.\n"
+                    "!antinuke whitelistlist       - Show all whitelisted users.\n"
+                    "!antinuke logchannel #channel - Set the channel to log AntiNuke actions.\n"
+                    "!antinuke help                - Show help for AntiNuke module.\n\n"
+                    "[ Auto Restore ]\n"
+                    "(Auto role restoration is handled when users are kicked/banned unexpectedly.)\n"
+                    "```"
+                )
+                await message.channel.send(help_page_3)
+                return
+            
 
         # !skull authorize @user
         if len(arguments) == 2 and arguments[0] == "authorize" and message.mentions:
