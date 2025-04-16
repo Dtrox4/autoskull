@@ -390,9 +390,9 @@ async def on_message(message):
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
             embed = discord.Embed(
-                title="Usage for !ban",
-                description="**Usage:** ```!ban @user Reason```\n\n"
-                            "Bans the mentioned user from the server with an optional reason.",
+                title="Command : !ban",
+                description="**Usage:**\n"
+                            "```!ban @user Reason```",
                 color=discord.Color.blue()
             )
             return await message.channel.send(embed=embed)
@@ -417,9 +417,9 @@ async def on_message(message):
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
             embed = discord.Embed(
-                title="Usage for !mute",
-                description="**Usage:** ```!mute @user Reason```\n\n"
-                            "Mutes the mentioned user in the server with an optional reason.",
+                title="Command : !mute",
+                description="**Usage:**\n"
+                            "```!mute @user Reason```",
                 color=discord.Color.blue()
             )
             return await message.channel.send(embed=embed)
@@ -444,9 +444,9 @@ async def on_message(message):
         args = message.content.split()
         if len(args) < 3 or not message.mentions:
             embed = discord.Embed(
-                title="Usage for !kick",
-                description="**Usage:** ```!kick @user Reason```\n\n"
-                            "Kicks the mentioned user from the server with an optional reason.",
+                title="Command : !kick",
+                description="**Usage:**\n" 
+                            "```!kick @user Reason```",
                 color=discord.Color.blue()
             )
             return await message.channel.send(embed=embed)
@@ -480,8 +480,9 @@ async def on_message(message):
     if message.content.startswith("!rolecreate"):
         if len(args) < 2:
             return await message.channel.send(embed=discord.Embed(
-                title="Usage: !rolecreate",
-                description="```!rolecreate <name> [#hexcolor]```",
+                title="Command : !rolecreate",
+                description="**Usage:**\n"
+                            "```!rolecreate <name> [#hexcolor]```",
                 color=discord.Color.blue()
             ))
 
@@ -498,8 +499,9 @@ async def on_message(message):
     elif message.content.startswith("!roledelete"):
         if not message.role_mentions:
             return await message.channel.send(embed=discord.Embed(
-                title="Usage: !roledelete",
-                description="```!roledelete @role```",
+                title="Command : !roledelete",
+                description="**Usage:**\n"
+                            "```!roledelete @role```",
                 color=discord.Color.blue()
             ))
 
@@ -510,8 +512,9 @@ async def on_message(message):
     elif message.content.startswith("!rolerename"):
         if len(args) < 3 or not message.role_mentions:
             return await message.channel.send(embed=discord.Embed(
-                title="Usage: !rolerename",
-                description="```!rolerename @role <new_name>```",
+                title="Command : !rolerename",
+                description="**Usage**:\n"
+                            "```!rolerename @role <new_name>```",
                 color=discord.Color.blue()
             ))
 
@@ -523,8 +526,9 @@ async def on_message(message):
     elif message.content.startswith("!roleicon"):
         if not message.role_mentions or not message.attachments:
             return await message.channel.send(embed=discord.Embed(
-                title="Usage: !roleicon",
-                description="```!roleicon @role with an image attachment```",
+                title="Command : !roleicon",
+                description="**Usage:**\n"
+                            "```!roleicon @role with an image attachment```",
                 color=discord.Color.blue()
             ))
 
@@ -536,8 +540,9 @@ async def on_message(message):
     elif len(args) > 0 and args[0] == "!role":
         if len(args) < 3 or not message.mentions:
             return await message.channel.send(embed=discord.Embed(
-                title="Usage: !role",
-                description="```!role @user Role Name```",
+                title="Command : !role",
+                description="**Usage:**\n"
+                            "```!role @user Role Name```",
                 color=discord.Color.blue()
             ))
     # your role handling code here
@@ -640,7 +645,12 @@ async def on_message(message):
             return
 
         if len(arguments) == 1 and arguments[0] == "help":
-            await message.channel.send("Use `!skull help 1` or `!skull help 2` to view command help pages.")
+            embed = discord.Embed(
+                title="Help commands",
+                description="⚠️ Use `!skull help (1, 2 ,3)` to view command help pages.",
+                color=discord.Color.green()
+            )   
+            await message.channel.send(embed=embed)
             return
 
 
@@ -809,7 +819,8 @@ async def on_message(message):
 
         # Fallback
         embed = discord.Embed(
-            description="⚠️ Type `!skull help` to view all valid skull commands.",
+            title="Help commands",
+            description="⚠️ Use `!skull help (1, 2 ,3)` to view command help pages.",
             color=discord.Color.red()
         )
         await message.channel.send(embed=embed)
