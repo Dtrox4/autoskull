@@ -10,7 +10,11 @@ EIGHTBALL_ANSWERS = [
 async def handle_poll(message):
     parts = message.content.split(None, 1)
     if len(parts) < 2:
-        return await message.channel.send("**Usage:** `!poll <your question>`")
+        return await message.channel.send(embed=discord.Embed(
+            title="Command: !poll",
+            description="**Usage:** `!poll <your question>`",
+            color=discord.Color.blue()
+        ))
 
     question = parts[1]
     embed = discord.Embed(title="New Poll", description=question, color=discord.Color.blurple())
@@ -22,7 +26,11 @@ async def handle_poll(message):
 async def handle_eightball(message):
     parts = message.content.split(None, 1)
     if len(parts) < 2:
-        return await message.channel.send("**Usage:** `!eightball <your question>`")
+        return await message.channel.send(embed=discord.Embed(
+            title="Command: !eightball",
+            description="**Usage:** `!eightball <your question>`",
+            color=discord.Color.blue()
+        ))
 
     question = parts[1]
     answer = random.choice(EIGHTBALL_ANSWERS)
@@ -42,7 +50,11 @@ async def handle_serverinfo(message):
 async def handle_userinfo(message):
     args = message.content.split()
     if len(args) < 2:
-        return await message.channel.send("**Usage:** `!userinfo <@mention or user id>`")
+        return await message.channel.send(embed=discord.Embed(
+            title="Command: !userinfo",
+            description="**Usage:** `!userinfo <@mention or user id>`",
+            color=discord.Color.blue()
+        ))
 
     user = None
     if message.mentions:
@@ -64,7 +76,11 @@ async def handle_userinfo(message):
 async def handle_remind(message):
     args = message.content.split(maxsplit=2)
     if len(args) < 3:
-        return await message.channel.send("**Usage:** `!remind <time> <message>`\nExample: `!remind 10m take a break`")
+        return await message.channel.send(embed=discord.Embed(
+            title="Command: !remind",
+            description="**Usage:** `!remind <time> <message>`\nExample: `!remind 10m take a break`",
+            color=discord.Color.blue()
+        ))
 
     time_str = args[1]
     reminder = args[2]
@@ -73,7 +89,11 @@ async def handle_remind(message):
     try:
         delay = int(time_str[:-1]) * units[time_str[-1]]
     except:
-        return await message.channel.send("Invalid time format. Use `10s`, `5m`, or `1h`.")
+        return await message.channel.send(embed=discord.Embed(
+            title="Command: !remind",
+            description="Invalid time format. Use `10s`, `5m`, or `1h`.",
+            color=discord.Color.red()
+        ))
 
     await message.channel.send(f"I'll remind you in {time_str}!")
     await asyncio.sleep(delay)
@@ -82,7 +102,11 @@ async def handle_remind(message):
 async def handle_roleinfo(message):
     args = message.content.split(maxsplit=1)
     if len(args) < 2:
-        return await message.channel.send("**Usage:** `!roleinfo <@role / role id / role name>`")
+        return await message.channel.send(embed=discord.Embed(
+            title="Command: !roleinfo",
+            description="**Usage:** `!roleinfo <@role / role id / role name>`",
+            color=discord.Color.blue()
+        ))
 
     role = None
     if message.role_mentions:
