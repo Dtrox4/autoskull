@@ -364,18 +364,6 @@ async def on_message(message):
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
 
-    # Example of handling antinuke commands
-    if message.content.startswith("!antinuke"):
-        await toggle_antinuke(message)
-    elif message.content.startswith("!whitelist"):
-        await whitelist_user(message)
-    elif message.content.startswith("!unwhitelist"):
-        await unwhitelist_user(message)
-    elif message.content.startswith("!whitelisted"):
-        await list_whitelisted(message)
-    elif message.content.startswith("!anstatus"):
-        await show_antinuke_status(message)
-
     # Ban command
     if message.content.startswith("!ban"):
         if not any(perm[1] for perm in message.author.guild_permissions if perm[0] in ["ban_members"]):
