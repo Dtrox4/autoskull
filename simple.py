@@ -9,7 +9,6 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
-from antinuke_event_handler import setup_event_handlers, setup_backups
 from ext_cmds import (
     handle_poll,
     handle_eightball,
@@ -94,10 +93,6 @@ def keep_alive():
     t.start()
 
 keep_alive()
-
-# Setup AntiNuke
-setup_event_handlers(bot)
-setup_backups(bot)
 
 @bot.event
 async def on_member_join(member):
