@@ -445,7 +445,7 @@ async def on_message(message):
 
         # Create the new channel and send the message
         new_channel = await message.guild.create_text_channel(new_channel_name)
-        await new_channel.send(value=final_msg)
+        await new_channel.send(final_msg)
 
     # Ban command
     if message.content.startswith("!ban"):
