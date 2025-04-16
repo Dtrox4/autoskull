@@ -9,6 +9,7 @@ from collections import defaultdict
 import time
 import embed_command
 import help_command
+from antinuke_handler import setup_event_handlers, setup_backups
 from ext_cmds import (
     handle_poll,
     handle_eightball,
@@ -63,7 +64,7 @@ MAINTENANCE_CANCELLED = False
 
 
 # Set up intents
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.message_content = True
 intents.guilds = True
 intents.members = True
@@ -78,6 +79,9 @@ class AutoSkullBot(commands.Bot):
 
 bot = AutoSkullBot(command_prefix="!", intents=intents, help_command=None)
 
+# Setup AntiNuke
+setup_event_handlers(bot)
+setup_backups(bot)
 
 # Keep-alive server using Flask
 app = Flask(__name__)
@@ -296,6 +300,7 @@ async def handle_bc(message, args):
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
+    print("AntiNuke system active.")
     await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
     
 @bot.command()
