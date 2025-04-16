@@ -336,6 +336,7 @@ async def setstatus(ctx, activity_type: str, *, args: str):
         color=discord.Color.green()
     )
     sent = await ctx.send(embed=embed)
+    await ctx.message.delete()
     await asyncio.sleep(5)
     await sent.delete()
 
@@ -348,6 +349,7 @@ async def statusclear(ctx):
     sent_message = await ctx.send("Bot status has been cleared.")
     
     # Delete the message after 5 seconds
+    await ctx.message.delete()
     await asyncio.sleep(5)
     await sent_message.delete()
 
@@ -614,9 +616,8 @@ async def on_message(message):
                             "```!role @user Role Name```",
                 color=discord.Color.blue()
             ))
-    # your role handling code here
-
-
+    
+        # your role handling code here
         member = message.mentions[0]
         role_name = message.content.split(None, 2)[2].replace(f"{member.mention}", "").strip()
 
@@ -637,7 +638,6 @@ async def on_message(message):
 
     if message.content.startswith("!help"):
         await help_command.handle_help_command(message)
-        await ctx.message.delete()
         return
 
     if message.content.lower().startswith("!stats"):
@@ -663,11 +663,9 @@ async def on_message(message):
 
     if message.content.startswith("!maintenance"):
         await handle_maintenance(message, bot)
-        await ctx.message.delete()
 
     if message.content.startswith("!cancelmaintenance"):
         await handle_cancel_maintenance(message)
-        await ctx.message.delete()
         return
 
     content = message.content
@@ -773,7 +771,7 @@ async def on_message(message):
                     "!skull authorized         - Show authorized users.\n"
                     "!restart                  - Restart the bot.    (owner only).\n"
                     "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
-                    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n\n"
+                    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
                     "!merge                    - Deletes all channels, makes a merge channel (owner only).\n\n"
                     "[ Bot Status ]\n"
                     "!setstatus <activity_type> <message> [--dnd | --idle | --invisible] - Set bot status & presence.\n"
@@ -782,7 +780,7 @@ async def on_message(message):
                     "activity_type: playing | watching | listening | streaming\n"
                     "message     : Custom message for the status.\n"
                     "Example:\n"
-                    "`!setstatus playing Skulling the worthy --dnd`  - Sets the bot to Playing 'Skulling the worthy'\n"
+                    "!setstatus playing Skulling the worthy --dnd  - Sets the bot to Playing 'Skulling the worthy'\n"
                     "```"
                 )
                 await message.channel.send(help_page_2)
