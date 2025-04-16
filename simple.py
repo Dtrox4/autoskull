@@ -79,10 +79,6 @@ class AutoSkullBot(commands.Bot):
 
 bot = AutoSkullBot(command_prefix="!", intents=intents, help_command=None)
 
-# Setup AntiNuke
-setup_event_handlers(bot)
-setup_backups(bot)
-
 # Keep-alive server using Flask
 app = Flask(__name__)
 
@@ -365,6 +361,11 @@ async def statusclear(ctx):
 
 @bot.event
 async def on_message(message):
+
+    # Setup AntiNuke
+    setup_event_handlers(bot)
+    setup_backups(bot)
+    
     # Ignore DMs to prevent 'User' attribute errors
     if message.guild is None:
         return
