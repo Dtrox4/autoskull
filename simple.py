@@ -456,7 +456,7 @@ async def handle_nuke_command(message, bot):
 mocked_users = set()
 
 async def handle_mock_command(message):
-    if not message.author.id in authorized_users:
+    if not message.author.id in AUTHORIZED_USERS:
         embed = discord.Embed(
             title="⛔ Unauthorized",
             description="You are not authorized to use this command.",
