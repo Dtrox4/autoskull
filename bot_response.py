@@ -3,7 +3,7 @@ import random
 import discord
 import json
 
-GENTLE_USER_IDS = [845578292778238002,1177672910102614127]
+GENTLE_USER_IDS = [1212229549459374222,845578292778238002,1177672910102614127]
 
 OWNER_ID = 1212229549459374222
 
@@ -17,7 +17,7 @@ def is_skulled(user_id):
     
 def get_response(base, user_id):
     if user_id == OWNER_ID:
-        return f"{base} lol."
+        return f"{base} oops, sorry."
     elif is_skulled(user_id):
         praise = [
             f"{base}. honestly, you’re amazing.",
@@ -38,19 +38,18 @@ async def handle_conversational(message):
     author_id = message.author.id
 
     # Greetings and mood
-    if any(q in content for q in ["how are you", "how’s it going", "are you alive", "you good", "you there"]):
+    if any(q in content for q in ["hru", "wsp", "dead", "you good", "you there"]):
         replies = [
             "I'm alive and lurking.",
             "Running at 100%... unlike your last idea.",
             "Still here, still skullin’.",
-            "System checks green. Skull power: 99%.",
             "Better than your ping, that’s for sure."
         ]
         await message.reply(get_response(random.choice(replies), author_id))
         return True
 
     # Jokes
-    if "tell me a joke" in content:
+    if "insult me" in content:
         if author_id in GENTLE_USER_IDS:
             jokes = [
                 "Why don’t bots play hide and seek? Because good luck hiding in a data center!",
@@ -70,7 +69,7 @@ async def handle_conversational(message):
         return True
 
     # About the bot
-    if "what can you do" in content:
+    if "wyd worthy" in content:
         replies = [
             "I skull people. I track. I roast. I flex. Type `!skull help`.",
             "Let’s just say I can make people disappear. Type `!skull help` to see more.",
@@ -79,11 +78,7 @@ async def handle_conversational(message):
         await message.reply(get_response(random.choice(replies), author_id))
         return True
 
-    if "who created you" in content or "who's your creator" in content:
-        await message.reply("I was forged by **@xv9c** — the one who wields the skull key.", author_id)
-        return True
-
-    if "how do i get authorized" in content or "authorize me" in content:
+    if "skull me" in content or "authorize" in content:
         replies = [
             "Only a chosen one can authorize you. Beg for mercy.",
             "You need divine skull approval. Ask someone who's already authorized.",
@@ -93,7 +88,7 @@ async def handle_conversational(message):
         return True
 
     # Love/hate
-    if "do you like me" in content:
+    if "am i" in content:
         replies = [
             "You’re... okay. For now.",
             "I tolerate your existence.",
@@ -104,22 +99,12 @@ async def handle_conversational(message):
         return True
 
     # Info
-    if "uptime" in content or "how long have you been on" in content:
+    if "uptime" in content or "stat" in content:
         await message.reply(get_response("Use `!stats` to check how long I’ve been skulking around.", author_id))
         return True
 
-    if "who is authorized" in content or "authorized users" in content:
+    if "authorized" in content or "authorized users" in content:
         await message.reply(get_response("Use `!skull authorized` to view the sacred skull bearers.", author_id))
-        return True
-
-    # Easter eggs / playful
-    if "skull bomb" in content:
-        replies = [
-            "☠️ Skull bomb armed. Evacuate immediately.",
-            "Boom incoming... skulls will rain.",
-            "☠️ Deploying payload. No survivors expected."
-        ]
-        await message.reply(random.choice(replies), author_id)
         return True
 
     if "thanos" in content:
@@ -140,7 +125,7 @@ async def handle_conversational(message):
         await message.reply(get_response(random.choice(replies), author_id))
         return True
 
-    if "you suck" in content or "smd" in content:
+    if "sybau" in content or "smd" in content:
         replies = [
             "Careful. I bite back.",
             "You're talking a lot for someone with weak permissions.",
