@@ -454,12 +454,10 @@ async def handle_nuke_command(message, bot):
         pass
 
 mocked_users = set()
+authorized_user = AUTHORIZED_USERS
 
 async def handle_mock_command(message):
-    if not message.content.startswith("!mock"):
-        return  # Only handle if the command is !mock
-
-    if not message.author.id in aAUTHORIZED_USERS:
+    if not message.author.id in authorized_user:
         embed = discord.Embed(
             title="⛔ Unauthorized",
             description="You are not authorized to use this command.",
@@ -468,26 +466,27 @@ async def handle_mock_command(message):
         await message.channel.send(embed=embed)
         return
 
-    if message.mentions:
-        target = message.mentions[0]
-    else:
-        target = message.author
+    if message.content.startswith("!mock"):
+        if message.mentions:
+            target = message.mentions[0]
+        else:
+            target = message.author
 
-    if target.id in mocked_users:
-        mocked_users.remove(target.id)
-        embed = discord.Embed(
-            title="❌ Mocking Disabled",
-            description=f"Mocking disabled for {target.mention}",
-            color=discord.Color.red()
-        )
-    else:
-        mocked_users.add(target.id)
-        embed = discord.Embed(
-            title="✅ Mocking Enabled",
-            description=f"Mocking enabled for {target.mention}",
-            color=discord.Color.green()
-        )
-    await message.channel.send(embed=embed)
+        if target.id in mocked_users:
+            mocked_users.remove(target.id)
+            embed = discord.Embed(
+                title="❌ Mocking Disabled",
+                description=f"Mocking disabled for {target.mention}",
+                color=discord.Color.red()
+            )
+        else:
+            mocked_users.add(target.id)
+            embed = discord.Embed(
+                title="✅ Mocking Enabled",
+                description=f"Mocking enabled for {target.mention}",
+                color=discord.Color.green()
+            )
+        await message.channel.send(embed=embed)
 
 async def mock_user_messages(message):
     if message.author.id in mocked_users and not message.content.startswith("!mock"):
@@ -501,7 +500,7 @@ async def mock_user_messages(message):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print("AntiNuke system active.")
-    await bot.change_presence(activity=discord.Game(name=".gg/mock for nitro!"))
+    await bot.change_presence(activity=discord.Game(name=".gg/mock !"))
     
 @bot.command()
 async def setstatus(ctx, activity_type: str, *, args: str):
@@ -583,11 +582,12 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    await bot.process_commands(message)
-    await embed_command.handle_embed_command(message, bot)
-
+    # Call the mock command handler
     await handle_mock_command(message)
     await mock_user_messages(message)
+    
+    await bot.process_commands(message)
+    await embed_command.handle_embed_command(message, bot)
 
     if message.content.startswith("!nuke"):
         await handle_nuke_command(message, bot)
