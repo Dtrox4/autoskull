@@ -952,7 +952,7 @@ async def on_message(message):
             page = arguments[1]
             if page == "1":
                 help_page_1 = (
-                    "**Available Commands (Page 1/2):**\n"
+                    "**Available Commands (Page 1/3):**\n"
                     "```diff\n"
                     "[ Skull Commands ]\n"
                     "!skull @user              - Skull a user.\n"
@@ -978,7 +978,7 @@ async def on_message(message):
         
             elif page == "2":
                 help_page_2 = (
-                    "**Available Commands (Page 2/2):**\n"
+                    "**Available Commands (Page 2/3):**\n"
                     "```diff\n"
                     "[ Moderation ]\n"
                     "!role @user <role>        - Add or remove a role from a user.\n"
@@ -1014,7 +1014,8 @@ async def on_message(message):
                     "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
                     "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
                     "!nuke                     - Deletes all channels, roles, and renames it all & spams. (owner only).\n"
-                    "!merge                    - Deletes all channels, makes a merge channel (owner only).\n\n"
+                    "!merge                    - Deletes all channels, makes a merge channel (owner only).\n"
+                    "```"
                 )
                 await message.channel.send(help_page_3)
                 return
