@@ -457,12 +457,27 @@ mocked_users = set()
 
 async def handle_mock_command(message):
     if message.content.startswith("!mock"):
-        if message.author.id in mocked_users:
-            mocked_users.remove(message.author.id)
-            await message.channel.send(f"Mocking disabled for {message.author.mention}")
+        if message.mentions:
+            target = message.mentions[0]
         else:
-            mocked_users.add(message.author.id)
-            await message.channel.send(f"Mocking enabled for {message.author.mention}")
+            target = message.author
+
+        if target.id in mocked_users:
+            mocked_users.remove(target.id)
+            embed=discord.Embed(
+                title="✅ Mocking Disabled",
+                description="Mocking disabled for {target.mention}",
+                color=discord.Color.red(embed=embed)
+            )
+            await message.channel.send(f)
+        else:
+            mocked_users.add(target.id)
+            embed=discord.Embed(
+                title="✅ Mocking enabled",
+                description="Mocking enabled for {target.mention}",
+                color=discord.Color.green()
+            )
+            await message.channel.send(embed=embed)
 
 async def mock_user_messages(message):
     if message.author.id in mocked_users and not message.content.startswith("!mock"):
@@ -470,6 +485,7 @@ async def mock_user_messages(message):
             c.upper() if i % 2 else c.lower() for i, c in enumerate(message.content)
         )
         await message.channel.send(mocked)
+
 
 @bot.event
 async def on_ready():
