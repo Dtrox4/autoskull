@@ -503,7 +503,7 @@ async def mock_user_messages(message):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print("AntiNuke system active.")
-    await bot.change_presence(activity=discord.Game(name=".gg/mock !"))
+    await bot.change_presence(activity=discord.watching(name=".gg/mock !"))
     
 @bot.command()
 async def setstatus(ctx, activity_type: str, *, args: str):
@@ -970,6 +970,7 @@ async def on_message(message):
                     "!remind <sec> <msg>       - Get a reminder after a given time.\n"
                     "!bc <filters>             - Bulk delete messages with optional filters.\n"
                     "!embed <channel> <code>   - Sends an embed to the channel you need.\n"
+                    "!mock <user>              - Mocks a users text.\n"
                     "```"
                 )
                 await message.channel.send(help_page_1)
@@ -988,15 +989,6 @@ async def on_message(message):
                     "!ban @user [reason]       - Ban a user from the server.\n"
                     "!kick @user [reason]      - Kick a user from the server.\n"
                     "!mute @user [reason]      - Mute a user with the mute role.\n\n"
-                    "[ Admin Only ]\n"
-                    "!skull authorize @user    - Authorize a user to use skull commands.\n"
-                    "!skull unauthorize @user  - Remove a user's authorization.\n"
-                    "!skull authorized         - Show authorized users.\n"
-                    "!restart                  - Restart the bot.    (owner only).\n"
-                    "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
-                    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
-                    "!nuke                     - Deletes all channels, roles, and renames it all & spams. (owner only).\n"
-                    "!merge                    - Deletes all channels, makes a merge channel (owner only).\n\n"
                     "[ Bot Status ]\n"
                     "!setstatus <activity_type> <message> [--dnd | --idle | --invisible] - Set bot status & presence.\n"
                     "[ Arguments for !setstatus ]\n"
@@ -1010,24 +1002,22 @@ async def on_message(message):
                 await message.channel.send(help_page_2)
                 return
 
-            #elif page == "3":
-                #help_page_3 = (
-                    #"**Available Commands (Page 3/3):**\n"
-                    #"```diff\n"
-                    #"[ AntiNuke Commands ]\n"
-                    #"!antinuke toggle <event>      - Enable or disable a specific protection (e.g. ban, kick, role_delete).\n"
-                    #"!antinuke config              - View current AntiNuke configuration settings.\n"
-                    #"!antinuke whitelist @user     - Whitelist a user to bypass AntiNuke checks.\n"
-                    #"!antinuke unwhitelist @user   - Remove a user from the whitelist.\n"
-                    #"!antinuke whitelistlist       - Show all whitelisted users.\n"
-                    #"!antinuke logchannel #channel - Set the channel to log AntiNuke actions.\n"
-                    #"!antinuke help                - Show help for AntiNuke module.\n\n"
-                    #"[ Auto Restore ]\n"
-                    #"(Auto role restoration is handled when users are kicked/banned unexpectedly.)\n"
-                    #"```"
-                #)
-                #await message.channel.send(help_page_3)
-                #return
+            elif page == "3":
+                help_page_3 = (
+                    "**Available Commands (Page 3/3):**\n"
+                    "```diff\n"
+                    "[ Admin Only ]\n"
+                    "!skull authorize @user    - Authorize a user to use skull commands.\n"
+                    "!skull unauthorize @user  - Remove a user's authorization.\n"
+                    "!skull authorized         - Show authorized users.\n"
+                    "!restart                  - Restart the bot.    (owner only).\n"
+                    "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
+                    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
+                    "!nuke                     - Deletes all channels, roles, and renames it all & spams. (owner only).\n"
+                    "!merge                    - Deletes all channels, makes a merge channel (owner only).\n\n"
+                )
+                await message.channel.send(help_page_3)
+                return
             
 
         # !skull authorize @user
