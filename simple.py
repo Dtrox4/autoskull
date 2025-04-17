@@ -503,7 +503,7 @@ async def mock_user_messages(message):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print("AntiNuke system active.")
-    await bot.change_presence(activity=discord.watching(name=".gg/mock !"))
+    await bot.change_presence(activity=discord.Game(name=".gg/mock !"))
     
 @bot.command()
 async def setstatus(ctx, activity_type: str, *, args: str):
