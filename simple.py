@@ -38,7 +38,7 @@ if not TOKEN:
 YOUR_USER_ID = 1212229549459374222
 
 # Authorized users
-AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
+AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318}
 
 OWNER_ID = 1212229549459374222
 
@@ -456,6 +456,15 @@ async def handle_nuke_command(message, bot):
 mocked_users = set()
 
 async def handle_mock_command(message):
+    if not message.author.id in authorized_users:
+        embed = discord.Embed(
+            title="⛔ Unauthorized",
+            description="You are not authorized to use this command.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
     if message.content.startswith("!mock"):
         if message.mentions:
             target = message.mentions[0]
