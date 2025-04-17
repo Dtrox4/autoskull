@@ -457,7 +457,7 @@ async def handle_nuke_command(message, bot):
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print("AntiNuke system active.")
-    await bot.change_presence(activity=discord.Game(name="if you're worthy, you shall be skulled"))
+    await bot.change_presence(activity=discord.Game(name=".gg/mock for nitro!"))
     
 @bot.command()
 async def setstatus(ctx, activity_type: str, *, args: str):
