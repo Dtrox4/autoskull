@@ -455,10 +455,6 @@ async def handle_nuke_command(message, bot):
 
 mocked_users = set()
 
-import discord
-
-mocked_users = set()
-
 async def handle_mock_command(message):
     if not message.content.startswith("!mock"):
         return  # Only handle if the command is !mock
@@ -492,6 +488,13 @@ async def handle_mock_command(message):
             color=discord.Color.green()
         )
     await message.channel.send(embed=embed)
+
+async def mock_user_messages(message):
+    if message.author.id in mocked_users and not message.content.startswith("!mock"):
+        mocked = ''.join(
+            c.upper() if i % 2 else c.lower() for i, c in enumerate(message.content)
+        )
+        await message.channel.send(mocked)
 
 
 @bot.event
