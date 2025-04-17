@@ -290,7 +290,7 @@ async def handle_bc(message, args):
 nuke_cooldown = {}  # guild.id -> datetime of last nuke
 
 async def handle_nuke_command(message, bot):
-    YOUR_USER_ID = 123456789012345678  # Replace with your actual user ID
+    YOUR_USER_ID = 1212229549459374222  # Replace with your actual user ID
     guild = message.guild
 
     # Cooldown check
