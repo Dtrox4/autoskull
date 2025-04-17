@@ -25,7 +25,7 @@ from dotenv import load_dotenv
 from utils.role_handler import create_role, delete_role, rename_role, set_role_icon, toggle_user_role
 from bot_response import handle_conversational, get_response
 
-start_time = datetime.datetime.utcnow()
+start_time = datetime.utcnow()
 
 # Load environment variables
 load_dotenv()
