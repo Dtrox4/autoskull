@@ -464,20 +464,19 @@ async def handle_mock_command(message):
 
         if target.id in mocked_users:
             mocked_users.remove(target.id)
-            embed=discord.Embed(
-                title="✅ Mocking Disabled",
-                description="Mocking disabled for {target.mention}",
-                color=discord.Color.red(embed=embed)
+            embed = discord.Embed(
+                title="❌ Mocking Disabled",
+                description=f"Mocking disabled for {target.mention}",
+                color=discord.Color.red()
             )
-            await message.channel.send(f)
         else:
             mocked_users.add(target.id)
-            embed=discord.Embed(
-                title="✅ Mocking enabled",
-                description="Mocking enabled for {target.mention}",
+            embed = discord.Embed(
+                title="✅ Mocking Enabled",
+                description=f"Mocking enabled for {target.mention}",
                 color=discord.Color.green()
             )
-            await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed)
 
 async def mock_user_messages(message):
     if message.author.id in mocked_users and not message.content.startswith("!mock"):
