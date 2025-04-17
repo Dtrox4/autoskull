@@ -457,6 +457,9 @@ mocked_users = set()
 authorized_user = AUTHORIZED_USERS
 
 async def handle_mock_command(message):
+    if not message.content.startswith("!mock"):
+        return
+        
     if not message.author.id in authorized_user:
         embed = discord.Embed(
             title="⛔ Unauthorized",
