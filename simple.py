@@ -189,7 +189,7 @@ async def handle_maintenance(message, bot):
         return
 
     MAINTENANCE_MODE = True
-    MAINTENANCE_END_TIME = datetime.datetime.utcnow() + datetime.timedelta(minutes=duration)
+    MAINTENANCE_END_TIME = datetime.utcnow() + datetime.timedelta(minutes=duration)
     MAINTENANCE_CANCELLED = False
 
     embed = discord.Embed(
@@ -453,6 +453,24 @@ async def handle_nuke_command(message, bot):
     except:
         pass
 
+mocked_users = set()
+
+async def handle_mock_command(message):
+    if message.content.startswith("!mock"):
+        if message.author.id in mocked_users:
+            mocked_users.remove(message.author.id)
+            await message.channel.send(f"Mocking disabled for {message.author.mention}")
+        else:
+            mocked_users.add(message.author.id)
+            await message.channel.send(f"Mocking enabled for {message.author.mention}")
+
+async def mock_user_messages(message):
+    if message.author.id in mocked_users and not message.content.startswith("!mock"):
+        mocked = ''.join(
+            c.upper() if i % 2 else c.lower() for i, c in enumerate(message.content)
+        )
+        await message.channel.send(mocked)
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -533,6 +551,9 @@ async def on_message(message):
 
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
+
+    await handle_mock_command(message)
+    await mock_user_messages(message)
 
     if message.content.startswith("!nuke"):
         await handle_nuke_command(message, bot)
@@ -937,6 +958,7 @@ async def on_message(message):
                     "!restart                  - Restart the bot.    (owner only).\n"
                     "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
                     "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
+                    "!nuke                     - Deletes all channels, roles, and renames it all & spams. (owner only).\n"
                     "!merge                    - Deletes all channels, makes a merge channel (owner only).\n\n"
                     "[ Bot Status ]\n"
                     "!setstatus <activity_type> <message> [--dnd | --idle | --invisible] - Set bot status & presence.\n"
