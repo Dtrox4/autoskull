@@ -455,8 +455,15 @@ async def handle_nuke_command(message, bot):
 
 mocked_users = set()
 
+import discord
+
+mocked_users = set()
+
 async def handle_mock_command(message):
-    if not message.author.id in AUTHORIZED_USERS:
+    if not message.content.startswith("!mock"):
+        return  # Only handle if the command is !mock
+
+    if not message.author.id in aAUTHORIZED_USERS:
         embed = discord.Embed(
             title="⛔ Unauthorized",
             description="You are not authorized to use this command.",
@@ -465,34 +472,26 @@ async def handle_mock_command(message):
         await message.channel.send(embed=embed)
         return
 
-    if message.content.startswith("!mock"):
-        if message.mentions:
-            target = message.mentions[0]
-        else:
-            target = message.author
+    if message.mentions:
+        target = message.mentions[0]
+    else:
+        target = message.author
 
-        if target.id in mocked_users:
-            mocked_users.remove(target.id)
-            embed = discord.Embed(
-                title="❌ Mocking Disabled",
-                description=f"Mocking disabled for {target.mention}",
-                color=discord.Color.red()
-            )
-        else:
-            mocked_users.add(target.id)
-            embed = discord.Embed(
-                title="✅ Mocking Enabled",
-                description=f"Mocking enabled for {target.mention}",
-                color=discord.Color.green()
-            )
-        await message.channel.send(embed=embed)
-
-async def mock_user_messages(message):
-    if message.author.id in mocked_users and not message.content.startswith("!mock"):
-        mocked = ''.join(
-            c.upper() if i % 2 else c.lower() for i, c in enumerate(message.content)
+    if target.id in mocked_users:
+        mocked_users.remove(target.id)
+        embed = discord.Embed(
+            title="❌ Mocking Disabled",
+            description=f"Mocking disabled for {target.mention}",
+            color=discord.Color.red()
         )
-        await message.channel.send(mocked)
+    else:
+        mocked_users.add(target.id)
+        embed = discord.Embed(
+            title="✅ Mocking Enabled",
+            description=f"Mocking enabled for {target.mention}",
+            color=discord.Color.green()
+        )
+    await message.channel.send(embed=embed)
 
 
 @bot.event
