@@ -23,7 +23,6 @@ from flask import Flask
 from threading import Thread
 from dotenv import load_dotenv
 from utils.role_handler import create_role, delete_role, rename_role, set_role_icon, toggle_user_role
-from bot_response import handle_conversational, get_response
 
 start_time = datetime.utcnow()
 
@@ -852,9 +851,6 @@ async def on_message(message):
             role_name=role_name,
             channel=message.channel
         )
-
-    if await handle_conversational(message):
-        return
 
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
