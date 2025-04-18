@@ -188,7 +188,7 @@ async def handle_maintenance(message, bot):
         return
 
     MAINTENANCE_MODE = True
-    MAINTENANCE_END_TIME = datetime.utcnow() + datetime.timedelta(minutes=duration)
+    MAINTENANCE_END_TIME = datetime.utcnow() + timedelta(minutes=duration)
     MAINTENANCE_CANCELLED = False
 
     embed = discord.Embed(
@@ -204,16 +204,6 @@ async def handle_maintenance(message, bot):
         if MAINTENANCE_CANCELLED:
             return
         await asyncio.sleep(1)
-
-    # Maintenance done, restart the bot
-    if not MAINTENANCE_CANCELLED:
-        embed = discord.Embed(
-            title="✅ Maintenance Complete",
-            description="Restarting the bot now...",
-            color=discord.Color.green()
-        )
-        await message.channel.send(embed=embed)
-        await bot.close()
 
 async def handle_cancel_maintenance(message):
     global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
