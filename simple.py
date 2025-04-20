@@ -516,7 +516,7 @@ async def setstatus(ctx, activity_type: str, *, args: str):
             break  # only one status flag at a time
 
     # Set activity
-    activity = discord.Game(name=".gg/mock for nitro!")
+    activity = None
     activity_type_lower = activity_type.lower()
 
     if activity_type_lower == 'playing':
@@ -552,7 +552,7 @@ async def statusclear(ctx):
             )
         return await ctx.send(embed=embed)
 
-    await bot.change_presence(activity=activity)
+    await bot.change_presence(activity=None)
     embed=discord.Embed(
                 description=f"✅ Bot status has been cleared.",
                 color=discord.Color.green()
