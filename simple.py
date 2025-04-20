@@ -587,6 +587,7 @@ harsh_insults = [
     "If I had a dollar for every smart thing you said, I'd be broke.",
     "You're about as useful as a screen door on a submarine.",
     "You're like a software update. Whenever I see you, I think, 'Not now.'",
+]
 
 async def insult_user_reply(message):
     if message.author.id in insulted_users:
