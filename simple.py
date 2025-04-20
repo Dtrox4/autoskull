@@ -543,6 +543,7 @@ async def setstatus(ctx, activity_type: str, *, args: str):
     await asyncio.sleep(5)
     await sent.delete()
 
+@bot.command()
 async def handle_statusclear(message, bot):
     if message.content.startswith("!statusclear"):
         if message.author.id != YOUR_USER_ID:
@@ -553,7 +554,7 @@ async def handle_statusclear(message, bot):
             await message.channel.send(embed=embed)
             return
 
-        await bot.change_presence(activity=None)
+        await bot.change_presence(activity=discord.Game(name=".gg/mock !"))
 
         embed = discord.Embed(
             description="✅ Bot status has been cleared.",
