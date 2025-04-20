@@ -497,7 +497,12 @@ async def on_ready():
 @bot.command()
 async def setstatus(ctx, activity_type: str, *, args: str):
     if ctx.author.id != YOUR_USER_ID:
-        return await ctx.send("You are not authorized to change the bot's status.")
+            embed = discord.Embed(
+                description="❌ You are not authorized to use this command.",
+                color=discord.Color.red()
+            )
+            await message.channel.send(embed=embed)
+            return
 
     # Default presence status
     status = discord.Status.online
