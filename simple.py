@@ -641,7 +641,7 @@ async def on_message(message):
     if message.author == bot.user:
         return
     
-    await handle_servers_command(message, bot
+    await handle_servers_command(message, bot)
     await insult_user_reply(message)
 
     if message.content.startswith("!toggleinsult"):
