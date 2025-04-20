@@ -543,7 +543,6 @@ async def setstatus(ctx, activity_type: str, *, args: str):
     await asyncio.sleep(5)
     await sent.delete()
 
-@bot.command()
 async def handle_statusclear(message, bot):
     if message.content.startswith("!statusclear"):
         if message.author.id != YOUR_USER_ID:
@@ -569,6 +568,7 @@ async def handle_statusclear(message, bot):
         except discord.Forbidden:
             pass
 
+
 @bot.event
 async def on_message(message):
     
@@ -578,6 +578,8 @@ async def on_message(message):
 
     if message.author == bot.user:
         return
+
+    await handle_statusclear(message, bot)
 
     # Call the mock command handler
     await handle_mock_command(message)
