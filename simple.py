@@ -543,26 +543,30 @@ async def setstatus(ctx, activity_type: str, *, args: str):
     await asyncio.sleep(5)
     await sent.delete()
 
-@bot.command()
-async def statusclear(ctx):
-    if not ctx.author.id == YOUR_USER_ID:  # Optional: Check if the command is issued by the bot owner.
-        embed=discord.Embed(
-                description=f"❌ You are not authorized to clear the bot's status.",
+async def handle_statusclear(message, bot):
+    if message.content.startswith("!statusclear"):
+        if message.author.id != YOUR_USER_ID:
+            embed = discord.Embed(
+                description="❌ You are not authorized to clear the bot's status.",
                 color=discord.Color.red()
             )
-        return await ctx.send(embed=embed)
+            await message.channel.send(embed=embed)
+            return
 
-    await bot.change_presence(activity=None)
-    embed=discord.Embed(
-                description=f"✅ Bot status has been cleared.",
-                color=discord.Color.green()
-            )
-    sent_message = await ctx.send(embed=embed)
-    
-    # Delete the message after 5 seconds
-    await ctx.message.delete()
-    await asyncio.sleep(5)
-    await sent_message.delete()
+        await bot.change_presence(activity=None)
+
+        embed = discord.Embed(
+            description="✅ Bot status has been cleared.",
+            color=discord.Color.green()
+        )
+        confirmation = await message.channel.send(embed=embed)
+
+        try:
+            await message.delete()
+            await asyncio.sleep(5)
+            await confirmation.delete()
+        except discord.Forbidden:
+            pass
 
 @bot.event
 async def on_message(message):
