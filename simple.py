@@ -573,6 +573,19 @@ async def handle_statusclear(message, bot):
             await confirmation.delete()
         except discord.Forbidden:
             pass
+
+async def handle_servers_command(message, bot):
+    if message.content == "!servers" and message.author.id == YOUR_USER_ID:
+        guilds = bot.guilds
+        description = "\n".join([f"**{guild.name}** (ID: `{guild.id}`)" for guild in guilds])
+
+        embed = discord.Embed(
+            title="🛰️ Servers I'm In",
+            description=description or "No servers found.",
+            color=discord.Color.blurple()
+        )
+        await message.channel.send(embed=embed)
+
 # Toggle insult mode
 async def handle_toggle_insult(message):
     if message.content.startswith("!toggleinsult"):
@@ -627,7 +640,8 @@ async def on_message(message):
 
     if message.author == bot.user:
         return
-
+    
+    await handle_servers_command(message, bot
     await insult_user_reply(message)
 
     if message.content.startswith("!toggleinsult"):
