@@ -573,6 +573,26 @@ async def handle_statusclear(message, bot):
         except discord.Forbidden:
             pass
 
+insulted_users = set()  # Store user IDs who should get insulted
+
+harsh_insults = [
+    "You're not stupid; you just have bad luck thinking.",
+    "You're the reason evolution takes breaks.",
+    "You're proof that not everyone grows with age.",
+    "You're like a cloud. When you disappear, it's a beautiful day.",
+    "Your brain’s on vacation and forgot to come back.",
+    "You bring everyone so much joy… when you leave the room.",
+    "You have something on your chin... no, the third one down.",
+    "You're the human version of a participation trophy.",
+    "If I had a dollar for every smart thing you said, I'd be broke.",
+    "You're about as useful as a screen door on a submarine.",
+    "You're like a software update. Whenever I see you, I think, 'Not now.'",
+
+async def insult_user_reply(message):
+    if message.author.id in insulted_users:
+        insult = random.choice(harsh_insults)
+        await message.reply(insult)
+
 
 @bot.event
 async def on_message(message):
@@ -583,6 +603,11 @@ async def on_message(message):
 
     if message.author == bot.user:
         return
+
+    await insult_user_reply(message)
+
+    if message.content.startswith("!toggleinsult"):
+        await handle_toggle_insult(message)
 
     await handle_statusclear(message, bot)
 
