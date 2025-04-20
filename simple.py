@@ -633,15 +633,6 @@ async def on_message(message):
     if message.content.startswith("!toggleinsult"):
         await handle_toggle_insult(message)
 
-    await handle_statusclear(message, bot)
-
-    # Call the mock command handler
-    await handle_mock_command(message)
-    await mock_user_messages(message)
-    
-    await bot.process_commands(message)
-    await embed_command.handle_embed_command(message, bot)
-
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
 
@@ -652,6 +643,15 @@ async def on_message(message):
     if message.content.lower().startswith("!stats"):
         await handle_stats(message, bot, start_time)
         return
+
+    await handle_statusclear(message, bot)
+
+    # Call the mock command handler
+    await handle_mock_command(message)
+    await mock_user_messages(message)
+    
+    await bot.process_commands(message)
+    await embed_command.handle_embed_command(message, bot)
 
     if message.content.lower().startswith("!restart"):
         await handle_restart(message)
