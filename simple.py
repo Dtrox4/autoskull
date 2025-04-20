@@ -642,6 +642,25 @@ async def on_message(message):
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
 
+    if isinstance(message.channel, discord.DMChannel):
+        print(f"DM from {message.author}: {message.content}")
+
+    if message.content.startswith("!help"):
+        await help_command.handle_help_command(message)
+        return
+
+    if message.content.lower().startswith("!stats"):
+        await handle_stats(message, bot, start_time)
+        return
+
+    if message.content.lower().startswith("!restart"):
+        await handle_restart(message)
+        return
+
+    if message.content.startswith("!say"):
+        await handle_say(message)
+        return
+
     if message.content.startswith("!nuke"):
         await handle_nuke_command(message, bot)
 
@@ -902,27 +921,7 @@ async def on_message(message):
             role_name=role_name,
             channel=message.channel
         )
-
-    if isinstance(message.channel, discord.DMChannel):
-        print(f"DM from {message.author}: {message.content}")
-
-    if message.content.startswith("!help"):
-        await help_command.handle_help_command(message)
-        return
-
-    if message.content.lower().startswith("!stats"):
-        await handle_stats(message, bot, start_time)
-        return
-
-    if message.content.lower().startswith("!restart"):
-        await handle_restart(message)
-        return
-
-    if message.content.startswith("!say"):
-        await handle_say(message)
-        return
     
-
     if MAINTENANCE_MODE and message.author.id != YOUR_USER_ID:
         embed = discord.Embed(
             description="🛠️ The bot is currently under maintenance.\nPlease try again later.",
