@@ -631,7 +631,6 @@ async def on_message(message):
     await auto_react_to_messages(message)
     
     await handle_servers_command(message, bot)
-    await insult_user_reply(message)
 
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
