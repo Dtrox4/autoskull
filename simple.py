@@ -638,6 +638,9 @@ async def on_message(message):
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
 
+    if message.author.bot or message.author.id in excluded_users:
+        return
+
     content = message.content.lower()
     user_id = message.author.id
     now = time.time()
