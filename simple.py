@@ -574,6 +574,13 @@ async def handle_statusclear(message, bot):
         except discord.Forbidden:
             pass
 
+
+# Replace with your Discord User ID
+YOUR_USER_ID = 1212229549459374222
+
+# Authorized users
+AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318}
+
 # Define a list of short diss responses
 disses = [
     "Shut up.",
