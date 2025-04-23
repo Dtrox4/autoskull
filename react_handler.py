@@ -2,6 +2,8 @@ import emoji as emoji_lib  # pip install emoji
 
 import discord
 
+
+
 # Dictionary to store users and their assigned emoji for auto-reacting
 auto_react_users = {}  # <-- Make sure this is declared at the top
 
