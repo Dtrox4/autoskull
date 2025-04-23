@@ -66,6 +66,14 @@ async def handle_react_command(message):
 
     await message.channel.send(embed=embed)
 
+async def auto_react_to_messages(message):
+    emoji = auto_react_users.get(message.author.id)
+    if emoji:
+        try:
+            await message.add_reaction(emoji)
+        except discord.HTTPException:
+            pass  # silently fail if the emoji is invalid
+
 async def handle_reactlist_command(message):
     if message.author.id not in AUTHORIZED_USERS:
         embed = discord.Embed(
