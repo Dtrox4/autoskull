@@ -3,8 +3,11 @@ import discord
 # Dictionary to store users and their assigned emoji for auto-reacting
 auto_react_users = {}
 
+# Replace with your Discord User ID
+YOUR_USER_ID = 1212229549459374222
+
 # List of authorized user IDs
-AUTHORIZED_USERS = [YOUR_USER_ID, ANOTHER_ID]  # Replace with real user IDs
+AUTHORIZED_USERS = [YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318]  # Replace with real user IDs
 
 async def handle_react_command(message):
     if not message.content.startswith("!react"):
