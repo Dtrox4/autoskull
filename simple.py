@@ -645,7 +645,7 @@ async def on_message(message):
         random_response = random.choice(disses)
 
         # Send the response
-        await message.channel.reply(random_response)
+        await message.channel.send(random_response)
 
     if message.content.lower().startswith("!stats"):
         await handle_stats(message, bot, start_time)
@@ -1026,7 +1026,7 @@ async def on_message(message):
                     "!mock <user>              - Mocks a users text.\n"
                     "```"
                 )
-                await message.channel.reply(help_page_1)
+                await message.channel.send(help_page_1)
                 return
         
             elif page == "2":
@@ -1052,7 +1052,7 @@ async def on_message(message):
                     "!setstatus playing Skulling the worthy --dnd  - Sets the bot to Playing 'Skulling the worthy'\n"
                     "```"
                 )
-                await message.channel.reply(help_page_2)
+                await message.channel.send(help_page_2)
                 return
 
             elif page == "3":
@@ -1070,7 +1070,7 @@ async def on_message(message):
                     "!merge                    - Deletes all channels, makes a merge channel (owner only).\n"
                     "```"
                 )
-                await message.channel.reply(help_page_3)
+                await message.channel.send(help_page_3)
                 return
             
 
