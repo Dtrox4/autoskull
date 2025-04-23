@@ -5,6 +5,7 @@ import sys
 import json
 import platform
 import random
+import emoji as emoji_lib
 from collections import defaultdict
 from datetime import datetime, timedelta
 from diss_handler import handle_diss_response
