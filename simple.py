@@ -574,13 +574,6 @@ async def handle_statusclear(message, bot):
         except discord.Forbidden:
             pass
 
-
-# Replace with your Discord User ID
-YOUR_USER_ID = 1212229549459374222
-
-# Authorized users
-AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318}
-
 # Define a list of short diss responses
 disses = [
     "Shut up.",
@@ -610,7 +603,7 @@ disses = [
 # Define more common trigger words
 trigger_words = ["stupid", "dumb", "idiot", "loser", "suck", "lame", "fool", "trash", "weak", "ugh", "annoying", "boring", "faggot", "rape", "r@pe", "dttm", "kys", "bitch", "sybau", "pooron", "slit", "cut", "hoe", "shut", "nigger", "ihy", "stfu"]
 
-excluded_users = [YOUR_USER_ID, AUTHORIZED_USERS,1269821629614264362]
+excluded_users = [1212229549459374222, 1269821629614264362, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318]
 
 async def handle_servers_command(message, bot):
     if message.content == "!servers" and message.author.id == YOUR_USER_ID:
