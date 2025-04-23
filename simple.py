@@ -622,6 +622,20 @@ async def handle_servers_command(message, bot):
 
 @bot.event
 async def on_message(message):
+
+    if message.author.bot or message.author.id in excluded_users:
+        return
+
+    content = message.content.lower()
+    user_id = message.author.id
+    now = time.time()
+
+    if any(word in content for word in trigger_words):
+        last_used = user_cooldowns.get(user_id, 0)
+        if now - last_used >= COOLDOWN_SECONDS:
+            response = random.choice(disses)
+            await message.reply(response)
+            user_cooldowns[user_id] = now
     
     # Ignore DMs to prevent 'User' attribute errors
     if message.guild is None:
@@ -638,19 +652,7 @@ async def on_message(message):
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
 
-    if message.author.bot or message.author.id in excluded_users:
-        return
-
-    content = message.content.lower()
-    user_id = message.author.id
-    now = time.time()
-
-    if any(word in content for word in trigger_words):
-        last_used = user_cooldowns.get(user_id, 0)
-        if now - last_used >= COOLDOWN_SECONDS:
-            response = random.choice(disses)
-            await message.reply(response)
-            user_cooldowns[user_id] = now
+    
 
     if message.content.lower().startswith("!stats"):
         await handle_stats(message, bot, start_time)
