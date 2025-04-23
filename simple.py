@@ -7,6 +7,7 @@ import platform
 import random
 from collections import defaultdict
 from datetime import datetime, timedelta
+from diss_handler import handle_diss_response
 import time
 import embed_command
 import help_command
