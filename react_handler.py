@@ -1,5 +1,19 @@
 import emoji as emoji_lib  # pip install emoji
 
+import discord
+
+# Dictionary to store users and their assigned emoji for auto-reacting
+auto_react_users = {}  # <-- Make sure this is declared at the top
+
+# Then define your functions below
+async def auto_react_to_messages(message):
+    emoji = auto_react_users.get(message.author.id)
+    if emoji:
+        try:
+            await message.add_reaction(emoji)
+        except discord.HTTPException:
+            pass
+
 def is_valid_emoji(emoji_str):
     return emoji_lib.is_emoji(emoji_str) or (
         emoji_str.startswith("<:") and emoji_str.endswith(">")
@@ -65,14 +79,6 @@ async def handle_react_command(message):
         )
 
     await message.channel.send(embed=embed)
-
-async def auto_react_to_messages(message):
-    emoji = auto_react_users.get(message.author.id)
-    if emoji:
-        try:
-            await message.add_reaction(emoji)
-        except discord.HTTPException:
-            pass  # silently fail if the emoji is invalid
 
 async def handle_reactlist_command(message):
     if message.author.id not in AUTHORIZED_USERS:
