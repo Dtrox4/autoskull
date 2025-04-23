@@ -597,7 +597,7 @@ async def on_message(message):
 
     await handle_react_command(message)
     await auto_react_to_messages(message)
-    
+    await handle_diss_response(message)
     await handle_servers_command(message, bot)
 
     if message.content.lower().startswith("!stats"):
