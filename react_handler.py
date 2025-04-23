@@ -65,3 +65,36 @@ async def handle_react_command(message):
         )
 
     await message.channel.send(embed=embed)
+
+async def handle_reactlist_command(message):
+    if message.author.id not in AUTHORIZED_USERS:
+        embed = discord.Embed(
+            title="⛔ Unauthorized",
+            description="You are not allowed to use this command.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    if not auto_react_users:
+        embed = discord.Embed(
+            title="ℹ️ Auto-Reaction List",
+            description="No users are currently set for auto-reaction.",
+            color=discord.Color.blue()
+        )
+    else:
+        description = ""
+        for user_id, emoji in auto_react_users.items():
+            user = message.guild.get_member(user_id)
+            if user:
+                description += f"{user.mention} — {emoji}\n"
+            else:
+                description += f"<@{user_id}> — {emoji}\n"
+
+        embed = discord.Embed(
+            title="📋 Auto-Reaction List",
+            description=description,
+            color=discord.Color.green()
+        )
+
+    await message.channel.send(embed=embed)
