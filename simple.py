@@ -574,6 +574,37 @@ async def handle_statusclear(message, bot):
         except discord.Forbidden:
             pass
 
+# Define a list of short diss responses
+disses = [
+    "Shut up.",
+    "F*** you.",
+    "No one asked.",
+    "Get lost.",
+    "Try harder.",
+    "You wish.",
+    "What a joke.",
+    "So dumb.",
+    "Who cares?",
+    "Loser.",
+    "Lame.",
+    "Shut your mouth.",
+    "Try again.",
+    "Nice try.",
+    "You're a mess.",
+    "Big mood... not.",
+    "Bye, Felicia.",
+    "You're embarrassing.",
+    "Get a clue.",
+    "Weak.",
+    "Boring.",
+    "Take a seat."
+]
+
+# Define more common trigger words
+trigger_words = ["stupid", "dumb", "idiot", "loser", "suck", "lame", "fool", "trash", "weak", "ugh", "annoying", "boring", "faggot", "rape", "r@pe", "dttm", "kys", "bitch", "sybau", "pooron", "slit", "cut", "hoe", "shut", "nigger", "ihy", "stfu"]
+
+excluded_users = [YOUR_USER_ID, AUTHORIZED_USERS,1269821629614264362]
+
 async def handle_servers_command(message, bot):
     if message.content == "!servers" and message.author.id == YOUR_USER_ID:
         guilds = bot.guilds
@@ -585,51 +616,6 @@ async def handle_servers_command(message, bot):
             color=discord.Color.blurple()
         )
         await message.channel.send(embed=embed)
-
-# Toggle insult mode
-async def handle_toggle_insult(message):
-    if message.content.startswith("!toggleinsult"):
-        if message.mentions:
-            target = message.mentions[0]
-            if target.id in insulted_users:
-                insulted_users.remove(target.id)
-                embed = discord.Embed(
-                    title="❌ Insults Disabled",
-                    description=f"Insult replies disabled for {target.mention}.",
-                    color=discord.Color.red()
-                )
-            else:
-                insulted_users.add(target.id)
-                embed = discord.Embed(
-                    title="✅ Insults Enabled",
-                    description=f"Insult replies enabled for {target.mention}.",
-                    color=discord.Color.green()
-                )
-            await message.channel.send(embed=embed)
-        else:
-            await message.channel.send("Mention a user to toggle insults.")
-            
-insulted_users = set()  # Store user IDs who should get insulted
-
-harsh_insults = [
-    "You're not stupid; you just have bad luck thinking.",
-    "You're the reason evolution takes breaks.",
-    "You're proof that not everyone grows with age.",
-    "You're like a cloud. When you disappear, it's a beautiful day.",
-    "Your brain’s on vacation and forgot to come back.",
-    "You bring everyone so much joy… when you leave the room.",
-    "You have something on your chin... no, the third one down.",
-    "You're the human version of a participation trophy.",
-    "If I had a dollar for every smart thing you said, I'd be broke.",
-    "You're about as useful as a screen door on a submarine.",
-    "You're like a software update. Whenever I see you, I think, 'Not now.'",
-]
-
-async def insult_user_reply(message):
-    if message.author.id in insulted_users:
-        insult = random.choice(harsh_insults)
-        await message.reply(insult)
-
 
 @bot.event
 async def on_message(message):
@@ -647,15 +633,20 @@ async def on_message(message):
     await handle_servers_command(message, bot)
     await insult_user_reply(message)
 
-    if message.content.startswith("!toggleinsult"):
-        await handle_toggle_insult(message)
-
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
 
-    if message.content.startswith("!help"):
-        await help_command.handle_help_command(message)
-        return
+    # Check if the author is in the excluded_users list
+    if message.author.id in excluded_users:
+        return  # If the user is in the excluded list, don't reply to their message
+
+    # Check if any trigger word is in the message
+    if any(word in message.content.lower() for word in trigger_words):
+        # Select a random response
+        random_response = random.choice(disses)
+
+        # Send the response
+        await message.channel.send(random_response)
 
     if message.content.lower().startswith("!stats"):
         await handle_stats(message, bot, start_time)
