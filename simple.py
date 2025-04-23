@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import time
 import embed_command
 import help_command
+from react_handler import handle_react_command, auto_react_to_messages
 from ext_cmds import (
     handle_poll,
     handle_eightball,
@@ -117,7 +118,6 @@ async def handle_say(message):
             color=discord.Color.orange()
         )
         await message.channel.send(embed=embed)
-
 
 async def handle_stats(message, bot, start_time):
     now = datetime.datetime.utcnow()
@@ -640,6 +640,9 @@ async def on_message(message):
 
     if message.author == bot.user:
         return
+
+    await handle_react_command(message)
+    await auto_react_to_messages(message)
     
     await handle_servers_command(message, bot)
     await insult_user_reply(message)
