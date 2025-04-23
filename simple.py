@@ -599,6 +599,11 @@ async def on_message(message):
 
     await handle_react_command(message)
     await auto_react_to_messages(message)
+
+    if message.content.lower().startswith("!reactlist"):
+        await handle_reactlist_command(message)
+        return
+
     await handle_diss_response(message)
     await handle_servers_command(message, bot)
 
