@@ -55,7 +55,6 @@ MAINTENANCE_MODE = False
 MAINTENANCE_END_TIME = None
 MAINTENANCE_CANCELLED = False
 
-
 # Set up intents
 intents = discord.Intents.all()
 intents.message_content = True
@@ -605,6 +604,10 @@ trigger_words = ["stupid", "dumb", "idiot", "loser", "suck", "lame", "fool", "tr
 
 excluded_users = [1212229549459374222, 1269821629614264362, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318]
 
+# Cooldown dictionary
+user_cooldowns = {}
+COOLDOWN_SECONDS = 10  # cooldown time per user
+
 async def handle_servers_command(message, bot):
     if message.content == "!servers" and message.author.id == YOUR_USER_ID:
         guilds = bot.guilds
@@ -635,17 +638,16 @@ async def on_message(message):
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
 
-    # Check if the author is in the excluded_users list
-    if message.author.id in excluded_users:
-        return  # If the user is in the excluded list, don't reply to their message
+    content = message.content.lower()
+    user_id = message.author.id
+    now = time.time()
 
-    # Check if any trigger word is in the message
-    if any(word in message.content.lower() for word in trigger_words):
-        # Select a random response
-        random_response = random.choice(disses)
-
-        # Send the response
-        await message.channel.send(random_response)
+    if any(word in content for word in trigger_words):
+        last_used = user_cooldowns.get(user_id, 0)
+        if now - last_used >= COOLDOWN_SECONDS:
+            response = random.choice(disses)
+            await message.reply(response)
+            user_cooldowns[user_id] = now
 
     if message.content.lower().startswith("!stats"):
         await handle_stats(message, bot, start_time)
