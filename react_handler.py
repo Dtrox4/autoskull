@@ -2,7 +2,11 @@ import emoji as emoji_lib  # pip install emoji
 
 import discord
 
+# Replace with your Discord User ID
+YOUR_USER_ID = 1212229549459374222
 
+# Authorized users
+AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318}
 
 # Dictionary to store users and their assigned emoji for auto-reacting
 auto_react_users = {}  # <-- Make sure this is declared at the top
