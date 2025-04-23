@@ -573,41 +573,6 @@ async def handle_statusclear(message, bot):
         except discord.Forbidden:
             pass
 
-# Define a list of short diss responses
-disses = [
-    "Shut up.",
-    "F*** you.",
-    "No one asked.",
-    "Get lost.",
-    "Try harder.",
-    "You wish.",
-    "What a joke.",
-    "So dumb.",
-    "Who cares?",
-    "Loser.",
-    "Lame.",
-    "Shut your mouth.",
-    "Try again.",
-    "Nice try.",
-    "You're a mess.",
-    "Big mood... not.",
-    "Bye, Felicia.",
-    "You're embarrassing.",
-    "Get a clue.",
-    "Weak.",
-    "Boring.",
-    "Take a seat."
-]
-
-# Define more common trigger words
-trigger_words = ["stupid", "dumb", "idiot", "loser", "suck", "lame", "fool", "trash", "weak", "ugh", "annoying", "boring", "faggot", "rape", "r@pe", "dttm", "kys", "bitch", "sybau", "pooron", "slit", "cut", "hoe", "shut", "nigger", "ihy", "stfu"]
-
-excluded_users = [1212229549459374222, 1269821629614264362, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318]
-
-# Cooldown dictionary
-user_cooldowns = {}
-COOLDOWN_SECONDS = 10  # cooldown time per user
-
 async def handle_servers_command(message, bot):
     if message.content == "!servers" and message.author.id == YOUR_USER_ID:
         guilds = bot.guilds
@@ -622,20 +587,6 @@ async def handle_servers_command(message, bot):
 
 @bot.event
 async def on_message(message):
-
-    if message.author.bot or message.author.id in excluded_users:
-        return
-
-    content = message.content.lower()
-    user_id = message.author.id
-    now = time.time()
-
-    if any(word in content for word in trigger_words):
-        last_used = user_cooldowns.get(user_id, 0)
-        if now - last_used >= COOLDOWN_SECONDS:
-            response = random.choice(disses)
-            await message.reply(response)
-            user_cooldowns[user_id] = now
     
     # Ignore DMs to prevent 'User' attribute errors
     if message.guild is None:
@@ -648,11 +599,6 @@ async def on_message(message):
     await auto_react_to_messages(message)
     
     await handle_servers_command(message, bot)
-
-    if isinstance(message.channel, discord.DMChannel):
-        print(f"DM from {message.author}: {message.content}")
-
-    
 
     if message.content.lower().startswith("!stats"):
         await handle_stats(message, bot, start_time)
@@ -674,6 +620,10 @@ async def on_message(message):
     if message.content.startswith("!say"):
         await handle_say(message)
         return
+
+    if isinstance(message.channel, discord.DMChannel):
+        print(f"DM from {message.author}: {message.content}")
+
 
     if message.content.startswith("!nuke"):
         await handle_nuke_command(message, bot)
