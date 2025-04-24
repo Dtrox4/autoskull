@@ -18,12 +18,10 @@ disses = [
 
 # Define more common trigger words
 trigger_words = [
-    "stupid", "dumb", "idiot", "loser", "suck", "lame", "fool", "trash", "weak",
-    "ugh", "annoying", "boring", "kys", "bitch", "hoe", "mid", "cringe", "cry",
-    "fat", "ugly", "worthless", "nobody", "goofy", "broke", "irrelevant", "down bad",
-    "npc", "mad", "coping", "cope", "skill issue", "clown", "edgelord", "tryhard",
-    "annoy", "slut", "leave", "slit", "kys", "rage", "fatass", "nerd", "geek", "simp",
-    "karen", "incel", "sigma", "soy", "lick", "dead chat", "bot", "stfu", "ratio", "worthy"
+    "fuck", "shit", "bitch", "asshole", "bastard", "dick", "pussy", "cunt",
+    "slut", "whore", "fag", "faggot", "damn", "crap", "bollocks", "prick", "arse",
+    "motherfucker", "cock", "twat", "nigger", "nigga", "retard", "cum", "jizz",
+    "rape", "kys", "stfu", "gtfo", "suck my", "eat shit", "die", "slit"
 ]
 
 # Excluded users (IDs)
