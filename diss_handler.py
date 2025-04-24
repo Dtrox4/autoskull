@@ -69,5 +69,5 @@ async def handle_diss(message):
         for word in trigger_words:
             if word in content:
                 response = random.choice(roast_responses[word])
-                await message.channel.send(f"{message.author.mention} {response}")
+                await message.reply(f"{response}")
                 break  # Stop checking once we find a match
