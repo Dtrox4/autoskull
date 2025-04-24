@@ -8,7 +8,7 @@ import random
 import emoji as emoji_lib
 from collections import defaultdict
 from datetime import datetime, timedelta
-from diss_handler import handle_diss_response
+from diss_handler import handle_diss 
 import time
 import embed_command
 import help_command
@@ -600,7 +600,7 @@ async def on_message(message):
     await handle_react_command(message)
     await auto_react_to_messages(message)
 
-    await handle_diss_response(message)
+    await handle_diss(message) 
     await handle_servers_command(message, bot)
 
     await handle_statusclear(message, bot)
