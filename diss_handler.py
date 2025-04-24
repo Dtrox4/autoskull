@@ -1,38 +1,56 @@
 import discord
 import random
 
-# Friendly responses based on trigger words
-friendly_responses = {
-    "hi": ["Hey there!", "Hello! How's it going?", "Hi! What's up?"],
-    "hello": ["Hey!", "Hello, how's your day?", "Hi there!"],
-    "hey": ["Hey! What's up?", "Yo! How's it going?", "Hey there!"],
-    "yo": ["Yo! What's good?", "Hey yo! How are you?", "Yo, what's up?"],
-    "sup": ["Sup, dude? What's going on?", "Hey, not much. You?", "What's up with you?"],
-    "good morning": ["Good morning! How are you today?", "Morning! Hope you have a great day!", "Good morning! What's new?"],
-    "good evening": ["Good evening! How's your night going?", "Evening! How's everything?", "Good evening! What are you up to?"],
-    "how are you": ["I'm doing great, thanks for asking! How about you?", "I'm good! How are you doing?", "I'm doing well, how are you?"],
-    "what's up": ["Not much, just chilling! How about you?", "Just hanging out, what's up with you?", "Not much, what's going on with you?"],
-    "how's it going": ["It's going great! How about you?", "Going well! How's your day?", "It's going good! What's up with you?"],
-    "how are things": ["Things are going smoothly! How about for you?", "Things are good, thanks for asking!", "Everything's great here, how are things with you?"],
-    "how's life": ["Life's good! How about yours?", "Life's going well, thanks for asking!", "Life's good! What's up with you?"],
-    "wyd": ["Not much, just here chilling. What about you?", "Just here, how about you?", "Chilling, what are you up to?"],
-    "thank you": ["You're welcome!", "No problem, glad I could help!", "You're welcome!"],
-    "thanks": ["No problem!", "Anytime!", "You're welcome!"],
-    "appreciate it": ["Glad I could help!", "You're welcome!", "I'm happy to help!"],
-    "no problem": ["It's all good!", "No worries at all!", "Anytime!"],
-    "np": ["No worries!", "You're welcome!", "Glad to help!"],
-    "sure": ["Of course!", "Definitely!", "Sure thing!"],
-    "of course": ["Always!", "Definitely!", "Sure thing!"],
-    "bye": ["Goodbye, take care!", "See you later!", "Bye, have a great day!"],
-    "goodbye": ["Goodbye! Stay safe!", "See you soon!", "Take care, goodbye!"],
-    "see ya": ["See you later!", "Catch you later!", "Take care! See you!"],
-    "good night": ["Good night! Sleep well!", "Sweet dreams! Good night!", "Good night, rest up!"],
-    "take care": ["You too! Take care!", "Take care! See you soon!", "Be safe and take care!"],
-    "talk later": ["Talk to you later!", "Catch you later!", "See you later!"]
+# List of roast responses based on trigger words
+roast_responses = {
+    "bro": ["Bro? You sound like you're 12.", "Bro? Who says that anymore?", "Bro, get a new word."],
+    "dude": ["Dude? Is that still your thing?", "Dude, that's so 2010.", "Dude, you're not even cool."],
+    "man": ["Man, are you trying to be funny?", "Man? Really?", "Man, you need some new material."],
+    "what": ["What? Can't even finish a sentence?", "What? You lost your train of thought?", "What’s up with that?"],
+    "why": ["Why? I don’t even know why you’re asking.", "Why? Please, stop.", "Why are you still talking?"],
+    "lol": ["Lol? You think that’s funny?", "Lol? Was that supposed to be a joke?", "Lol? You're trying too hard."],
+    "smh": ["SMH? You should be embarrassed.", "SMH? At least I’m not speechless like you.", "SMH? Good one, genius."],
+    "okay": ["Okay? That's the best you can come up with?", "Okay? More like 'I'm out of ideas.'", "Okay? Try harder."],
+    "really": ["Really? You’re still on about this?", "Really? You should reconsider your life choices.", "Really? That was your big idea?"],
+    "seriously": ["Seriously? That’s what you’re going with?", "Seriously? How original.", "Seriously? You really said that?"],
+    "shut up": ["Shut up? How about you try some original words?", "Shut up? More like just stop talking.", "Shut up? I’m tired of hearing it."],
+    "lmao": ["Lmao? Yeah, right. Try again.", "Lmao? You’re laughing at your own joke?", "Lmao? Nice try, though."],
+    "wow": ["Wow? That’s all you’ve got?", "Wow? You should be proud of yourself.", "Wow, I'm so impressed. Not."],
+    "nah": ["Nah? I didn’t ask.", "Nah? Yeah, sure, whatever.", "Nah? Okay, keep telling yourself that."],
+    "please": ["Please? Please, stop talking.", "Please? I beg you to be quiet.", "Please, do us both a favor and stop."],
+    "help": ["Help? You’re the one who needs help.", "Help? You should try figuring it out yourself.", "Help? You really just asked for help with that?"],
+    "yo": ["Yo? Is that your go-to?", "Yo? That’s so early 2000s.", "Yo? Are we back in high school?"],
+    "chill": ["Chill? Nah, you need to do more than chill.", "Chill? Please, you're a walking disaster.", "Chill? More like learn to stop talking."],
+    "bruh": ["Bruh? Really? That’s your response?", "Bruh? What are you, 16?", "Bruh? Try harder next time."],
+    "yikes": ["Yikes? That’s all you got?", "Yikes? Oh, I'm shaking.", "Yikes? What a disaster."],
+    "gtfo": ["GTFO? More like you should leave.", "GTFO? Who are you kidding?", "GTFO? You really said that?"],
+    "srsly": ["Srsly? Is that how you talk?", "Srsly? That’s your response?", "Srsly? You should rethink your choices."],
+    "for real": ["For real? You just said that?", "For real? Please, stop.", "For real? How original."],
+    "nah fam": ["Nah fam? You’ve lost me.", "Nah fam? Keep telling yourself that.", "Nah fam? That was weak."],
+    "facts": ["Facts? Are you serious?", "Facts? You sure about that?", "Facts? You should rethink your whole statement."],
+    "damn": ["Damn? You really said that?", "Damn? That's the best you’ve got?", "Damn? Keep it together, man."],
+    "idiot": ["Idiot? That’s rich coming from you.", "Idiot? Really?", "Idiot? You must be joking."],
+    "bitch": ["Bitch? Are you serious?", "Bitch? Who taught you that?", "Bitch? Nice vocabulary, genius."],
+    "asshole": ["Asshole? Nice words, pal.", "Asshole? Look who's talking.", "Asshole? Please, stop."],
+    "fool": ["Fool? That’s a stretch.", "Fool? How original.", "Fool? You’ve got some nerve."],
+    "stupid": ["Stupid? I think you need a dictionary.", "Stupid? No wonder you think that.", "Stupid? Look in the mirror."],
+    "bastard": ["Bastard? Look who’s getting spicy.", "Bastard? Please, you’re embarrassing yourself.", "Bastard? That’s not even clever."],
+    "dumb": ["Dumb? That’s rich coming from you.", "Dumb? Look who’s talking.", "Dumb? Nice try, Einstein."],
+    "trash": ["Trash? You’re the one throwing it around.", "Trash? Really? That’s your best shot?", "Trash? How cute."],
+    "fuck": ["Fuck? Is that really necessary?", "Fuck? Wow, how original.", "Fuck? You really need to work on your vocabulary."],
+    "shit": ["Shit? You’re just mad now.", "Shit? That’s so 2007.", "Shit? You’ve got to be kidding."],
+    "piss": ["Piss? Keep it together, bro.", "Piss? Take a chill pill.", "Piss? Don’t go overboard."],
+    "douche": ["Douche? Is that your comeback?", "Douche? Keep your insults clean, alright?", "Douche? Very original."],
+    "clown": ["Clown? Is that what you call yourself?", "Clown? You’ve got jokes.", "Clown? Stop clowning around."],
+    "lame": ["Lame? You should be ashamed.", "Lame? What a clever response.", "Lame? Yeah, that’s a classic one."],
+    "whore": ["Whore? You’re really reaching.", "Whore? What a disgraceful term.", "Whore? Look who’s mad."],
+    "dick": ["Dick? Nice words, genius.", "Dick? You sound like a broken record.", "Dick? Please, stop."],
+    "wimp": ["Wimp? I didn’t know you cared.", "Wimp? That’s your insult?", "Wimp? Cute comeback."],
+    "loser": ["Loser? I guess you don’t know what that means.", "Loser? Look who’s salty.", "Loser? Keep talking."],
 }
 
 # Trigger words to look for in messages
-trigger_words = list(friendly_responses.keys())
+trigger_words = list(roast_responses.keys())
 
 # Excluded users list (If you want to exclude specific users)
 excluded_users = [1212229549459374222, 1269821629614264362]  # Add user IDs to exclude
@@ -46,9 +64,9 @@ async def on_message(message):
     if message.mentions and message.mentions[0] == message.guild.me:
         content = message.content.lower()
         
-        # Check if the message contains any of the friendly trigger words
+        # Check if the message contains any of the roast trigger words
         for word in trigger_words:
             if word in content:
-                response = random.choice(friendly_responses[word])
-                await message.channel.send(response)
+                response = random.choice(roast_responses[word])
+                await message.channel.send(f"{message.author.mention} {response}")
                 break  # Stop checking once we find a match
