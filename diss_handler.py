@@ -14,6 +14,7 @@ roast_responses = {
     "really": ["Really? You’re still on about this?", "Really? You should reconsider your life choices.", "Really? That was your big idea?"],
     "seriously": ["Seriously? That’s what you’re going with?", "Seriously? How original.", "Seriously? You really said that?"],
     "shut up": ["Shut up? How about you try some original words?", "Shut up? More like just stop talking.", "Shut up? I’m tired of hearing it."],
+    "shutup": ["Shut up? How about you try some original words?", "Shut up? More like just stop talking.", "Shut up? I’m tired of hearing it."],
     "lmao": ["Lmao? Yeah, right. Try again.", "Lmao? You’re laughing at your own joke?", "Lmao? Nice try, though."],
     "wow": ["Wow? That’s all you’ve got?", "Wow? You should be proud of yourself.", "Wow, I'm so impressed. Not."],
     "nah": ["Nah? I didn’t ask.", "Nah? Yeah, sure, whatever.", "Nah? Okay, keep telling yourself that."],
@@ -55,7 +56,7 @@ trigger_words = list(roast_responses.keys())
 # Excluded users list (If you want to exclude specific users)
 excluded_users = [1212229549459374222, 1269821629614264362]  # Add user IDs to exclude
 
-async def on_message(message):
+async def handle_diss(message):
     # Don't let the bot respond to its own messages or excluded users
     if message.author.bot or message.author.id in excluded_users:
         return
