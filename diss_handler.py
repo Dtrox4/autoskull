@@ -4,10 +4,16 @@ import time
 
 # Define a list of short diss responses
 disses = [
-    "Shut up.", "F*** you.", "No one asked.", "Get lost.", "Try harder.", "You wish.",
-    "What a joke.", "So dumb.", "Who cares?", "Loser.", "Lame.", "Shut your mouth.",
-    "Try again.", "Nice try.", "You're a mess.", "Big mood... not.", "Bye, Felicia.",
-    "You're embarrassing.", "Get a clue.", "Weak.", "Boring.", "Take a seat."
+    "Cry harder.", "Nice try, clown.", "Sit down.", "You're not that guy.", "Keep dreaming.",
+    "That's cute.", "Try again, champ.", "Big words for someone so small.", "Nah.", "Yikes.",
+    "Bold of you.", "Pipe down.", "You done?", "L ratio.", "Not impressed.",
+    "Stay mad.", "Go outside.", "Delusional.", "That's embarrassing.", "Ain’t it sad?",
+    "Sweetie, no.", "Have several seats.", "You’re reaching.", "Don’t start.", "Mid.",
+    "Oop— you tried.", "You done venting?", "That's your best?", "Bless your heart.", "How brave.",
+    "Groundbreaking.", "So original.", "You really said that, huh?", "Please touch grass.",
+    "Put that back in drafts.", "You good?", "Yawn.", "Imagine typing that.", "You're not serious.",
+    "Cool story.", "Bet.", "You okay?", "Thanks for sharing, I guess.", "Anyway...",
+    "You're doing amazing... not.", "Try again when it lands.", "Such confidence. Zero delivery."
 ]
 
 # Define more common trigger words
