@@ -3,7 +3,10 @@ import random
 
 # List of roast responses based on trigger words
 roast_responses = {
-    "bro": ["Bro? You sound like you're 12.", "Bro? Who says that anymore?", "Bro, get a new word."],
+    "bro": ["You sound like you're 12.", "fym bro?? Im your master.?", "How dare you bro zone me."],
+    "babe": ["hey there huzz.", "Wsp huzz", "Match my freak huzz."],
+    "hi": ["hi? I ain't gonna talk to you gng.", "Who says that anymore?", "Hi"],
+    "air": ["air? you lightweight i ain notice you.", "too heavy to think about you rn honey.", "AIIIIIIRRRR BALLLLLLLLL NIGGA!"],
     "dude": ["Dude? Is that still your thing?", "Dude, that's so 2010.", "Dude, you're not even cool."],
     "man": ["Man, are you trying to be funny?", "Man? Really?", "Man, you need some new material."],
     "what": ["What? Can't even finish a sentence?", "What? You lost your train of thought?", "What’s up with that?"],
@@ -44,10 +47,10 @@ roast_responses = {
     "douche": ["Douche? Is that your comeback?", "Douche? Keep your insults clean, alright?", "Douche? Very original."],
     "clown": ["Clown? Is that what you call yourself?", "Clown? You’ve got jokes.", "Clown? Stop clowning around."],
     "lame": ["Lame? You should be ashamed.", "Lame? What a clever response.", "Lame? Yeah, that’s a classic one."],
-    "whore": ["Whore? You’re really reaching.", "Whore? What a disgraceful term.", "Whore? Look who’s mad."],
-    "dick": ["Dick? Nice words, genius.", "Dick? You sound like a broken record.", "Dick? Please, stop."],
-    "wimp": ["Wimp? I didn’t know you cared.", "Wimp? That’s your insult?", "Wimp? Cute comeback."],
-    "loser": ["Loser? I guess you don’t know what that means.", "Loser? Look who’s salty.", "Loser? Keep talking."],
+    "whore": ["Whore? You’re really reaching.", "Whore? What a disgraceful term. Suites you lol", "Whore? Look who’s mad."],
+    "dick": ["Dick? Nice words, genius.", "You sound like a broken record.", "Please, stop. Its so small you ain't hitting this one, slut"],
+    "wimp": ["Wimp? I didn’t know you cared.", "Wimp? That’s your insult?", "Cute comeback."],
+    "loser": ["Loser? I guess you don’t know what that means.", "Look who’s salty.", "Keep talking."],
 }
 
 # Trigger words to look for in messages
