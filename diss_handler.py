@@ -18,8 +18,8 @@ disses = [
 
 # Define more common trigger words
 trigger_words = ["whore", "dumbass", "fag", "cuck", "suck", "lame", "freak", 
-                 "annoying", "boring", "faggot", "rpe", "slut", "dttm", "kys", "bitch", 
-                 "sybau", "pooron", "slit", "cut", "hoe", "smd", "nigger", "ihy", "stfu"]
+                 "annoying", "boring", "faggot", "slut", "dttm", "kys", "bitch", 
+                 "sybau", "pooron", "slit", "hoe", "smd", "nigger", "ihy", "stfu"]
 
 # Excluded users (IDs)
 excluded_users = [1212229549459374222, 1269821629614264362, 845578292778238002, 
