@@ -600,16 +600,8 @@ async def on_message(message):
     await handle_react_command(message)
     await auto_react_to_messages(message)
 
-    if message.content.lower().startswith("!reactlist"):
-        await handle_reactlist_command(message)
-        return
-
     await handle_diss_response(message)
     await handle_servers_command(message, bot)
-
-    if message.content.lower().startswith("!stats"):
-        await handle_stats(message, bot, start_time)
-        return
 
     await handle_statusclear(message, bot)
 
@@ -619,6 +611,14 @@ async def on_message(message):
     
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
+
+    if message.content.lower().startswith("!reactlist"):
+        await handle_reactlist_command(message)
+        return
+
+    if message.content.lower().startswith("!stats"):
+        await handle_stats(message, bot, start_time)
+        return
 
     if message.content.lower().startswith("!restart"):
         await handle_restart(message)
@@ -630,7 +630,6 @@ async def on_message(message):
 
     if isinstance(message.channel, discord.DMChannel):
         print(f"DM from {message.author}: {message.content}")
-
 
     if message.content.startswith("!nuke"):
         await handle_nuke_command(message, bot)
