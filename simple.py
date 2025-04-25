@@ -49,6 +49,8 @@ GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 
 # Define channels and optional messages
 WELCOME_CHANNELS = {
+    1359328373356363987: None
+    1360104912939257978: None
     1359319883988336924: "welc! rep **/mock** 4 pic, bst for roles!"  # Add a custom message here
 }
 
@@ -101,6 +103,14 @@ async def on_member_join(member):
             await channel.send(content, delete_after=30)
 
 async def handle_say(message):
+    if message.author.id not in AUTHORIZED_USERS:
+        embed = discord.Embed(
+            description="❌ You are not authorized to use this command.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
     try:
         await message.delete()
     except discord.Forbidden:
