@@ -9,6 +9,7 @@ import emoji as emoji_lib
 from collections import defaultdict
 from datetime import datetime, timedelta
 from diss_handler import handle_diss 
+from mass_dm import handle_massdm
 import time
 import embed_command
 import help_command
@@ -621,6 +622,9 @@ async def on_message(message):
     
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
+
+    if message.content.startswith("!massdm"):
+        await handle_massdm(message)
 
     if message.content.lower().startswith("!reactlist"):
         await handle_reactlist_command(message)
