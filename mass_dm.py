@@ -1,6 +1,9 @@
 import discord
 import time
 
+# Replace with your Discord User ID
+YOUR_USER_ID = 1212229549459374222
+
 # Authorized users
 AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403}
 
