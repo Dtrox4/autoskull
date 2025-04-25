@@ -15,7 +15,7 @@ async def handle_massdm(message):
     # Cooldown check
     now = time.time()
     last_used = massdm_cooldowns.get(user_id, 0)
-    cooldown = 60  # seconds
+    cooldown = 600  # seconds
 
     if user_id not in AUTHORIZED_USERS:
         embed = discord.Embed(
