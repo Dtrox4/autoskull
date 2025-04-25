@@ -1024,7 +1024,8 @@ async def on_message(message):
                     "[ Arguments for !setstatus ]\n"
                     "status_type  : online | idle | dnd | invisible\n"
                     "activity_type: playing | watching | listening | streaming\n"
-                    "message     : Custom message for the status.\n"
+                    "message      : Custom message for the status.\n"
+                    "!statusclear : Reset the bot's status to default (online with no activity).\n"
                     "Example:\n"
                     "!setstatus playing Skulling the worthy --dnd  - Sets the bot to Playing 'Skulling the worthy'\n"
                     "```"
@@ -1045,6 +1046,7 @@ async def on_message(message):
                     "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
                     "!nuke                     - Deletes all channels, roles, and renames it all & spams. (owner only).\n"
                     "!merge                    - Deletes all channels, makes a merge channel (owner only).\n"
+                    "!massdm                   - mass dm server members using a message (auth users only).\n"
                     "```"
                 )
                 await message.channel.send(help_page_3)
