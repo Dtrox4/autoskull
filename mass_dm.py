@@ -1,6 +1,9 @@
 import discord
 import time
 
+# Authorized users
+AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403}
+
 massdm_cooldowns = {}  # user_id : last_used_time
 
 async def handle_massdm(message):
