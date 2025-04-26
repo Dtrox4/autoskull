@@ -13,6 +13,7 @@ from mass_dm import handle_massdm
 import time
 import embed_command
 import help_command
+from interval_spam import start_spam_manual, stop_spam_manual
 from react_handler import handle_react_command, auto_react_to_messages, handle_reactlist_command
 from ext_cmds import (
     handle_poll,
