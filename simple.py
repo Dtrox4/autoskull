@@ -1170,35 +1170,51 @@ async def on_message(message):
 
     content = message.content.lower()
 
-    if content == "!startspam" and message.author.id == YOUR_USER_ID:
-        interval = 1  # seconds
-        spam_message = "I don't like to spam but ya said so."
-        await start_spam_manual(message.channel, interval, spam_message)
+    if content == "!start spam":
+        if message.author.id == YOUR_USER_ID:
+            channel = message.channel
+            interval = 10  # seconds
+            spam_message = "I'm alive and spamming!"
+            await start_spam_manual(channel, interval, spam_message)
 
-        embed = discord.Embed(
-            title="Started Spamming!",
-            description=f"Spamming every {interval} seconds.",
-            color=discord.Color.green()
-        )
-        await message.channel.send(embed=embed,delete_after=3)
-        await message.delete(delay=3)
-
-    elif content == "!stopspam" and message.author.id == YOUR_USER_ID:
-        stopped = await stop_spam_manual(message.channel)
-        if stopped:
             embed = discord.Embed(
-                title="Stopped Spamming!",
-                description="No longer sending auto-messages.",
-                color=discord.Color.red()
+                title="Started Spamming!",
+                description=f"Spamming every {interval} seconds.",
+                color=discord.Color.green()
             )
+            embed_message = await message.channel.send(embed=embed)
+
+            # Delete the user's command and the embed after 5 seconds
+            await asyncio.sleep(5)
+            await message.delete()
+            await embed_message.delete()
         else:
-            embed = discord.Embed(
-                title="No Active Spam!",
-                description="There was no spam running in this channel.",
-                color=discord.Color.orange()
-            )
-        await message.channel.send(embed=embed,delete_after=3)
-        await message.delete(delay=3)
+            await message.channel.send("You do not have permission to start spam.")
+
+    if content == "!stop spam":
+        if message.author.id == YOUR_USER_ID:
+            channel = message.channel
+            stopped = await stop_spam_manual(channel)
+            if stopped:
+                embed = discord.Embed(
+                    title="Stopped Spamming!",
+                    description="No longer sending auto-messages.",
+                    color=discord.Color.red()
+                )
+            else:
+                embed = discord.Embed(
+                    title="No Active Spam!",
+                    description="There was no spam running in this channel.",
+                    color=discord.Color.orange()
+                )
+            embed_message = await message.channel.send(embed=embed)
+
+            # Delete the user's command and the embed after 5 seconds
+            await asyncio.sleep(5)
+            await message.delete()
+            await embed_message.delete()
+        else:
+            await message.channel.send("You do not have permission to stop spam.")
 
     await bot.process_commands(message)
 
