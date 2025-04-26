@@ -1,6 +1,11 @@
 import discord
 from discord.ext import commands
-import asyncio
+
+intents = discord.Intents.default()
+intents.messages = True
+intents.message_content = True  # Needed to read message contents
+
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 # Your user ID for access control (replace with your actual Discord ID)
 YOUR_USER_ID = 1212229549459374222  # <-- Replace this with your own user ID
