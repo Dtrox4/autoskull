@@ -599,6 +599,86 @@ async def handle_servers_command(message, bot):
         )
         await message.channel.send(embed=embed)
 
+# Function to check if the user is the bot owner
+def is_owner(ctx):
+    return ctx.author.id == YOUR_USER_ID
+
+# Command to start spamming (only available to bot owner)
+@bot.command()
+async def startspam(ctx, interval: int, *, spam_message: str):
+    """Command version: !startspam 10 Hello World"""
+    if not is_owner(ctx):
+        await ctx.send("You do not have permission to use this command.")
+        return
+    await start_spam_manual(ctx.channel, interval, spam_message)
+
+    embed = discord.Embed(
+        title="Started Spamming!",
+        description=f"Spamming every {interval} seconds with:\n`{spam_message}`",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+# Command to stop spamming (only available to bot owner)
+@bot.command()
+async def stopspam(ctx):
+    """Command version: !stopspam"""
+    if not is_owner(ctx):
+        await ctx.send("You do not have permission to use this command.")
+        return
+    stopped = await stop_spam_manual(ctx.channel)
+    if stopped:
+        embed = discord.Embed(
+            title="Stopped Spamming!",
+            description="No longer sending auto-messages.",
+            color=discord.Color.red()
+        )
+    else:
+        embed = discord.Embed(
+            title="No Active Spam!",
+            description="There was no spam running in this channel.",
+            color=discord.Color.orange()
+        )
+    await ctx.send(embed=embed)
+
+# on_message event to listen for trigger words
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    content = message.content.lower()
+
+    if content == "start spam" and message.author.id == YOUR_USER_ID:
+        interval = 10  # seconds
+        spam_message = "I'm alive and spamming!"
+        await start_spam_manual(message.channel, interval, spam_message)
+
+        embed = discord.Embed(
+            title="Started Spamming!",
+            description=f"Spamming every {interval} seconds.",
+            color=discord.Color.green()
+        )
+        await message.channel.send(embed=embed)
+
+    elif content == "stop spam" and message.author.id == YOUR_USER_ID:
+        stopped = await stop_spam_manual(message.channel)
+        if stopped:
+            embed = discord.Embed(
+                title="Stopped Spamming!",
+                description="No longer sending auto-messages.",
+                color=discord.Color.red()
+            )
+        else:
+            embed = discord.Embed(
+                title="No Active Spam!",
+                description="There was no spam running in this channel.",
+                color=discord.Color.orange()
+            )
+        await message.channel.send(embed=embed)
+
+    await bot.process_commands(message)
+
 @bot.event
 async def on_message(message):
     
@@ -620,40 +700,6 @@ async def on_message(message):
     # Call the mock command handler
     await handle_mock_command(message)
     await mock_user_messages(message)
-    
-    content = message.content.lower()
-
-    if content == "start spam":
-        channel = message.channel
-        interval = 10  # seconds
-        spam_message = "I'm alive and spamming!"
-
-        await start_spam_manual(channel, interval, spam_message)
-
-        embed = discord.Embed(
-            title="Started Spamming!",
-            description=f"Spamming every {interval} seconds.",
-            color=discord.Color.green()
-        )
-        await message.channel.send(embed=embed)
-
-    if content == "stop spam":
-        channel = message.channel
-        stopped = await stop_spam_manual(channel)
-
-        if stopped:
-            embed = discord.Embed(
-                title="Stopped Spamming!",
-                description="No longer sending auto-messages.",
-                color=discord.Color.red()
-            )
-        else:
-            embed = discord.Embed(
-                title="No Active Spam!",
-                description="There was no spam running in this channel.",
-                color=discord.Color.orange()
-            )
-        await message.channel.send(embed=embed)
 
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
