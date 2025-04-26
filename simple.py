@@ -1165,7 +1165,8 @@ async def on_message(message):
         await message.channel.send(embed=embed)
         return
 
-    if not message.content.startswith("!"):
+    # Ignore if it's a real command
+    if message.content.startswith("!") and message.content[1:].split(" ")[0] in bot.all_commands:
         return
 
     content = message.content.lower()
@@ -1182,14 +1183,10 @@ async def on_message(message):
                 description=f"Spamming every {interval} seconds.",
                 color=discord.Color.green()
             )
-            embed_message = await message.channel.send(embed=embed)
-
-            # Delete the user's command and the embed after 5 seconds
-            await asyncio.sleep(5)
-            await message.delete()
-            await embed_message.delete()
+            embed_message = await message.channel.send(embed=embed, delete_after=5)
+            await message.delete(delay=5)
         else:
-            await message.channel.send("You do not have permission to start spam.")
+            await message.channel.send("You do not have permission to start spam.", delete_after=5)
 
     if content == "!stop spam":
         if message.author.id == YOUR_USER_ID:
@@ -1207,14 +1204,10 @@ async def on_message(message):
                     description="There was no spam running in this channel.",
                     color=discord.Color.orange()
                 )
-            embed_message = await message.channel.send(embed=embed)
-
-            # Delete the user's command and the embed after 5 seconds
-            await asyncio.sleep(5)
-            await message.delete()
-            await embed_message.delete()
+            embed_message = await message.channel.send(embed=embed, delete_after=5)
+            await message.delete(delay=5)
         else:
-            await message.channel.send("You do not have permission to stop spam.")
+            await message.channel.send("You do not have permission to stop spam.", delete_after=5)
 
     await bot.process_commands(message)
 
