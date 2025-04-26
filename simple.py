@@ -1171,8 +1171,8 @@ async def on_message(message):
     content = message.content.lower()
 
     if content == "!startspam" and message.author.id == YOUR_USER_ID:
-        interval = 10  # seconds
-        spam_message = "I'm alive and spamming!"
+        interval = 1  # seconds
+        spam_message = "I don't like to spam but ya said so."
         await start_spam_manual(message.channel, interval, spam_message)
 
         embed = discord.Embed(
@@ -1180,7 +1180,8 @@ async def on_message(message):
             description=f"Spamming every {interval} seconds.",
             color=discord.Color.green()
         )
-        await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed,delete_after=3)
+        await message.delete(delay=3)
 
     elif content == "!stopspam" and message.author.id == YOUR_USER_ID:
         stopped = await stop_spam_manual(message.channel)
@@ -1196,7 +1197,8 @@ async def on_message(message):
                 description="There was no spam running in this channel.",
                 color=discord.Color.orange()
             )
-        await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed,delete_after=3)
+        await message.delete(delay=3)
 
     await bot.process_commands(message)
 
