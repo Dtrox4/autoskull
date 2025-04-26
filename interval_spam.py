@@ -118,6 +118,3 @@ async def stopspam(ctx):
             color=discord.Color.orange()
         )
     await ctx.send(embed=embed)
-
-# Bot token
-bot.run("YOUR_BOT_TOKEN")
