@@ -88,7 +88,13 @@ roast_responses = {
     "pmo": ["Post about it. Maybe someone will care.", "PMO? Nobody asked.", "PMO and no one noticed."],
     "ts pmo": ["Still no one cares.", "TS PMO? Still irrelevant.", "Cry harder king."],
     "stop": ["You first.", "Stop breathing that hard.", "Stop embarrassing yourself."],
-    "lowk": ["Lowk? You mean low IQ.", "Lowk built like low vibes.", "Lowk mid, high key."]
+    "lowk": ["Lowk? You mean low IQ.", "Lowk built like low vibes.", "Lowk mid, high key."],
+    "nigga": ["You're black bitch.", "I don't associate with niggas.", "Why is a nigga talking to me. sybau."],
+    "sybau": ["make me.", "Pipe down low role", "ban?"],
+    "sorry": ["Sorry doesn’t fix the IQ deficit.","Awww, look who suddenly grew a conscience.","That’s cute. Still not forgiven."],
+    "my fault": ["Finally, a moment of self-awareness.","We been knew.","You admitting it doesn't make it less embarrassing."],
+    "i won't do it again": ["You said that the last 3 times, chief.","we'll see about that…","Promises from you mean less than Monopoly money."],
+    "please": ["Beg harder 💀","Say it with more tears.","Even your 'please' is weak."]
 }
 
 # Trigger words to look for in messages
