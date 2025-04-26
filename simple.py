@@ -619,66 +619,6 @@ async def startspam(ctx, interval: int, *, spam_message: str):
     )
     await ctx.send(embed=embed)
 
-# Command to stop spamming (only available to bot owner)
-@bot.command()
-async def stopspam(ctx):
-    """Command version: !stopspam"""
-    if not is_owner(ctx):
-        await ctx.send("You do not have permission to use this command.")
-        return
-    stopped = await stop_spam_manual(ctx.channel)
-    if stopped:
-        embed = discord.Embed(
-            title="Stopped Spamming!",
-            description="No longer sending auto-messages.",
-            color=discord.Color.red()
-        )
-    else:
-        embed = discord.Embed(
-            title="No Active Spam!",
-            description="There was no spam running in this channel.",
-            color=discord.Color.orange()
-        )
-    await ctx.send(embed=embed)
-
-# on_message event to listen for trigger words
-@bot.event
-async def on_message(message):
-    if message.author.bot:
-        return
-
-    content = message.content.lower()
-
-    if content == "start spam" and message.author.id == YOUR_USER_ID:
-        interval = 10  # seconds
-        spam_message = "I'm alive and spamming!"
-        await start_spam_manual(message.channel, interval, spam_message)
-
-        embed = discord.Embed(
-            title="Started Spamming!",
-            description=f"Spamming every {interval} seconds.",
-            color=discord.Color.green()
-        )
-        await message.channel.send(embed=embed)
-
-    elif content == "stop spam" and message.author.id == YOUR_USER_ID:
-        stopped = await stop_spam_manual(message.channel)
-        if stopped:
-            embed = discord.Embed(
-                title="Stopped Spamming!",
-                description="No longer sending auto-messages.",
-                color=discord.Color.red()
-            )
-        else:
-            embed = discord.Embed(
-                title="No Active Spam!",
-                description="There was no spam running in this channel.",
-                color=discord.Color.orange()
-            )
-        await message.channel.send(embed=embed)
-
-    await bot.process_commands(message)
-
 @bot.event
 async def on_message(message):
     
@@ -1224,6 +1164,41 @@ async def on_message(message):
         )
         await message.channel.send(embed=embed)
         return
+
+    if not message.content.startswith("!"):
+        return
+
+    content = message.content.lower()
+
+    if content == "!startspam" and message.author.id == YOUR_USER_ID:
+        interval = 10  # seconds
+        spam_message = "I'm alive and spamming!"
+        await start_spam_manual(message.channel, interval, spam_message)
+
+        embed = discord.Embed(
+            title="Started Spamming!",
+            description=f"Spamming every {interval} seconds.",
+            color=discord.Color.green()
+        )
+        await message.channel.send(embed=embed)
+
+    elif content == "!stopspam" and message.author.id == YOUR_USER_ID:
+        stopped = await stop_spam_manual(message.channel)
+        if stopped:
+            embed = discord.Embed(
+                title="Stopped Spamming!",
+                description="No longer sending auto-messages.",
+                color=discord.Color.red()
+            )
+        else:
+            embed = discord.Embed(
+                title="No Active Spam!",
+                description="There was no spam running in this channel.",
+                color=discord.Color.orange()
+            )
+        await message.channel.send(embed=embed)
+
+    await bot.process_commands(message)
 
     if message.author.id in bot.user_skull_list:
         await message.add_reaction("\u2620\ufe0f")
