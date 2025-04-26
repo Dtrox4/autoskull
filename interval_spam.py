@@ -3,7 +3,7 @@ from discord.ext import commands
 import asyncio
 
 # Your user ID for access control (replace with your actual Discord ID)
-YOUR_USER_ID =   # <-- Replace this with your own user ID
+YOUR_USER_ID = 1212229549459374222  # <-- Replace this with your own user ID
 
 # Dictionary to keep track of auto-message tasks
 auto_message_tasks = {}
