@@ -620,6 +620,40 @@ async def on_message(message):
     await handle_mock_command(message)
     await mock_user_messages(message)
     
+    content = message.content.lower()
+
+    if content == "start spam":
+        channel = message.channel
+        interval = 10  # seconds
+        spam_message = "I'm alive and spamming!"
+
+        await start_spam_manual(channel, interval, spam_message)
+
+        embed = discord.Embed(
+            title="Started Spamming!",
+            description=f"Spamming every {interval} seconds.",
+            color=discord.Color.green()
+        )
+        await message.channel.send(embed=embed)
+
+    if content == "stop spam":
+        channel = message.channel
+        stopped = await stop_spam_manual(channel)
+
+        if stopped:
+            embed = discord.Embed(
+                title="Stopped Spamming!",
+                description="No longer sending auto-messages.",
+                color=discord.Color.red()
+            )
+        else:
+            embed = discord.Embed(
+                title="No Active Spam!",
+                description="There was no spam running in this channel.",
+                color=discord.Color.orange()
+            )
+        await message.channel.send(embed=embed)
+
     await bot.process_commands(message)
     await embed_command.handle_embed_command(message, bot)
 
