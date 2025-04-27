@@ -182,6 +182,39 @@ def save_antinuke_settings():
     with open('antinuke_settings.json', 'w') as file:
         json.dump(antinuke_settings, file, indent=4)
 
+@bot.command()
+async def antinuke_settings(ctx):
+    """View the current anti-nuke configuration for the server."""
+    guild_id = str(ctx.guild.id)
+    
+    # Check if there are settings for the current guild
+    if guild_id in antinuke_settings:
+        settings = antinuke_settings[guild_id]
+        
+        # Create an embed to show the settings
+        embed = discord.Embed(
+            title="Anti-Nuke Settings",
+            description=f"Current Anti-Nuke settings for **{ctx.guild.name}**:",
+            color=discord.Color.blue()
+        )
+        
+        # Add each protection status to the embed
+        embed.add_field(name="Ban Protection", value="✅" if settings["ban_protection"] else "❌", inline=False)
+        embed.add_field(name="Kick Protection", value="✅" if settings["kick_protection"] else "❌", inline=False)
+        embed.add_field(name="Channel Create Protection", value="✅" if settings["channel_create_protection"] else "❌", inline=False)
+        embed.add_field(name="Channel Delete Protection", value="✅" if settings["channel_delete_protection"] else "❌", inline=False)
+        embed.add_field(name="Role Create Protection", value="✅" if settings["role_create_protection"] else "❌", inline=False)
+        embed.add_field(name="Role Delete Protection", value="✅" if settings["role_delete_protection"] else "❌", inline=False)
+        embed.add_field(name="Role Permission Protection", value="✅" if settings["role_permission_protection"] else "❌", inline=False)
+        embed.add_field(name="Webhook Protection", value="✅" if settings["webhook_protection"] else "❌", inline=False)
+        
+        # Send the embed message
+        await ctx.send(embed=embed)
+    else:
+        # If the server doesn't have any settings, send a message indicating no protection is set up
+        await ctx.send("Anti-Nuke protection is not set up for this server. Use `!antinuke setup` to enable it.")
+
+
 # Anti-Nuke Event Listeners
 # Protecting against bans
 @bot.event
