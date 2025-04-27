@@ -137,20 +137,22 @@ async def antinuke(ctx, action: str):
             }
 
             # Send confirmation message
+            # Send confirmation message
             embed = discord.Embed(
                 title="Anti-Nuke Setup",
-                description="All anti-nuke protections have been enabled.\n"
-                            "ban protection : ✅\n"
-                            "kick protection : ✅\n"
-                            "channel create protection : ✅\n"
-                            "channel delete protection : ✅\n"
-                            "role create protection : ✅\n"
-                            "role delete protection : ✅\n"
-                            "role permission protection : ✅\n"
-                            "webhook protection : ✅",
                 color=discord.Color.green()
             )
+            
+            embed.add_field(name="Ban protection", value="✅", inline=False)
+            embed.add_field(name="Kick protection", value="✅", inline=False)
+            embed.add_field(name="Channel create protection", value="✅", inline=False)
+            embed.add_field(name="Channel delete protection", value="✅", inline=False)
+            embed.add_field(name="Role create protection", value="✅", inline=False)
+            embed.add_field(name="Role delete protection", value="✅", inline=False)
+            embed.add_field(name="Role permission protection", value="✅", inline=False)
+            embed.add_field(name="Webhook protection", value="✅", inline=False)
             await ctx.send(embed=embed)
+
             save_antinuke_settings()  # Save the settings
 
         elif action.lower() == "disable":
