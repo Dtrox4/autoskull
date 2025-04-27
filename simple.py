@@ -78,8 +78,33 @@ class AutoSkullBot(commands.Bot):
 
 bot = AutoSkullBot(command_prefix="!", intents=intents, help_command=None)
 
+@bot.command()
+async def joinvc(ctx, channel_id: int):
+    # Get the channel by ID
+    channel = bot.get_channel(channel_id)
+    if channel and isinstance(channel, discord.VoiceChannel):
+        # Join the voice channel
+        await channel.connect()
+        await ctx.send(f'Joined {channel.name}!')
+    else:
+        await ctx.send('Invalid channel ID or not a voice channel.')
+
 # Keep-alive server using Flask
 app = Flask(__name__)
+@app.route('/joinvc', methods=['POST'])
+def join_voice_channel():
+    data = request.json
+    channel_id = data.get('channel_id')
+
+    if channel_id:
+        # Trigger the joinvc command
+        channel = bot.get_channel(channel_id)
+        if channel and isinstance(channel, discord.VoiceChannel):
+            asyncio.run(channel.connect())
+            return jsonify({'message': f'Bot joined {channel.name}!'}), 200
+        else:
+            return jsonify({'error': 'Invalid channel ID or not a voice channel.'}), 400
+    return jsonify({'error': 'Channel ID is required.'}), 400
 
 @app.route('/')
 def home():
