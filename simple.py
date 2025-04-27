@@ -873,13 +873,15 @@ async def on_message(message):
         )
   
     args = message.content.split()
-
-    # Check for moderation permissions
-    has_mod_perms = any([
-        message.author.guild_permissions.manage_roles,
-        message.author.guild_permissions.kick_members,
-        message.author.guild_permissions.ban_members
-    ])
+     # Check if the author is a Member and has moderation permissions
+    if isinstance(message.author, discord.Member):
+        has_mod_perms = any([
+            message.author.guild_permissions.manage_roles,
+            message.author.guild_permissions.kick_members,
+            message.author.guild_permissions.ban_members
+        ])
+    else:
+        has_mod_perms = False  # If the author is not a Member, they have no permissions
 
     if not has_mod_perms:
         await bot.process_commands(message)
