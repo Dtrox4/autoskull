@@ -89,6 +89,15 @@ async def joinvc(ctx, channel_id: int):
     else:
         await ctx.send('Invalid channel ID or not a voice channel.')
 
+@bot.command()
+async def leavevc(ctx):
+    """Leave the voice channel."""
+    if ctx.voice_client:  # Check if the bot is connected to a voice channel
+        await ctx.voice_client.disconnect()
+        await ctx.send("Disconnected from the voice channel.")
+    else:
+        await ctx.send("I am not in a voice channel!")
+
 # Keep-alive server using Flask
 app = Flask(__name__)
 @app.route('/joinvc', methods=['POST'])
