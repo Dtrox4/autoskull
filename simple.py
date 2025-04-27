@@ -620,6 +620,144 @@ async def startspam(ctx, interval: int, *, spam_message: str):
     )
     await ctx.send(embed=embed)
 
+# ANTI-NUKE COMMANDS. DO NOT CHANGE POSIION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Dictionary to store anti-nuke settings per guild
+antinuke_settings = {}
+
+# Anti-Nuke setup command
+@bot.command()
+async def antinuke(ctx, action: str):
+    # Check if the user is authorized to configure the anti-nuke settings
+    if ctx.author.id != YOUR_USER_ID:
+        await ctx.send("You are not authorized to use this command.",delete_after=5)
+        return
+
+    if action == 'setup':
+        # Configure the Anti-Nuke protections for the server
+        antinuke_settings[str(ctx.guild.id)] = {
+            "ban_protection": True,
+            "kick_protection": True,
+            "channel_protection": True,
+            "role_protection": True,
+            "webhook_protection": True,
+            "bot_protection": True
+        }
+
+        await ctx.send("Anti-Nuke setup is complete. Protection is now ON for all actions.",delete_after=5)
+    else:
+        await ctx.send("Invalid action. Use `!antinuke setup` to enable protection.",delete_after=5)
+
+# Anti-Nuke Event Listeners
+
+# Protecting against bans
+@bot.event
+async def on_member_ban(guild, user):
+    guild_id = str(guild.id)
+    if antinuke_settings.get(guild_id, {}).get("ban_protection"):
+        async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
+            if entry.target.id == user.id:
+                banner = entry.user
+                if not banner.guild_permissions.administrator:  # Only protect against non-admins
+                    await guild.ban(banner, reason="Anti-Nuke: Unauthorized mass banning detected.")
+                    await guild.unban(user, reason="Restoring banned member after anti-nuke protection.")
+                    log_channel = discord.utils.get(guild.text_channels, name="antinuke-logs")
+                    if log_channel:
+                        embed = discord.Embed(
+                            title="Nuke Detected",
+                            description=f"{banner.mention} tried to ban {user.mention}. The action was reversed.",
+                            color=discord.Color.red()
+                        )
+                        await log_channel.send(embed=embed)
+
+# Protecting against kicks
+@bot.event
+async def on_member_remove(member):
+    guild_id = str(member.guild.id)
+    if antinuke_settings.get(guild_id, {}).get("kick_protection"):
+        async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
+            if entry.target.id == member.id:
+                kicker = entry.user
+                if not kicker.guild_permissions.administrator:
+                    await member.guild.ban(kicker, reason="Anti-Nuke: Unauthorized mass kick detected.")
+                    log_channel = discord.utils.get(member.guild.text_channels, name="antinuke-logs")
+                    if log_channel:
+                        embed = discord.Embed(
+                            title="Nuke Detected",
+                            description=f"{kicker.mention} tried to kick {member.mention}. The action was reversed.",
+                            color=discord.Color.red()
+                        )
+                        await log_channel.send(embed=embed)
+
+# Protecting against channel deletions
+@bot.event
+async def on_guild_channel_delete(channel):
+    guild_id = str(channel.guild.id)
+    if antinuke_settings.get(guild_id, {}).get("channel_protection"):
+        await asyncio.sleep(2)  # Wait a moment to check if this was a deletion attempt by the nuke
+        new_channel = await channel.guild.create_text_channel(channel.name, category=channel.category)
+        log_channel = discord.utils.get(channel.guild.text_channels, name="antinuke-logs")
+        if log_channel:
+            embed = discord.Embed(
+                title="Nuke Detected",
+                description=f"{channel.name} was deleted, but was automatically restored.",
+                color=discord.Color.red()
+            )
+            await log_channel.send(embed=embed)
+
+# Protecting against role deletions
+@bot.event
+async def on_guild_role_delete(role):
+    guild_id = str(role.guild.id)
+    if antinuke_settings.get(guild_id, {}).get("role_protection"):
+        await asyncio.sleep(2)  # Wait a moment to check if this was a deletion attempt by the nuke
+        new_role = await role.guild.create_role(name=role.name, permissions=role.permissions, color=role.color)
+        log_channel = discord.utils.get(role.guild.text_channels, name="antinuke-logs")
+        if log_channel:
+            embed = discord.Embed(
+                title="Nuke Detected",
+                description=f"{role.name} was deleted, but was automatically restored.",
+                color=discord.Color.red()
+            )
+            await log_channel.send(embed=embed)
+
+# Protecting against webhook creations (webhook spam)
+@bot.event
+async def on_webhooks_update(guild, channel):
+    guild_id = str(guild.id)
+    if antinuke_settings.get(guild_id, {}).get("webhook_protection"):
+        async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.webhook_create):
+            if entry.target.guild.id == guild.id:
+                webhook_creator = entry.user
+                if not webhook_creator.guild_permissions.administrator:
+                    await channel.send("Webhook creation detected from unauthorized user. Action reversed.")
+                    # Optionally, delete the webhook
+                    webhooks = await channel.webhooks()
+                    for webhook in webhooks:
+                        await webhook.delete()
+                    log_channel = discord.utils.get(guild.text_channels, name="antinuke-logs")
+                    if log_channel:
+                        embed = discord.Embed(
+                            title="Nuke Detected",
+                            description=f"{webhook_creator.mention} created a webhook. The action was reversed.",
+                            color=discord.Color.red()
+                        )
+                        await log_channel.send(embed=embed)
+
+# Protecting against bot adds
+@bot.event
+async def on_member_join(member):
+    guild_id = str(member.guild.id)
+    if antinuke_settings.get(guild_id, {}).get("bot_protection") and member.bot:
+        await member.kick(reason="Anti-Nuke: Unauthorized bot joined.")
+        log_channel = discord.utils.get(member.guild.text_channels, name="antinuke-logs")
+        if log_channel:
+            embed = discord.Embed(
+                title="Nuke Detected",
+                description=f"A bot {member.mention} joined and was kicked.",
+                color=discord.Color.red()
+            )
+            await log_channel.send(embed=embed)
+
 @bot.event
 async def on_message(message):
     
@@ -1007,22 +1145,24 @@ async def on_message(message):
                     "**Available Commands (Page 1/3):**\n"
                     "```diff\n"
                     "[ Skull Commands ]\n"
-                    "!skull @user              - Skull a user.\n"
-                    "!skull stop @user         - Stop skulling a user.\n"
-                    "!skull list               - Show users being skulled.\n"
-                    "!skull help <page>        - Show this help message.\n\n"
+                    "!skull @user                                   - Skull a user.\n"
+                    "!skull stop @user                              - Stop skulling a user.\n"
+                    "!skull list                                    - Show users being skulled.\n"
+                    "!skull help <page>                             - Show this help message.\n\n"
                     "[ User & Server Info ]\n"
-                    "!userinfo [name]          - Show info about a user.\n"
-                    "!roleinfo [role name]     - Show info about a role.\n"
-                    "!serverinfo               - Show server statistics.\n"
-                    "!stats                    - Show bot uptime and system statistics.\n\n"
+                    "!userinfo [name]                               - Show info about a user.\n"
+                    "!roleinfo [role name]                          - Show info about a role.\n"
+                    "!serverinfo                                    - Show server statistics.\n"
+                    "!stats                                         - Show bot uptime and system statistics.\n\n"
                     "[ Fun & Utility ]\n"
-                    "!eightball <question>     - Ask the magic 8-ball a question.\n"
-                    "!poll <question>          - Create a simple yes/no poll.\n"
-                    "!remind <sec> <msg>       - Get a reminder after a given time.\n"
-                    "!bc <filters>             - Bulk delete messages with optional filters.\n"
-                    "!embed <channel> <code>   - Sends an embed to the channel you need.\n"
-                    "!mock <user>              - Mocks a users text.\n"
+                    "!eightball <question>                          - Ask the magic 8-ball a question.\n"
+                    "!poll <question>                               - Create a simple yes/no poll.\n"
+                    "!remind <sec> <msg>                            - Get a reminder after a given time.\n"
+                    "!bc <filters>                                  - Bulk delete messages with optional filters.\n"
+                    "!embed <channel> <code>                        - Sends an embed to the channel you need.\n"
+                    "!addbutton <message id> <link> <button name>   - Creates a button to the bots message.\n"
+                    "!removebutton <message id>                     - Creates a button to the bots message.\n"
+                    "!mock <user>                                   - Mocks a users text.\n"
                     "```"
                 )
                 await message.channel.send(help_page_1)
@@ -1069,6 +1209,7 @@ async def on_message(message):
                     "!nuke                     - Deletes all channels, roles, and renames it all & spams. (owner only).\n"
                     "!merge                    - Deletes all channels, makes a merge channel (owner only).\n"
                     "!massdm                   - mass dm server members using a message (auth users only).\n"
+                    "!antinuke setup           - Sets up all anti-nuke triggers in one click. (owner only).\n"
                     "```"
                 )
                 await message.channel.send(help_page_3)
@@ -1184,8 +1325,8 @@ async def on_message(message):
                 description=f"Spamming every {interval} seconds.",
                 color=discord.Color.green()
             )
-            embed_message = await message.channel.send(embed=embed, delete_after=5)
-            await message.delete(delay=5)
+            embed_message = await message.channel.send(embed=embed, delete_after=3)
+            await message.delete(delay=1)
         else:
             await message.channel.send("You do not have permission to start spam.", delete_after=5)
 
@@ -1205,8 +1346,8 @@ async def on_message(message):
                     description="There was no spam running in this channel.",
                     color=discord.Color.orange()
                 )
-            embed_message = await message.channel.send(embed=embed, delete_after=5)
-            await message.delete(delay=5)
+            embed_message = await message.channel.send(embed=embed, delete_after=3)
+            await message.delete(delay=1)
         else:
             await message.channel.send("You do not have permission to stop spam.", delete_after=5)
 
