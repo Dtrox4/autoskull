@@ -14,6 +14,7 @@ import time
 import embed_command
 import help_command
 from interval_spam import start_spam_manual, stop_spam_manual
+from button_handler import add_button, remove_button
 from react_handler import handle_react_command, auto_react_to_messages, handle_reactlist_command
 from ext_cmds import (
     handle_poll,
@@ -1208,6 +1209,89 @@ async def on_message(message):
             await message.delete(delay=5)
         else:
             await message.channel.send("You do not have permission to stop spam.", delete_after=5)
+
+    # --- ADD BUTTON ---
+    if content.startswith("!addbutton"):
+        if message.author.id not in AUTHORIZED_USERS:
+            embed = discord.Embed(
+                title="Unauthorized",
+                description="❌ You are not allowed to use this command.",
+                color=discord.Color.red()
+            )
+            warning = await message.channel.send(embed=embed, delete_after=5)
+            await asyncio.sleep(5)
+            await message.delete()
+            await warning.delete()
+            return
+
+        try:
+            parts = message.content.split(" ", 3)
+            message_id = int(parts[1])
+            link = parts[2]
+            label = parts[3] if len(parts) > 3 else "Click Here"
+        except (IndexError, ValueError):
+            embed = discord.Embed(
+                title="Incorrect Usage",
+                description="❗ Usage: `!addbutton <message_id> <link> <label>`",
+                color=discord.Color.orange()
+            )
+            error = await message.channel.send(embed=embed, delete_after=5)
+            await asyncio.sleep(5)
+            await message.delete()
+            await error.delete()
+            return
+
+        result = await add_button(bot, message.channel, message_id, link, label)
+        embed = discord.Embed(
+            title="✅ Button Added",
+            description=result,
+            color=discord.Color.green()
+        )
+        response = await message.channel.send(embed=embed, delete_after=5)
+        await asyncio.sleep(5)
+        await message.delete()
+        await response.delete()
+
+    # --- REMOVE BUTTON ---
+    if content.startswith("!removebutton"):
+        if message.author.id not in AUTHORIZED_USERS:
+            embed = discord.Embed(
+                title="Unauthorized",
+                description="❌ You are not allowed to use this command.",
+                color=discord.Color.red()
+            )
+            warning = await message.channel.send(embed=embed, delete_after=5)
+            await asyncio.sleep(5)
+            await message.delete()
+            await warning.delete()
+            return
+
+        try:
+            parts = message.content.split(" ", 2)
+            message_id = int(parts[1])
+            label = parts[2]
+        except (IndexError, ValueError):
+            embed = discord.Embed(
+                title="Incorrect Usage",
+                description="❗ Usage: `!removebutton <message_id> <label>`",
+                color=discord.Color.orange()
+            )
+            error = await message.channel.send(embed=embed, delete_after=5)
+            await asyncio.sleep(5)
+            await message.delete()
+            await error.delete()
+            return
+
+        result = await remove_button(bot, message.channel, message_id, label)
+        embed = discord.Embed(
+            title="✅ Button Removed",
+            description=result,
+            color=discord.Color.green()
+        )
+        response = await message.channel.send(embed=embed, delete_after=5)
+        await asyncio.sleep(5)
+        await message.delete()
+        await response.delete()
 
     await bot.process_commands(message)
 
