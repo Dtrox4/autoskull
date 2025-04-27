@@ -95,46 +95,6 @@ def keep_alive():
 keep_alive()
 
 # ANTI-NUKE COMMANDS. DO NOT CHANGE POSIION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# Dictionary to store anti-nuke settings per guild
-antinuke_settings = {}
-
-# Anti-Nuke Setup Command
-@bot.command()
-async def antinuke(ctx):
-    """Setup anti-nuke protections (only accessible by bot owner)."""
-    if ctx.author.id == YOUR_USER_ID:  # Only allow the bot owner to run this command
-        guild_id = str(ctx.guild.id)
-
-        # Set all anti-nuke protections to True (can be customized)
-        antinuke_settings[guild_id] = {
-            "ban_protection": True,
-            "kick_protection": True,
-            "channel_create_protection": True,
-            "channel_delete_protection": True,
-            "role_create_protection": True,
-            "role_delete_protection": True,
-            "role_permission_protection": True,
-        }
-
-        # Send confirmation message
-        embed = discord.Embed(
-            title="Anti-Nuke Setup",
-            description="All anti-nuke protections have been enabled./n"
-                        "ban protection : ✅/n"
-                        "kick protection : ✅/n"
-                        "channel create protection : ✅/n"
-                        "channel delete protection : ✅/n"
-                        "role create protection : ✅/n"
-                        "role delete protection : ✅/n"
-                        "role permission protection : ✅",
-            color=discord.Color.green()
-        )
-        await ctx.send(embed=embed)
-    else:
-        await ctx.send("You do not have permission to use this command.",delete_after=5)
-def save_antinuke_settings():
-    with open('antinuke_settings.json', 'w') as file:
-        json.dump(antinuke_settings, file, indent=4)
 
 # Load the settings when the bot starts
 def load_antinuke_settings():
@@ -147,6 +107,80 @@ def load_antinuke_settings():
 
 # Call this function when the bot starts
 load_antinuke_settings()
+
+# Dictionary to store anti-nuke settings per guild
+antinuke_settings = {}
+
+# Anti-Nuke Setup Command
+@bot.command()
+async def antinuke(ctx, action: str):
+    """Setup or disable anti-nuke protections (only accessible by bot owner)."""
+    if ctx.author.id == YOUR_USER_ID:  # Only allow the bot owner to run this command
+        guild_id = str(ctx.guild.id)
+
+        if action.lower() == "setup":
+            # Set up anti-nuke protection for the server
+            if guild_id in antinuke_settings:
+                await ctx.send("Anti-nuke system is already set up for this server.")
+                return
+
+            # Set all anti-nuke protections to True (can be customized)
+            antinuke_settings[guild_id] = {
+                "ban_protection": True,
+                "kick_protection": True,
+                "channel_create_protection": True,
+                "channel_delete_protection": True,
+                "role_create_protection": True,
+                "role_delete_protection": True,
+                "role_permission_protection": True,
+                "webhook_protection": True,
+            }
+
+            # Send confirmation message
+            embed = discord.Embed(
+                title="Anti-Nuke Setup",
+                description="All anti-nuke protections have been enabled.\n"
+                            "ban protection : ✅\n"
+                            "kick protection : ✅\n"
+                            "channel create protection : ✅\n"
+                            "channel delete protection : ✅\n"
+                            "role create protection : ✅\n"
+                            "role delete protection : ✅\n"
+                            "role permission protection : ✅\n"
+                            "webhook protection : ✅",
+                color=discord.Color.green()
+            )
+            await ctx.send(embed=embed)
+            save_antinuke_settings()  # Save the settings
+
+        elif action.lower() == "disable":
+            # Disable anti-nuke protection for the server
+            if guild_id not in antinuke_settings:
+                await ctx.send("Anti-nuke system is not set up for this server.")
+                return
+
+            # Remove the server's anti-nuke settings
+            del antinuke_settings[guild_id]
+            save_antinuke_settings()  # Save the updated settings
+
+            # Send confirmation message
+            embed = discord.Embed(
+                title="Anti-Nuke Disabled",
+                description="The anti-nuke protections have been successfully disabled for this server.",
+                color=discord.Color.red()
+            )
+            await ctx.send(embed=embed)
+
+        else:
+            await ctx.send("Invalid action. Use `!antinuke setup` to set up or `!antinuke disable` to disable the system.")
+
+    else:
+        await ctx.send("You do not have permission to use this command.", delete_after=5)
+
+# Function to save the updated settings to the file
+def save_antinuke_settings():
+    with open('antinuke_settings.json', 'w') as file:
+        json.dump(antinuke_settings, file, indent=4)
 
 # Anti-Nuke Event Listeners
 # Protecting against bans
