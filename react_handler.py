@@ -28,16 +28,6 @@ def is_valid_emoji(emoji_str):
 async def handle_react_command(message):
     if not message.content.startswith("!react"):
         return
-
-    args = message.content.split()
-    if len(args) < 3:
-        embed = discord.Embed(
-            title="⚠️ Missing Emoji",
-            description="Please specify an emoji to react with. Example: `!react @user 😂`",
-            color=discord.Color.orange()
-        )
-        await message.channel.send(embed=embed)
-        return
         
     if message.author.id not in AUTHORIZED_USERS:
         embed = discord.Embed(
