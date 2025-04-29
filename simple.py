@@ -683,7 +683,7 @@ async def on_message(message):
     if message.content.startswith("!massdm"):
         await handle_massdm(message)
 
-    if message.content.lower().startswith("!reactlist"):
+    if message.content.lower().startswith("!react list"):
         await handle_reactlist_command(message)
         return
 
