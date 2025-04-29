@@ -38,6 +38,16 @@ async def handle_react_command(message):
         await message.channel.send(embed=embed)
         return
 
+    args = message.content.split()
+    if len(args) < 3:
+        embed = discord.Embed(
+            title="⚠️ Missing Emoji",
+            description="Please specify an emoji to react with. Example: `!react @user 😂`",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
+
     target = message.mentions[0]
     emoji = args[2]
 
