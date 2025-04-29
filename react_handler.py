@@ -1,5 +1,4 @@
 import emoji as emoji_lib  # pip install emoji
-
 import discord
 
 # Replace with your Discord User ID
@@ -41,7 +40,7 @@ async def handle_react_command(message):
     args = message.content.split()
     if len(args) < 3:
         embed = discord.Embed(
-            title="⚠️ Missing Emoji",
+            title="⚠️ Missing arguments",
             description="Please specify an emoji to react with. Example: `!react @user 😂`",
             color=discord.Color.orange()
         )
@@ -78,6 +77,9 @@ async def handle_react_command(message):
     await message.channel.send(embed=embed)
 
 async def handle_reactlist_command(message):
+    if not message.content.startswith("!react list"):
+        return
+        
     if message.author.id not in AUTHORIZED_USERS:
         embed = discord.Embed(
             title="⛔ Unauthorized",
