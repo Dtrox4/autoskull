@@ -5,7 +5,6 @@ import sys
 import json
 import platform
 import random
-import re
 import emoji as emoji_lib
 from collections import defaultdict
 from datetime import datetime, timedelta
