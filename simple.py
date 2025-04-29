@@ -666,6 +666,7 @@ async def on_message(message):
         return
 
     await handle_react_command(message)
+    await handle_reactlist_command(message)
     await auto_react_to_messages(message)
 
     await handle_diss(message) 
@@ -682,11 +683,7 @@ async def on_message(message):
 
     if message.content.startswith("!massdm"):
         await handle_massdm(message)
-
-    if message.content.lower().startswith("!react list"):
-        await handle_reactlist_command(message)
-        return
-
+        
     if message.content.lower().startswith("!stats"):
         await handle_stats(message, bot, start_time)
         return
