@@ -655,21 +655,6 @@ async def startspam(ctx, interval: int, *, spam_message: str):
     )
     await ctx.send(embed=embed)
 
-# Protecting against bot adds
-@bot.event
-async def on_member_join(member):
-    guild_id = str(member.guild.id)
-    if antinuke_settings.get(guild_id, {}).get("bot_protection") and member.bot:
-        await member.kick(reason="Anti-Nuke: Unauthorized bot joined.")
-        log_channel = discord.utils.get(member.guild.text_channels, name="antinuke-logs")
-        if log_channel:
-            embed = discord.Embed(
-                title="Nuke Detected",
-                description=f"A bot {member.mention} joined and was kicked.",
-                color=discord.Color.red()
-            )
-            await log_channel.send(embed=embed)
-
 @bot.event
 async def on_message(message):
     
