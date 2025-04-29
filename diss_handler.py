@@ -1,5 +1,7 @@
 import discord
 import random
+import re
+
 
 # List of roast responses based on trigger words
 roast_responses = {
@@ -39,7 +41,7 @@ roast_responses = {
     "nah": ["Whole attitude of a rejected SoundCloud rapper.", "Nah? Brain empty reply.", "Nah but you're still typing huh."],
     "bruh": ["Is that your whole vocabulary?", "Bruh moment? You're the moment.", "Bruh, touch grass."],
     "chill": ["You bring the energy of a broken air conditioner.", "Chill? You bring freezer vibes.", "Chill? You’re frostbite to talk to."],
-    "yo": ["No.", "Yo? Bye.", "Yo? Grow up."],
+    "yo": ["No.", "Bye.", "Grow up."],
     "gtfo": ["Temper tantrum detected.", "GTFO? You first.", "GTFO? Make me."],
     "stfu": ["Temper tantrum detected.", "STFU? Bro you started it.", "STFU? Rent free behavior."],
     "idiot": ["And you’re the president of this club, huh?", "Mirror must be wildin'.", "Takes one to know one."],
@@ -93,7 +95,7 @@ roast_responses = {
     "sorry": ["Sorry doesn’t fix the IQ deficit.","Awww, look who suddenly grew a conscience.","That’s cute. Still not forgiven."],
     "my fault": ["Finally, a moment of self-awareness.","We been knew.","You admitting it doesn't make it less embarrassing."],
     "i won't do it again": ["You said that the last 3 times, chief.","we'll see about that…","Promises from you mean less than Monopoly money."],
-    "please": ["Beg harder 💀","Say it with more tears.","Even your 'please' is weak."]
+    "please": ["Beg harder.","Say it with more tears.","Even your 'please' is weak."]
 }
 
 # Trigger words to look for in messages
@@ -110,10 +112,12 @@ async def handle_diss(message):
     # Check if the bot is mentioned
     if message.mentions and message.mentions[0] == message.guild.me:
         content = message.content.lower()
-        
-        # Check if the message contains any of the roast trigger words
+
+        # Use regex to split content into words, ignoring punctuation
+        words = re.findall(r'\b\w+\b', content)
+
         for word in trigger_words:
-            if word in content:
+            if word.lower() in words:  # Check if exact word is present
                 response = random.choice(roast_responses[word])
                 await message.reply(f"{response}")
                 break  # Stop checking once we find a match
