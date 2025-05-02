@@ -73,7 +73,7 @@ intents.dm_messages = True
 intents.voice_states = True
 
 # Initialize the bot
-bot = commands.Bot(command_prefix="!")
+bot = discordbot(command_prefix="!", intents=intents, help_command=None)
 
 # Define the help pages
 help_page_1 = (
@@ -179,8 +179,6 @@ class discordbot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_skull_list = set()
-
-bot = discordbot(command_prefix="!", intents=intents, help_command=None)
 
 # !authorized
 @bot.command()
