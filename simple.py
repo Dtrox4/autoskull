@@ -71,6 +71,7 @@ intents.members = True
 intents.dm_messages = True
 intents.voice_states = True
 
+user_skull_list = "skull_list.json"
 
 # Initialize bot
 class AutoSkullBot(commands.Bot):
@@ -1203,6 +1204,9 @@ async def on_message(message):
         await message.channel.send(embed=embed)
         return
 
+    if message.author.id in bot.user_skull_list:
+        await message.add_reaction("\u2620\ufe0f")
+
     # Ignore if it's a real command
     if message.content.startswith("!") and message.content[1:].split(" ")[0] in bot.all_commands:
         return
@@ -1331,9 +1335,6 @@ async def on_message(message):
         await response.delete()
 
     await bot.process_commands(message)
-
-    if message.author.id in bot.user_skull_list:
-        await message.add_reaction("\u2620\ufe0f")
 
     if message.content.startswith("!poll"):
         await handle_poll(message)
