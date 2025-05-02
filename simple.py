@@ -72,6 +72,12 @@ intents.members = True
 intents.dm_messages = True
 intents.voice_states = True
 
+# Initialize bot
+class discordbot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_skull_list = set()
+
 # Initialize the bot
 bot = discordbot(command_prefix="!", intents=intents, help_command=None)
 
@@ -173,12 +179,6 @@ async def help(ctx):
     # Send the first help page with the dropdown
     view = HelpView()
     await ctx.send(embed=embed, view=view)
-
-# Initialize bot
-class discordbot(commands.Bot):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_skull_list = set()
 
 # !authorized
 @bot.command()
