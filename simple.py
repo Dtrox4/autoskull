@@ -94,7 +94,7 @@ async def help(ctx):
 # !authorized
 @bot.command()
 async def authorized(ctx):
-    if ctx.author.id != AUTHORIZED_USERS:
+    if ctx.author.id != YOUR_USER_ID:
         embed = discord.Embed(
             description="❌️ You do not have permission to view the authorized users list.",
             color=discord.Color.red()
