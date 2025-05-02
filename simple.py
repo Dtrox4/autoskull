@@ -45,11 +45,9 @@ if not TOKEN:
 YOUR_USER_ID = 1212229549459374222
 
 # Authorized users
-AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318}
+AUTHORIZED_USERS = set(1212229549459374222, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318)
 
 OWNER_ID = 1212229549459374222
-
-GENTLE_USER_IDS = [845578292778238002, 1177672910102614127]
 
 # Define channels and optional messages
 WELCOME_CHANNELS = {
@@ -80,6 +78,93 @@ class discordbot(commands.Bot):
 
 # Initialize the bot
 bot = discordbot(command_prefix="!", intents=intents, help_command=None)
+
+# !help command
+@bot.command()
+async def help(ctx):
+    embed = discord.Embed(
+        title="Help commands",
+        description="⚠️ Use the dropdown below to view command help pages.",
+        color=discord.Color.green()
+    )
+    # Send the first help page with the dropdown
+    view = HelpView()
+    await ctx.send(embed=embed, view=view)
+
+# !authorized
+@bot.command()
+async def authorized(ctx):
+    if ctx.author.id != AUTHORIZED_USERS:
+        embed = discord.Embed(
+            description="❌️ You do not have permission to view the authorized users list.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    authorized_users = [f'<@{user_id}>' for user_id in AUTHORIZED_USERS]
+    embed = discord.Embed(
+        title="✅️ Authorized Users",
+        description="\n".join(authorized_users) if authorized_users else "⚠️ No users are authorized.",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+# !unauthorize <user>
+@bot.command()
+async def unauthorize(ctx, user: discord.User):
+    if ctx.author.id != YOUR_USER_ID:
+        embed = discord.Embed(
+            description="❌️ You do not have permission to use this command.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    if user.id == ctx.author.id:
+        embed = discord.Embed(
+            description="❌️ You cannot unauthorize yourself.",
+            color=discord.Color.red()
+        )
+    elif user.id in AUTHORIZED_USERS:
+        AUTHORIZED_USERS.remove(user.id)
+        embed = discord.Embed(
+            description=f"✅️ {user.mention} has been unauthorized.",
+            color=discord.Color.green()
+        )
+    else:
+        embed = discord.Embed(
+            description=f"‼️ {user.mention} is not in the authorized list.",
+            color=discord.Color.red()
+        )
+    
+    await ctx.send(embed=embed)
+
+# !authorize <user>
+@bot.command()
+async def authorize(ctx, user: discord.User):
+    if ctx.author.id != YOUR_USER_ID:  # Replace YOUR_USER_ID with your actual Discord user ID
+        embed = discord.Embed(
+            description="❌️ You do not have permission to use this command.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    if user.id not in AUTHORIZED_USERS:
+        AUTHORIZED_USERS.add(user.id)
+        embed = discord.Embed(
+            description=f"✅️ {user.mention} has been authorized to use the commands.",
+            color=discord.Color.green()
+        )
+    else:
+        embed = discord.Embed(
+            description=f"‼️ {user.mention} is already authorized.",
+            color=discord.Color.red()
+        )
+    
+    await ctx.send(embed=embed)
+
 
 # Define the help pages
 help_page_1 = (
@@ -167,100 +252,6 @@ class HelpView(View):
     def __init__(self):
         super().__init__(timeout=None)
         self.add_item(HelpSelect())
-        
-# Replace with your Discord User ID
-YOUR_USER_ID = 1212229549459374222
-
-# Authorized users
-AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1305007578857869403, 1147059630846005318}
-
-
-# !help command
-@bot.command()
-async def help(ctx):
-    embed = discord.Embed(
-        title="Help commands",
-        description="⚠️ Use the dropdown below to view command help pages.",
-        color=discord.Color.green()
-    )
-    # Send the first help page with the dropdown
-    view = HelpView()
-    await ctx.send(embed=embed, view=view)
-
-# !authorized
-@bot.command()
-async def authorized(ctx):
-    if ctx.author.id != AUTHORIZED_USERS:  # Replace YOUR_USER_ID with your actual Discord user ID
-        embed = discord.Embed(
-            description="❌️ You do not have permission to use this command.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    authorized_users = [f'<@{user_id}>' for user_id in AUTHORIZED_USERS]
-    embed = discord.Embed(
-        title="✅️ Authorized Users",
-        description="\n".join(authorized_users) if authorized_users else "⚠️ No users are authorized.",
-        color=discord.Color.green()
-    )
-    await ctx.send(embed=embed)
-
-# !unauthorize <user>
-@bot.command()
-async def unauthorize(ctx, user: discord.User):
-    if ctx.author.id != YOUR_USER_ID:  # Replace YOUR_USER_ID with your actual Discord user ID
-        embed = discord.Embed(
-            description="❌️ You do not have permission to use this command.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    if user.id == ctx.author.id:
-        embed = discord.Embed(
-            description="❌️ You cannot unauthorize yourself.",
-            color=discord.Color.red()
-        )
-    elif user.id in AUTHORIZED_USERS:
-        AUTHORIZED_USERS.remove(user.id)
-        embed = discord.Embed(
-            description=f"✅️ {user.mention} has been unauthorized.",
-            color=discord.Color.green()
-        )
-    else:
-        embed = discord.Embed(
-            description=f"‼️ {user.mention} is not in the authorized list.",
-            color=discord.Color.red()
-        )
-    
-    await ctx.send(embed=embed)
-
-# !authorize <user>
-@bot.command()
-async def authorize(ctx, user: discord.User):
-    if ctx.author.id != YOUR_USER_ID:  # Replace YOUR_USER_ID with your actual Discord user ID
-        embed = discord.Embed(
-            description="❌️ You do not have permission to use this command.",
-            color=discord.Color.red()
-        )
-        await ctx.send(embed=embed)
-        return
-
-    if user.id not in AUTHORIZED_USERS:
-        AUTHORIZED_USERS.add(user.id)
-        embed = discord.Embed(
-            description=f"✅️ {user.mention} has been authorized to use the commands.",
-            color=discord.Color.green()
-        )
-    else:
-        embed = discord.Embed(
-            description=f"‼️ {user.mention} is already authorized.",
-            color=discord.Color.red()
-        )
-    
-    await ctx.send(embed=embed)
-
 
 
 @bot.command()
