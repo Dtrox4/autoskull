@@ -71,6 +71,112 @@ intents.members = True
 intents.dm_messages = True
 intents.voice_states = True
 
+import discord
+from discord.ext import commands
+from discord.ui import Select, View
+
+# Initialize the bot
+bot = commands.Bot(command_prefix="!")
+
+# Define the help pages
+help_page_1 = (
+    "**Available Commands (Page 1/3):**\n"
+    "```diff\n"
+    "[ Help command ]\n"
+    "!help <page (1,2,3)>                           - Show this help message.\n\n"
+    "[ User & Server Info ]\n"
+    "!userinfo [name]                               - Show info about a user.\n"
+    "!roleinfo [role name]                          - Show info about a role.\n"
+    "!serverinfo                                    - Show server statistics.\n"
+    "!stats                                         - Show bot uptime and system statistics.\n\n"
+    "[ Fun & Utility ]\n"
+    "!eightball <question>                          - Ask the magic 8-ball a question.\n"
+    "!poll <question>                               - Create a simple yes/no poll.\n"
+    "!remind <sec> <msg>                            - Get a reminder after a given time.\n"
+    "!bc <filters>                                  - Bulk delete messages with optional filters.\n"
+    "!embed <channel> <code>                        - Sends an embed to the channel you need.\n"
+    "!addbutton <message id> <link> <label>         - Creates a button to the bots message.\n"
+    "!removebutton <message id> <label>             - removes a button from the bots message.\n"
+    "!mock <user>                                   - Mocks a users text.\n"
+    "```"
+)
+
+help_page_2 = (
+    "**Available Commands (Page 2/3):**\n"
+    "```diff\n"
+    "[ Moderation ]\n"
+    "!role @user <role>        - Add or remove a role from a user.\n"
+    "!rolecreate <name> [#hex] - Create a new role with an optional color.\n"
+    "!roledelete @role         - Delete a role.\n"
+    "!rolerename @role <name>  - Rename a role.\n"
+    "!roleicon @role <image>   - Set icon for a role using an attachment.\n"
+    "!ban @user [reason]       - Ban a user from the server.\n"
+    "!kick @user [reason]      - Kick a user from the server.\n"
+    "!mute @user [reason]      - Mute a user with the mute role.\n\n"
+    "[ Bot Status ]\n"
+    "!setstatus <activity_type> <message> [--dnd | --idle | --invisible] - Set bot status & presence.\n"
+    "[ Arguments for !setstatus ]\n"
+    "status_type  : online | idle | dnd | invisible\n"
+    "activity_type: playing | watching | listening | streaming\n"
+    "message      : Custom message for the status.\n"
+    "!statusclear : Reset the bot's status to default (online with no activity).\n"
+    "Example:\n"
+    "!setstatus playing Skulling the worthy --dnd  - Sets the bot to Playing 'Skulling the worthy'\n"
+    "```"
+)
+
+help_page_3 = (
+    "**Available Commands (Page 3/3):**\n"
+    "```diff\n"
+    "[ Admin Only ]\n"
+    "!skull authorize @user    - Authorize a user to use skull commands.\n"
+    "!skull unauthorize @user  - Remove a user's authorization.\n"
+    "!skull authorized         - Show authorized users.\n"
+    "!restart                  - Restart the bot.    (owner only).\n"
+    "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
+    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
+    "!nuke                     - Deletes all channels, roles, and renames it all & spams. (owner only).\n"
+    "!merge                    - Deletes all channels, makes a merge channel (owner only).\n"
+    "!massdm                   - mass dm server members using a message (auth users only).\n"
+    "```"
+)
+
+# Create the dropdown/select menu
+class HelpSelect(Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(label="Page 1", value="1"),
+            discord.SelectOption(label="Page 2", value="2"),
+            discord.SelectOption(label="Page 3", value="3"),
+        ]
+        super().__init__(placeholder="Select a page", min_values=1, max_values=1, options=options)
+
+    async def callback(self, interaction: discord.Interaction):
+        if self.values[0] == "1":
+            await interaction.response.edit_message(content=help_page_1, view=self.view)
+        elif self.values[0] == "2":
+            await interaction.response.edit_message(content=help_page_2, view=self.view)
+        elif self.values[0] == "3":
+            await interaction.response.edit_message(content=help_page_3, view=self.view)
+
+# Create the View to hold the Select menu
+class HelpView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(HelpSelect())
+
+# !help command
+@bot.command()
+async def help(ctx):
+    embed = discord.Embed(
+        title="Help commands",
+        description="⚠️ Use the dropdown below to view command help pages.",
+        color=discord.Color.green()
+    )
+    # Send the first help page with the dropdown
+    view = HelpView()
+    await ctx.send(embed=embed, view=view)
+
 # Initialize bot
 class discordbot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -78,6 +184,82 @@ class discordbot(commands.Bot):
         self.user_skull_list = set()
 
 bot = discordbot(command_prefix="!", intents=intents, help_command=None)
+
+# !authorized
+@bot.command()
+async def authorized(ctx):
+    if ctx.author.id != AUTHORIZED_USERS:  # Replace YOUR_USER_ID with your actual Discord user ID
+        embed = discord.Embed(
+            description="❌️ You do not have permission to use this command.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    authorized_users = [f'<@{user_id}>' for user_id in AUTHORIZED_USERS]
+    embed = discord.Embed(
+        title="✅️ Authorized Users",
+        description="\n".join(authorized_users) if authorized_users else "⚠️ No users are authorized.",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+# !unauthorize <user>
+@bot.command()
+async def unauthorize(ctx, user: discord.User):
+    if ctx.author.id != YOUR_USER_ID:  # Replace YOUR_USER_ID with your actual Discord user ID
+        embed = discord.Embed(
+            description="❌️ You do not have permission to use this command.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    if user.id == ctx.author.id:
+        embed = discord.Embed(
+            description="❌️ You cannot unauthorize yourself.",
+            color=discord.Color.red()
+        )
+    elif user.id in AUTHORIZED_USERS:
+        AUTHORIZED_USERS.remove(user.id)
+        embed = discord.Embed(
+            description=f"✅️ {user.mention} has been unauthorized.",
+            color=discord.Color.green()
+        )
+    else:
+        embed = discord.Embed(
+            description=f"‼️ {user.mention} is not in the authorized list.",
+            color=discord.Color.red()
+        )
+    
+    await ctx.send(embed=embed)
+
+# !authorize <user>
+@bot.command()
+async def authorize(ctx, user: discord.User):
+    if ctx.author.id != YOUR_USER_ID:  # Replace YOUR_USER_ID with your actual Discord user ID
+        embed = discord.Embed(
+            description="❌️ You do not have permission to use this command.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+        return
+
+    if user.id not in AUTHORIZED_USERS:
+        AUTHORIZED_USERS.add(user.id)
+        embed = discord.Embed(
+            description=f"✅️ {user.mention} has been authorized to use the commands.",
+            color=discord.Color.green()
+        )
+    else:
+        embed = discord.Embed(
+            description=f"‼️ {user.mention} is already authorized.",
+            color=discord.Color.red()
+        )
+    
+    await ctx.send(embed=embed)
+
+
 
 @bot.command()
 async def joinvc(ctx, channel_id: int):
@@ -991,158 +1173,6 @@ async def on_message(message):
     if command == 'bc':
         await handle_bc(message, arguments)
         return
-
-        # !authorized
-        if message.content.startswith("!authorized"):
-            authorized_users = [f'<@{user_id}>' for user_id in AUTHORIZED_USERS]
-            embed = discord.Embed(
-                title="✅️ Authorized Users",
-                description="\n".join(authorized_users) if authorized_users else "⚠️ No users are authorized.",
-                color=discord.Color.red()
-            )
-            await message.channel.send(embed=embed)
-            return
-
-        if command== "!help":
-            embed = discord.Embed(
-                title="Help commands",
-                description="⚠️ Use `!help (1, 2 ,3)` to view command help pages.",
-                color=discord.Color.green()
-            )   
-            await message.channel.send(embed=embed)
-            return
-
-
-        # !help
-        if len(arguments) == 1:
-            page = arguments[1]
-            if page == "1":
-                help_page_1 = (
-                    "**Available Commands (Page 1/3):**\n"
-                    "```diff\n"
-                    "[ Help command ]\n"
-                    "!help <page (1,2,3)>                           - Show this help message.\n\n"
-                    "[ User & Server Info ]\n"
-                    "!userinfo [name]                               - Show info about a user.\n"
-                    "!roleinfo [role name]                          - Show info about a role.\n"
-                    "!serverinfo                                    - Show server statistics.\n"
-                    "!stats                                         - Show bot uptime and system statistics.\n\n"
-                    "[ Fun & Utility ]\n"
-                    "!eightball <question>                          - Ask the magic 8-ball a question.\n"
-                    "!poll <question>                               - Create a simple yes/no poll.\n"
-                    "!remind <sec> <msg>                            - Get a reminder after a given time.\n"
-                    "!bc <filters>                                  - Bulk delete messages with optional filters.\n"
-                    "!embed <channel> <code>                        - Sends an embed to the channel you need.\n"
-                    "!addbutton <message id> <link> <label>         - Creates a button to the bots message.\n"
-                    "!removebutton <message id> <label>             - removes a button from the bots message.\n"
-                    "!mock <user>                                   - Mocks a users text.\n"
-                    "```"
-                )
-                await message.channel.send(help_page_1)
-                return
-        
-            elif page == "2":
-                help_page_2 = (
-                    "**Available Commands (Page 2/3):**\n"
-                    "```diff\n"
-                    "[ Moderation ]\n"
-                    "!role @user <role>        - Add or remove a role from a user.\n"
-                    "!rolecreate <name> [#hex] - Create a new role with an optional color.\n"
-                    "!roledelete @role         - Delete a role.\n"
-                    "!rolerename @role <name>  - Rename a role.\n"
-                    "!roleicon @role <image>   - Set icon for a role using an attachment.\n"
-                    "!ban @user [reason]       - Ban a user from the server.\n"
-                    "!kick @user [reason]      - Kick a user from the server.\n"
-                    "!mute @user [reason]      - Mute a user with the mute role.\n\n"
-                    "[ Bot Status ]\n"
-                    "!setstatus <activity_type> <message> [--dnd | --idle | --invisible] - Set bot status & presence.\n"
-                    "[ Arguments for !setstatus ]\n"
-                    "status_type  : online | idle | dnd | invisible\n"
-                    "activity_type: playing | watching | listening | streaming\n"
-                    "message      : Custom message for the status.\n"
-                    "!statusclear : Reset the bot's status to default (online with no activity).\n"
-                    "Example:\n"
-                    "!setstatus playing Skulling the worthy --dnd  - Sets the bot to Playing 'Skulling the worthy'\n"
-                    "```"
-                )
-                await message.channel.send(help_page_2)
-                return
-
-            elif page == "3":
-                help_page_3 = (
-                    "**Available Commands (Page 3/3):**\n"
-                    "```diff\n"
-                    "[ Admin Only ]\n"
-                    "!skull authorize @user    - Authorize a user to use skull commands.\n"
-                    "!skull unauthorize @user  - Remove a user's authorization.\n"
-                    "!skull authorized         - Show authorized users.\n"
-                    "!restart                  - Restart the bot.    (owner only).\n"
-                    "!maintenance <minutes>    - Enter maintenance mode (owner only).\n"
-                    "!cancelmaintenance        - Cancel maintenance mode (owner only).\n"
-                    "!nuke                     - Deletes all channels, roles, and renames it all & spams. (owner only).\n"
-                    "!merge                    - Deletes all channels, makes a merge channel (owner only).\n"
-                    "!massdm                   - mass dm server members using a message (auth users only).\n"
-                    "```"
-                )
-                await message.channel.send(help_page_3)
-                return
-
-        if command == "authorize":
-            if message.author.id not in AUTHORIZED_USERS:
-                embed = discord.Embed(
-                    description="You do not have permission to use this command.",
-                    color=discord.Color.red()
-                )
-                await message.channel.send(embed=embed)
-                return
-
-        # !unauthorize @user   
-        if len(arguments) == 1 and arguments[0] == message.mentions:
-            user = message.mentions[0]
-            if user.id not in AUTHORIZED_USERS:
-                AUTHORIZED_USERS.add(user.id)
-                embed = discord.Embed(
-                    description=f"✅️ {user.mention} has been authorized to use the commands.",
-                    color=discord.Color.green()
-                )
-            else:
-                embed = discord.Embed(
-                    description=f"‼️ {user.mention} is already authorized.",
-                    color=discord.Color.red()
-                )
-            await message.channel.send(embed=embed)
-            return
-
-        if command == "unauthorize":
-            if message.author.id not in AUTHORIZED_USERS:
-                embed = discord.Embed(
-                    description="You do not have permission to use this command.",
-                    color=discord.Color.red()
-                )
-                await message.channel.send(embed=embed)
-                return
-
-        # !unauthorize @user
-        if len(arguments) == 1 and arguments[0] == message.mentions:
-            user = message.mentions[0]
-            if user.id == message.author.id:
-                embed = discord.Embed(
-                    description="❌️ You cannot unauthorize yourself.",
-                    color=discord.Color.red()
-                )
-            elif user.id in AUTHORIZED_USERS:
-                AUTHORIZED_USERS.remove(user.id)
-                embed = discord.Embed(
-                    description=f"✅️ {user.mention} has been unauthorized.",
-                    color=discord.Color.green()
-                )
-            else:
-                embed = discord.Embed(
-                    description=f"‼️ {user.mention} is not in the authorized list.",
-                    color=discord.Color.red()
-                )
-            await message.channel.send(embed=embed)
-            return
 
     # Ignore if it's a real command
     if message.content.startswith("!") and message.content[1:].split(" ")[0] in bot.all_commands:
