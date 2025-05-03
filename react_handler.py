@@ -85,7 +85,7 @@ async def handle_react_command(message):
     await message.channel.send(embed=embed)
 
 async def handle_reactlist_command(message):
-    if message.content.startswith("!react list"):
+    if message.content == "!react list":
         if message.author.id not in AUTHORIZED_USERS:
             embed = discord.Embed(
                 title="⛔ Unauthorized",
