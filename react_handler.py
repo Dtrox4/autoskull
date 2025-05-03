@@ -27,7 +27,10 @@ def is_valid_emoji(emoji_str):
 async def handle_react_command(message):
     if not message.content.startswith("!react"):
         return
-        
+
+    if message.content.strip() == "!react list":
+        return  # Let `handle_reactlist_command` handle it separately
+
     if message.author.id not in AUTHORIZED_USERS:
         embed = discord.Embed(
             title="⛔ Unauthorized",
@@ -38,11 +41,11 @@ async def handle_react_command(message):
         return
 
     args = message.content.split()
-    if len(args) < 3:
+    if len(args) < 3 or not message.mentions:
         embed = discord.Embed(
             title="⚠️ Missing Arguments",
             description=(
-                "Please specify an emoji to react with.\n"
+                "Please specify a user and emoji to react with.\n"
                 "Example:\n"
                 "```!react @user ☠️```"
             ),
