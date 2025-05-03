@@ -40,9 +40,12 @@ async def handle_react_command(message):
     args = message.content.split()
     if len(args) < 3:
         embed = discord.Embed(
-            title="⚠️ Missing arguments",
-            description="Please specify an emoji to react with.", 
-                        "Example: `!react @user ☠️`",
+            title="⚠️ Missing Arguments",
+            description=(
+                "Please specify an emoji to react with.\n"
+                "Example:\n"
+                "```!react @user ☠️```"
+            ),
             color=discord.Color.orange()
         )
         await message.channel.send(embed=embed)
@@ -53,9 +56,12 @@ async def handle_react_command(message):
 
     if not is_valid_emoji(emoji):
         embed = discord.Embed(
-            title="❌ Invalid Emoji",
-            description="Please enter a valid emoji only.", 
-                        "Example: `!react @user ☠️`",
+            title="❌ Invalid emoji",
+            description=(
+                "Please specify a valid emoji to react with.\n"
+                "Example:\n"
+                "```!react @user ☠️```"
+            ),
             color=discord.Color.red()
         )
         await message.channel.send(embed=embed)
