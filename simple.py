@@ -963,10 +963,6 @@ async def on_message(message):
         else:
             await handle_react_command(message)
 
-    await handle_react_command(message)
-    await handle_reactlist_command(message)
-    await auto_react_to_messages(message)
-
     await handle_diss(message) 
     await handle_servers_command(message, bot)
 
