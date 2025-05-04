@@ -45,7 +45,7 @@ if not TOKEN:
 YOUR_USER_ID = 1212229549459374222
 
 # Authorized users
-AUTHORIZED_USERS = set()
+AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
 
 OWNER_ID = 1212229549459374222
 
@@ -105,7 +105,7 @@ async def authorized(ctx):
     authorized_users = [f'<@{user_id}>' for user_id in AUTHORIZED_USERS]
     embed = discord.Embed(
         title="✅️ Authorized Users",
-        description="\n".join(authorized_users) if authorized_users else "⚠️ No users are authorized.",
+        description="\n".join(AUTHORIZED_USERS) if AUTHORIZED_USERS else "⚠️ No users are authorized.",
         color=discord.Color.green()
     )
     await ctx.send(embed=embed)
@@ -171,7 +171,7 @@ help_page_1 = (
     "**Available Commands (Page 1/3):**\n"
     "```diff\n"
     "[ Help command ]\n"
-    "!help <page (1,2,3)>                           - Show this help message.\n\n"
+    "!help                                          - Show this help message.\n\n"
     "[ User & Server Info ]\n"
     "!userinfo [name]                               - Show info about a user.\n"
     "!roleinfo [role name]                          - Show info about a role.\n"
