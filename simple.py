@@ -8,11 +8,11 @@ import random
 import emoji as emoji_lib
 from collections import defaultdict
 from datetime import datetime, timedelta
-from diss_handler import handle_diss 
-from mass_dm import handle_massdm
+from diss_handler import handle_diss
 import time
 import embed_command
 import help_command
+from functools import wraps
 from discord.ui import Select, View
 from interval_spam import start_spam_manual, stop_spam_manual
 from button_handler import add_button, remove_button
@@ -44,10 +44,19 @@ if not TOKEN:
 YOUR_USER_ID = 1212229549459374222
 
 # Authorized users
-AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127}
+AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 1255299171519561792, 1238152637959110679, 1088004084084256839}
 
 OWNER_ID = 1212229549459374222
 
+AUTHORIZED_GUILDS_FILE = "authorized_guilds.json"
+
+# Load or initialize authorized guilds
+if os.path.exists(authorized_guilds):
+    with open(authorized_guilds, "r") as f:
+        AUTHORIZED_GUILDS = set(json.load(f))
+else:
+    AUTHORIZED_GUILDS = set()
+    
 # Define channels and optional messages
 WELCOME_CHANNELS = {
     1359328373356363987: None,
@@ -77,6 +86,35 @@ class discordbot(commands.Bot):
 
 # Initialize the bot
 bot = discordbot(command_prefix="!", intents=intents, help_command=None)
+
+def requires_auth(bot):  # `bot` should be your bot/client instance
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(message, *args, **kwargs):
+            user_id = message.author.id
+            guild_id = message.guild.id if message.guild else None
+
+            if user_id not in AUTHORIZED_USERS:
+                embed = discord.Embed(
+                    title="⛔ Unauthorized",
+                    description="You are not allowed to use this command.",
+                    color=discord.Color.red()
+                )
+                await message.channel.send(embed=embed)
+                return
+
+            if guild_id not in AUTHORIZED_GUILDS:
+                embed = discord.Embed(
+                    title="⛔ Guild Not Authorized",
+                    description="This server is not authorized to use this command.",
+                    color=discord.Color.red()
+                )
+                await message.channel.send(embed=embed)
+                return
+
+            await func(message, *args, **kwargs)
+        return wrapper
+    return decorator
 
 # !help command
 @bot.command()
@@ -314,10 +352,171 @@ async def on_member_join(member):
                 content = f"{member.mention}"
             await channel.send(content, delete_after=30)
 
+async def handle_guild_authorize(message):
+    if not message.content.startswith("!gauth"):
+        return
+
+    if message.author.id not in AUTHORIZED_USERS:
+        embed = discord.Embed(
+            title="⛔ Unauthorized",
+            description="Only bot owners can authorize guilds.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    args = message.content.split()
+    if len(args) != 2:
+        embed = discord.Embed(
+            title="⚠️ Invalid Usage",
+            description="Usage:\n```!gauth <guild_id>```",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    try:
+        guild_id = int(args[1])
+    except ValueError:
+        embed = discord.Embed(
+            title="❌ Invalid Guild ID",
+            description="The Guild ID must be a number.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    if guild_id in AUTHORIZED_GUILDS:
+        embed = discord.Embed(
+            title="ℹ️ Already Authorized",
+            description=f"Guild ID `{guild_id}` is already authorized.",
+            color=discord.Color.blurple()
+        )
+    else:
+        AUTHORIZED_GUILDS.add(guild_id)
+        with open(AUTHORIZED_GUILDS_FILE, "w") as f:
+            json.dump(list(AUTHORIZED_GUILDS), f)
+
+        embed = discord.Embed(
+            title="✅ Guild Authorized",
+            description=f"Guild ID `{guild_id}` has been added to the authorized list.",
+            color=discord.Color.green()
+        )
+
+    await message.channel.send(embed=embed)
+
+async def handle_guild_unauthorize(message):
+    if not message.content.startswith("!gunauth"):
+        return
+
+    if message.author.id not in AUTHORIZED_USERS:
+        embed = discord.Embed(
+            title="⛔ Unauthorized",
+            description="Only bot owners can unauthorize guilds.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    args = message.content.split()
+    if len(args) != 2:
+        embed = discord.Embed(
+            title="⚠️ Invalid Usage",
+            description="Usage:\n```!gunauth <guild_id>```",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    try:
+        guild_id = int(args[1])
+    except ValueError:
+        embed = discord.Embed(
+            title="❌ Invalid Guild ID",
+            description="The Guild ID must be a number.",
+            color=discord.Color.red()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    if guild_id not in AUTHORIZED_GUILDS:
+        embed = discord.Embed(
+            title="ℹ️ Not Authorized",
+            description=f"Guild ID `{guild_id}` is not in the authorized list.",
+            color=discord.Color.blurple()
+        )
+    else:
+        AUTHORIZED_GUILDS.remove(guild_id)
+        with open(AUTHORIZED_GUILDS_FILE, "w") as f:
+            json.dump(list(AUTHORIZED_GUILDS), f)
+
+        embed = discord.Embed(
+            title="✅ Guild Unauthorized",
+            description=f"Guild ID `{guild_id}` has been removed from the authorized list.",
+            color=discord.Color.green()
+        )
+
+    await message.channel.send(embed=embed)
+
+
+massdm_cooldowns = {}  # user_id : last_used_time
+
+@requires_auth(bot)
+async def handle_massdm(message):
+    user_id = message.author.id
+
+    # Cooldown check
+    now = time.time()
+    last_used = massdm_cooldowns.get(user_id, 0)
+    cooldown = 600  # seconds
+
+    if now - last_used < cooldown:
+        remaining = int(cooldown - (now - last_used))
+        embed = discord.Embed(
+            description=f"⏳ You must wait `{remaining}s` before using this command again.",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    try:
+        await message.delete()
+    except discord.Forbidden:
+        pass
+
+    content = message.content.strip()
+    command_prefix = "!massdm"
+    dm_content = content[len(command_prefix):].strip()
+
+    if not dm_content:
+        embed = discord.Embed(
+            description="⚠️ You must provide a message to DM.\n**Usage:** `!massdm <message>`",
+            color=discord.Color.orange()
+        )
+        await message.channel.send(embed=embed)
+        return
+
+    sent = 0
+    failed = 0
+    for member in message.guild.members:
+        if member.bot:
+            continue
+        try:
+            await member.send(dm_content)
+            sent += 1
+        except Exception:
+            failed += 1
+
+    massdm_cooldowns[user_id] = now  # Set cooldown
+
+    result = f"✅ DMed {sent} member(s).\n❌ Failed to DM {failed} member(s)."
+    await message.channel.send(result)
+
 # Dictionary to store users and their assigned emoji for auto-reacting
 auto_react_users = {}  # <-- Make sure this is declared at the top
 
 # Then define your functions below
+@requires_auth(bot)
 async def auto_react_to_messages(message):
     emoji = auto_react_users.get(message.author.id)
     if emoji:
@@ -337,16 +536,7 @@ async def handle_react_command(message):
 
     if message.content.strip() == "!react list":
         return  # Let `handle_reactlist_command` handle it separately
-
-    if message.author.id not in AUTHORIZED_USERS:
-        embed = discord.Embed(
-            title="⛔ Unauthorized",
-            description="You are not allowed to use this command.",
-            color=discord.Color.red()
-        )
-        await message.channel.send(embed=embed)
-        return
-
+#
     args = message.content.split()
     if len(args) < 3 or not message.mentions:
         embed = discord.Embed(
@@ -394,6 +584,7 @@ async def handle_react_command(message):
 
     await message.channel.send(embed=embed)
 
+@requires_auth(bot)
 async def handle_reactlist_command(message):
     if message.content == "!react list":
         if message.author.id not in AUTHORIZED_USERS:
@@ -427,6 +618,7 @@ async def handle_reactlist_command(message):
             )
     
         await message.channel.send(embed=embed)
+
 
 async def handle_say(message):
     if message.author.id not in AUTHORIZED_USERS:
@@ -952,6 +1144,10 @@ async def on_message(message):
 
     if message.author == bot.user:
         return
+
+    #guild authorization
+    await handle_guild_authorize(message)
+    await handle_guild_unauthorize(message)
 
     # Apply auto-reaction if user is in auto_react_users
     await auto_react_to_messages(message)
