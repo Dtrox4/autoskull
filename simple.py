@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 from diss_handler import handle_diss
 import time
 import embed_command
-import help_command
 from functools import wraps
 from discord.ui import Select, View
 from interval_spam import start_spam_manual, stop_spam_manual
