@@ -332,9 +332,6 @@ async def handle_react_command(message, bot):
     if not message.content.startswith("!react"):
         return
 
-    if message.content.strip() == "!react list":
-        return  # handled elsewhere
-
     if message.author.id not in AUTHORIZED_USERS:
         embed = discord.Embed(
             title="⛔ Unauthorized",
@@ -345,6 +342,25 @@ async def handle_react_command(message, bot):
         return
 
     args = message.content.split()
+    if message.content.strip() == "!react list":
+        if not auto_react_users:
+            embed = discord.Embed(
+                title="📭 No Auto-Reacts Set",
+                description="There are no users currently set to auto-react.",
+                color=discord.Color.orange()
+            )
+        else:
+            description = "\n".join(
+                f"<@{uid}> → {emoji}" for uid, emoji in auto_react_users.items()
+            )
+            embed = discord.Embed(
+                title="📋 Auto-React List",
+                description=description,
+                color=discord.Color.blue()
+            )
+        await message.channel.send(embed=embed)
+        return
+
     if len(args) < 3 or not message.mentions:
         embed = discord.Embed(
             title="⚠️ Missing Arguments",
@@ -382,41 +398,6 @@ async def handle_react_command(message, bot):
         )
 
     await message.channel.send(embed=embed)
-
-
-async def handle_reactlist_command(message):
-    if message.content == "!react list":
-        if message.author.id not in AUTHORIZED_USERS:
-            embed = discord.Embed(
-                title="⛔ Unauthorized",
-                description="You are not allowed to use this command.",
-                color=discord.Color.red()
-            )
-            await message.channel.send(embed=embed)
-            return
-    
-        if not auto_react_users:
-            embed = discord.Embed(
-                title="ℹ️ Auto-Reaction List",
-                description="No users are currently set for auto-reaction.",
-                color=discord.Color.blue()
-            )
-        else:
-            description = ""
-            for user_id, emoji in auto_react_users.items():
-                user = message.guild.get_member(user_id)
-                if user:
-                    description += f"{user.mention} — {emoji}\n"
-                else:
-                    description += f"<@{user_id}> — {emoji}\n"
-    
-            embed = discord.Embed(
-                title="📋 Auto-Reaction List",
-                description=description,
-                color=discord.Color.green()
-            )
-    
-        await message.channel.send(embed=embed)
 
 async def handle_say(message):
     if message.author.id not in AUTHORIZED_USERS:
@@ -944,14 +925,9 @@ async def on_message(message):
         return
 
     # Apply auto-reaction if user is in auto_react_users
-    await auto_react_to_messages(message)
-
+    await auto_react_to_messages(message, bot)
     # React command handling
-    if message.content.startswith("!react"):
-        if message.content.strip() == "!react list":
-            await handle_reactlist_command(message)
-        else:
-            await handle_react_command(message)
+    await handle_react_command(message, bot)
 
     await handle_diss(message) 
     await handle_servers_command(message, bot)
