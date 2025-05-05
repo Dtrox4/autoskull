@@ -6,6 +6,7 @@ import json
 import platform
 import random
 import emoji as emoji_lib
+from discord.utils import get
 from collections import defaultdict
 from datetime import datetime, timedelta
 from diss_handler import handle_diss 
@@ -294,29 +295,45 @@ def keep_alive():
 
 keep_alive()
 
-# Dictionary to store users and their assigned emoji for auto-reacting
-auto_react_users = {}  # <-- Make sure this is declared at the top
+# In-memory dictionary for user-specific emoji reactions
+auto_react_users = {}
 
-# Then define your functions below
-async def auto_react_to_messages(message):
+# Helper: Validate emoji
+def is_valid_emoji(emoji_str, bot):
+    if emoji_lib.is_emoji(emoji_str):
+        return True
+    if emoji_str.startswith("<") and emoji_str.endswith(">"):
+        try:
+            emoji_id = int(emoji_str.split(":")[-1].replace(">", ""))
+            return get(bot.emojis, id=emoji_id) is not None
+        except:
+            return False
+    return False
+
+# Auto-reaction logic
+async def auto_react_to_messages(message, bot):
     emoji = auto_react_users.get(message.author.id)
     if emoji:
         try:
+            # Convert emoji string to Emoji object if it's custom
+            if emoji.startswith("<") and emoji.endswith(">"):
+                emoji_id = int(emoji.split(":")[-1].replace(">", ""))
+                emoji_obj = get(bot.emojis, id=emoji_id)
+                if emoji_obj:
+                    await message.add_reaction(emoji_obj)
+                return
+            # Else assume it's Unicode
             await message.add_reaction(emoji)
         except discord.HTTPException:
-            pass
+            pass  # Fail silently
 
-def is_valid_emoji(emoji_str):
-    return emoji_lib.is_emoji(emoji_str) or (
-        emoji_str.startswith("<:") and emoji_str.endswith(">")
-    )
-
-async def handle_react_command(message):
+# Main command handler
+async def handle_react_command(message, bot):
     if not message.content.startswith("!react"):
         return
 
     if message.content.strip() == "!react list":
-        return  # Let `handle_reactlist_command` handle it separately
+        return  # handled elsewhere
 
     if message.author.id not in AUTHORIZED_USERS:
         embed = discord.Embed(
@@ -331,11 +348,7 @@ async def handle_react_command(message):
     if len(args) < 3 or not message.mentions:
         embed = discord.Embed(
             title="⚠️ Missing Arguments",
-            description=(
-                "Please specify a user and emoji to react with.\n"
-                "Example:\n"
-                "```!react @user ☠️```"
-            ),
+            description="Please mention a user and provide an emoji.\n```!react @user 😈```",
             color=discord.Color.orange()
         )
         await message.channel.send(embed=embed)
@@ -344,14 +357,10 @@ async def handle_react_command(message):
     target = message.mentions[0]
     emoji = args[2]
 
-    if not is_valid_emoji(emoji):
+    if not is_valid_emoji(emoji, bot):
         embed = discord.Embed(
-            title="❌ Invalid emoji",
-            description=(
-                "Please specify a valid emoji to react with.\n"
-                "Example:\n"
-                "```!react @user ☠️```"
-            ),
+            title="❌ Invalid Emoji",
+            description="Please provide a valid emoji (Unicode or custom server emoji).\n```!react @user 😈```",
             color=discord.Color.red()
         )
         await message.channel.send(embed=embed)
@@ -361,7 +370,7 @@ async def handle_react_command(message):
         del auto_react_users[target.id]
         embed = discord.Embed(
             title="❌ Auto-React Disabled",
-            description=f"Auto-reactions disabled for {target.mention}.",
+            description=f"Removed auto-reactions for {target.mention}.",
             color=discord.Color.red()
         )
     else:
@@ -373,6 +382,7 @@ async def handle_react_command(message):
         )
 
     await message.channel.send(embed=embed)
+
 
 async def handle_reactlist_command(message):
     if message.content == "!react list":
