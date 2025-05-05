@@ -104,7 +104,7 @@ async def authorized(ctx):
     authorized_users = [f'<@{user_id}>' for user_id in AUTHORIZED_USERS]
     embed = discord.Embed(
         title="✅️ Authorized Users",
-        description="\n".join(AUTHORIZED_USERS) if AUTHORIZED_USERS else "⚠️ No users are authorized.",
+        description="\n".join(authorized_users) if authorized_users else "⚠️ No users are authorized.",
         color=discord.Color.green()
     )
     await ctx.send(embed=embed)
