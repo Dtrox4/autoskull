@@ -50,8 +50,8 @@ OWNER_ID = 1212229549459374222
 AUTHORIZED_GUILDS_FILE = "authorized_guilds.json"
 
 # Load or initialize authorized guilds
-if os.path.exists(authorized_guilds):
-    with open(authorized_guilds, "r") as f:
+if os.path.exists(AUTHORIZED_GUILDS_FILE):
+    with open(AUTHORIZED_GUILDS_FILE, "r") as f:
         AUTHORIZED_GUILDS = set(json.load(f))
 else:
     AUTHORIZED_GUILDS = set()
