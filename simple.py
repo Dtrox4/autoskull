@@ -47,14 +47,6 @@ AUTHORIZED_USERS = {YOUR_USER_ID, 845578292778238002, 1177672910102614127, 12552
 
 OWNER_ID = 1212229549459374222
 
-# Define channels and optional messages
-WELCOME_CHANNELS = {
-    1359328373356363987: None,
-    1360104912939257978: None,
-    1366327489122668644: None,
-    1359319883988336924: "welc! rep **/mock** 4 pic, bst for roles!"  # Add a custom message here
-}
-
 global MAINTENANCE_MODE, MAINTENANCE_END_TIME, MAINTENANCE_CANCELLED
 MAINTENANCE_MODE = False
 MAINTENANCE_END_TIME = None
@@ -301,17 +293,6 @@ def keep_alive():
     t.start()
 
 keep_alive()
-
-@bot.event
-async def on_member_join(member):
-    for channel_id, custom_message in WELCOME_CHANNELS.items():
-        channel = member.guild.get_channel(channel_id)
-        if channel:
-            if custom_message:
-                content = f"{member.mention} {custom_message}"
-            else:
-                content = f"{member.mention}"
-            await channel.send(content, delete_after=30)
 
 # Dictionary to store users and their assigned emoji for auto-reacting
 auto_react_users = {}  # <-- Make sure this is declared at the top
