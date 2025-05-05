@@ -50,8 +50,8 @@ OWNER_ID = 1212229549459374222
 AUTHORIZED_GUILDS_FILE = "authorized_guilds.json"
 
 # Load or initialize authorized guilds
-if os.path.exists(AUTHORIZED_GUILDS_FILE):
-    with open(AUTHORIZED_GUILDS_FILE, "r") as f:
+if os.path.exists(authorized_guilds):
+    with open(authorized_guilds, "r") as f:
         AUTHORIZED_GUILDS = set(json.load(f))
 else:
     AUTHORIZED_GUILDS = set()
@@ -85,35 +85,6 @@ class discordbot(commands.Bot):
 
 # Initialize the bot
 bot = discordbot(command_prefix="!", intents=intents, help_command=None)
-
-def requires_auth(bot):  # `bot` should be your bot/client instance
-    def decorator(func):
-        @wraps(func)
-        async def wrapper(message, *args, **kwargs):
-            user_id = message.author.id
-            guild_id = message.guild.id if message.guild else None
-
-            if user_id not in AUTHORIZED_USERS:
-                embed = discord.Embed(
-                    title="⛔ Unauthorized",
-                    description="You are not allowed to use this command.",
-                    color=discord.Color.red()
-                )
-                await message.channel.send(embed=embed)
-                return
-
-            if guild_id not in AUTHORIZED_GUILDS:
-                embed = discord.Embed(
-                    title="⛔ Guild Not Authorized",
-                    description="This server is not authorized to use this command.",
-                    color=discord.Color.red()
-                )
-                await message.channel.send(embed=embed)
-                return
-
-            await func(message, *args, **kwargs)
-        return wrapper
-    return decorator
 
 # !help command
 @bot.command()
@@ -459,8 +430,6 @@ async def handle_guild_unauthorize(message):
 
 
 massdm_cooldowns = {}  # user_id : last_used_time
-
-@requires_auth(bot)
 async def handle_massdm(message):
     user_id = message.author.id
 
@@ -468,6 +437,24 @@ async def handle_massdm(message):
     now = time.time()
     last_used = massdm_cooldowns.get(user_id, 0)
     cooldown = 600  # seconds
+
+    if message.author.id not in AUTHORIZED_USERS:
+                embed = discord.Embed(
+                    title="⛔ Unauthorized",
+                    description="You are not allowed to use this command.",
+                    color=discord.Color.red()
+                )
+                await message.channel.send(embed=embed)
+                return
+
+    if message.guild and message.guild.id not in AUTHORIZED_GUILDS:
+                embed = discord.Embed(
+                    title="⛔ Guild Not Authorized",
+                    description="This command can't be used in this server.",
+                    color=discord.Color.red()
+                )
+                await message.channel.send(embed=embed)
+                return
 
     if now - last_used < cooldown:
         remaining = int(cooldown - (now - last_used))
@@ -515,7 +502,6 @@ async def handle_massdm(message):
 auto_react_users = {}  # <-- Make sure this is declared at the top
 
 # Then define your functions below
-@requires_auth(bot)
 async def auto_react_to_messages(message):
     emoji = auto_react_users.get(message.author.id)
     if emoji:
@@ -583,7 +569,6 @@ async def handle_react_command(message):
 
     await message.channel.send(embed=embed)
 
-@requires_auth(bot)
 async def handle_reactlist_command(message):
     if message.content == "!react list":
         if message.author.id not in AUTHORIZED_USERS:
