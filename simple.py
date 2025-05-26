@@ -265,6 +265,45 @@ async def leavevc(ctx):
     else:
         await ctx.send("I am not in a voice channel!")
 
+# Store last deleted message per channel
+sniped_messages = {}
+
+@bot.event
+async def on_message_delete(message):
+    if message.author.bot:
+        return
+    sniped_messages[message.channel.id] = {
+        "content": message.content,
+        "author": message.author,
+        "time": message.created_at
+    }
+
+@bot.command()
+@commands.cooldown(1, 5, commands.BucketType.user)  # 1 use every 5 seconds per user
+async def snipe(ctx):
+    data = sniped_messages.get(ctx.channel.id)
+    if data is None:
+        await ctx.send("There's nothing to snipe.")
+    else:
+        embed = discord.Embed(
+            description=data["content"],
+            color=discord.Color.orange(),
+            timestamp=data["time"]
+        )
+        embed.set_author(name=str(data['author']), icon_url=data['author'].avatar.url if data['author'].avatar else None)
+        embed.set_footer(text="Sniped message")
+        await ctx.send(embed=embed)
+
+@snipe.error
+async def snipe_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        embed = discord.Embed(
+            title="You're too fast!",
+            description=f"Try again in `{error.retry_after:.1f}` seconds.",
+            color=discord.Color.red()
+        )
+        await ctx.send(embed=embed)
+
 # Keep-alive server using Flask
 app = Flask(__name__)
 @app.route('/joinvc', methods=['POST'])
